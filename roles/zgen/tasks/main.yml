@@ -13,15 +13,6 @@
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
   tags: zgen_install
 
-- name: create zgen init file
-  template:
-    src: install_zgen.j2
-    dest: "{{ zgen_zshrc_path }}/install_zgen.zsh"
-    owner: "{{ zgen_user }}"
-    group: "{{ zgen_group }}"
-    mode: "755"
-  tags: zgen
-
 - name: set users default shell to zsh
   user:
     name: '{{username}}'
