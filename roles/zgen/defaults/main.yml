@@ -1,0 +1,4 @@
+zgen_user: '{{username}}'
+zgen_zshrc_path: "/home/{{ zgen_user }}/.zgen"
+zgen_group: "{{ zgen_user }}"
+zsh_shell_path: "/usr/bin/zsh"
