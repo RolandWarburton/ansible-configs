@@ -1,0 +1,7 @@
+- hosts: localhost
+  connection: local
+  become: true
+  roles:
+    - ./roles/setup
+    - ./roles/neovim
+    - ./roles/zgen
