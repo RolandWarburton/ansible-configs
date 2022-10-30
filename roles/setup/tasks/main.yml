@@ -1,12 +1,3 @@
-# - name: configure user as a sudoer
-#   copy:
-#     src: '{{username}}.sudoer'
-#     dest: '/etc/sudoers.d/{{username}}.sudoer'
-#     owner: root
-#     group: root
-#     mode: 0440
-#     validate: 'bash -c "cat /etc/sudoers % | visudo -cf-"'
-
 - name: ensure locale is set to {{ config_system_locale }}
   import_tasks: locale.yml
 
@@ -14,6 +5,7 @@
   apt: 
     update_cache: yes
     pkg:
+      - git
       - ssh
       - sudo
       - curl
