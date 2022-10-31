@@ -54,3 +54,18 @@
     cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gofmt@latest"'
     creates: /home/{{username}}/.local/go/bin/gofmt
   when: gofmt_command_check.rc != 0
+
+# golangci-lint
+- name: copy install golangci-lint script
+  copy:
+    src: ./install-golangci-lint.zsh
+    dest: /home/{{username}}/.local/bin
+    owner: '{{username}}'
+    group: '{{username}}'
+    mode: 0755
+
+- name: install golangci-lint
+  become_user: '{{username}}'
+  shell:
+    cmd: /home/{{username}}/.local/bin/install-golangci-lint.zsh
+    creates: /home/{{username}}/.local/go/bin/golangci-lint
