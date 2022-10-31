@@ -1,0 +1,56 @@
+- name: check go is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  register: go_command_check
+  changed_when: false
+  failed_when: false
+
+- name: remove old go install
+  become_user: '{{username}}'
+  file:
+    path: /home/{{username}}/.local/go
+    state: absent
+  when: go_command_check.rc != 0
+
+- name: download and untar go binary
+  become_user: '{{username}}'
+  unarchive:
+    src: https://go.dev/dl/go1.19.2.linux-amd64.tar.gz
+    dest: /home/{{username}}/.local
+    remote_src: yes
+    creates: /home/{{username}}/.local/go/bin/go
+
+- name: check go is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  register: go_command_check
+  changed_when: false
+  failed_when: go_command_check.rc != 0
+
+# gopls
+- name: check gopls is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  register: gopls_command_check
+  changed_when: false
+  failed_when: false
+
+- name: install gopls
+  shell:
+    cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gopls@latest"'
+    creates: /home/{{username}}/.local/go/bin/gopls
+  when: gopls_command_check.rc != 0
+  
+- name: check gofmt is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  register: gofmt_command_check
+  changed_when: false
+  failed_when: false
+
+# gofmt
+- name: install gofmt
+  shell:
+    cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gofmt@latest"'
+    creates: /home/{{username}}/.local/go/bin/gofmt
+  when: gofmt_command_check.rc != 0
