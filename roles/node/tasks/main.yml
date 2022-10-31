@@ -1,0 +1,29 @@
+- name: check nvm is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v nvm"'
+  register: nvim_command_check
+  changed_when: false
+  failed_when: false
+
+- name: install nvm
+  become_user: '{{username}}'
+  shell: >
+    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{nvm_version}}/install.sh | bash
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh" # When this exists, this step will not be run
+  when: nvim_command_check.rc != 0
+
+- name: check node is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v node"'
+  register: node_command_check
+  changed_when: false
+  failed_when: false
+
+- name: install node
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; nvm install {{node_version}}"'
+  args:
+    creates: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{node_version}}/bin/node"
+  when: node_command_check.rc != 0
+    
