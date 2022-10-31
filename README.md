@@ -16,10 +16,22 @@ Copy your key to the host.
 ssh-copy-id -id ~/.ssh/id_rsa USERNAME@MACHINE
 ```
 
-Generate a key for github and upload it.
+On the target, Generate a key for github and upload it, do not use a passphrase is recommended.
 
 ```none
 ssh-keygen -f ~/.ssh/id_github
+```
+
+On the target, install sudo.
+
+```none
+apt install sudo
+```
+
+On the target, add the user to the suoders group
+
+```none
+usermod -aG sudo $USER
 ```
 
 ### Run the playbook
