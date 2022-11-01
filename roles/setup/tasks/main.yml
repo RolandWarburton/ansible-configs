@@ -71,30 +71,6 @@
   changed_when: not dotbot_output.stdout is search('Link exists')
   when: dotbot_configure_gui
 
-# - name: get number of files in zplug repos directory
-#   find:
-#     path: /home/{{username}}/.zplug/repos
-#   register: zplug_repos_find
-#   when: zplug_repos_stat.stat.islnk is defined
-#   tags: zplug
-#
-# - name: install zplug plugin repositioris
-#   become_user: '{{username}}'
-#   shell:
-#     cmd: zsh -c 'source /home/{{username}}/.zshrc; zplug install'
-#   register: zplug_install
-#   # when: zplug_repos_find is defined and zplug_repos_find.matched <= 2
-#   failed_when: > # when there is none of the text we expected it should be considered a failure 
-#     not zplug_install.stderr is search('no packages to install')
-#     and not zplug_install.stdout is search('Installation finished successfully!')
-#   changed_when: zplug_install.stdout is search('Installation finished successfully!')
-#   tags: zplug
-#
-# - name: debug
-#   debug:
-#     msg: '{{zplug_install}}'
-#   tags: zplug
-#
 - name: test starship binary exists
   stat:
     path: /usr/local/bin/starship
