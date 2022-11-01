@@ -26,4 +26,22 @@
   args:
     creates: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{node_version}}/bin/node"
   when: node_command_check.rc != 0
+
+- name: symlink node to bin
+  shell:
+    cmd: >
+      source /home/{{username}}/.zshrc;
+      rm -f /usr/bin/node;
+      ln -s /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/node /usr/bin/node;
+  failed_when: false
+  changed_when: false
+
+- name: symlink npm to bin
+  shell:
+    cmd: >
+      source /home/{{username}}/.zshrc;
+      rm -f /usr/bin/npm;
+      ln -s /home/{{username}}/.nvm/versions/npm/v{{node_version}}/bin/npm /usr/bin/npm;
+  failed_when: false
+  changed_when: false
     
