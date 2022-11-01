@@ -17,6 +17,21 @@
       - build-essential
       - cmake
 
+- name: check if device is laptop
+  shell:
+    cmd: 'dmidecode | grep Version'
+  register: dmidecode_version
+
+- name: install laptop specific packages
+  apt:
+    update_cache: no
+    pkg:
+      - firmware-iwlwifi
+      - network-manager
+      - acpi
+  when: >
+    (dmidecode_version.stdout is search('ThinkPad'))
+
 - name: set zsh to be the default shell
   user:
     name: "{{username}}"
