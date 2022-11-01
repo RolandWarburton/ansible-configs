@@ -103,10 +103,10 @@
     chdir: '/home/{{username}}/.local/lsp/lua-language-server'
   changed_when: false # just ignore this
 
-- name: run luamake install.sh
+- name: run luamake build.sh
   become_user: '{{username}}'
   shell:
-    cmd: './compile/install.sh'
+    cmd: './compile/build.sh'
     chdir: '/home/{{username}}/.local/lsp/lua-language-server/3rd/luamake'
   changed_when: false # just ignore this
 
