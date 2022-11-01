@@ -16,10 +16,12 @@
       - luarocks
       - build-essential
       - cmake
+      - ripgrep
 
 - name: check if device is laptop
   shell:
     cmd: 'dmidecode | grep Version'
+  changed_when: false
   register: dmidecode_version
 
 - name: install laptop specific packages
