@@ -4,3 +4,6 @@
     - ./roles/setup
     - ./roles/neovim
     - ./roles/zgen
+    - ./roles/node
+    - ./roles/golang
+    - ./roles/neovim-lsp
