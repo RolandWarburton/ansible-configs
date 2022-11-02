@@ -9,6 +9,7 @@
     group: 'root'
     mode: 0644
     force: yes
+  when: overwrite_apt_sources is true
 
 - name: install packages
   apt: 
