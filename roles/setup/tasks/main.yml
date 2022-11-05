@@ -27,6 +27,8 @@
       - build-essential
       - cmake
       - ripgrep
+      - fd-find
+      - htop
 
 - name: check if device is laptop
   shell:
