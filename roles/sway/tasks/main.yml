@@ -1,0 +1,183 @@
+- name: install dependencies
+  apt: 
+    update_cache: yes
+    pkg:
+      - libwacom-dev
+      - libiconv-hook-dev
+      - flex
+      - texinfo
+      - texi2html
+      - libxml2-dev
+      - libxcb-xkb-dev
+      - libgles2
+      - libgles-dev
+      - doxygen
+      - libgudev-1.0-dev
+      - libgtk-3-dev
+      - libgbm-dev
+      - libffi-dev
+      - libxkbcommon-dev
+      - libudev-dev
+
+- name: install pip packages
+  become_user: '{{username}}'
+  pip:
+    name:
+      - meson
+      - pyudev
+      - pytest
+
+- name: install pip packages
+  pip:
+    name:
+      - meson
+      - pyudev
+      - pytest
+      - jinja2
+      - markdown
+      - markupsafe
+      - pygments
+      - toml
+      - typogrify
+
+- name: create sway build directory
+  become_user: '{{username}}'
+  file:
+    path: '{{sway_dir}}'
+    mode: 0775
+    owner: '{{username}}'
+    group: '{{username}}'
+    state: directory
+
+- name: clone sway
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/swaywm/sway.git'
+    dest: '{{sway_dir}}/sway'
+    version: 'v1.7'
+
+- name: clone wlroots
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/wlroots/wlroots.git'
+    dest: '{{sway_dir}}/wlroots'
+    version: '0.15'
+
+- name: clone json-c
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/json-c/json-c.git'
+    dest: '{{sway_dir}}/json-c'
+    version: 'json-c-0.16'
+
+- name: clone libffi
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/libffi/libffi.git'
+    dest: '{{sway_dir}}/libffi'
+    version: 'v3.4.4'
+
+- name: clone wayland
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/wayland/wayland.git'
+    dest: '{{sway_dir}}/wayland'
+    version: '1.21.0'
+
+- name: clone wayland-protocols
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/wayland/wayland-protocols.git'
+    dest: '{{sway_dir}}/wayland-protocols'
+    version: '1.28'
+
+- name: clone cairo
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/freedesktop/cairo.git'
+    dest: '{{sway_dir}}/cairo'
+    version: '1.16'
+
+- name: clone pango
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/GNOME/pango.git'
+    dest: '{{sway_dir}}/pango'
+    version: '1.50.11'
+
+- name: clone libevdev
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/libevdev/libevdev.git'
+    dest: '{{sway_dir}}/libevdev'
+    version: 'libevdev-1.13.0'
+
+- name: clone check
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/libcheck/check.git'
+    dest: '{{sway_dir}}/check'
+    version: '0.15.2'
+
+- name: clone doxygen
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/doxygen/doxygen.git'
+    dest: '{{sway_dir}}/doxygen'
+    version: 'Release_1_9_5'
+
+- name: clone libinput
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/wayland-project/libinput.git'
+    dest: '{{sway_dir}}/libinput'
+    version: '1.21.0'
+
+- name: clone libwacom
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/linuxwacom/libwacom.git'
+    dest: '{{sway_dir}}/libwacom'
+    version: 'libwacom-2.5.0'
+
+- name: clone drm
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/freedesktop/mesa-drm.git'
+    dest: '{{sway_dir}}/drm'
+    version: 'libdrm-2.4.114'
+
+- name: clone seatd
+  become_user: '{{username}}'
+  git:
+    repo: 'https://git.sr.ht/~kennylevinsen/seatd'
+    dest: '{{sway_dir}}/seatd'
+    version: '0.7.0'
+
+- name: download bison
+  become_user: '{{username}}'
+  unarchive:
+    src: https://ftp.gnu.org/gnu/bison/bison-3.8.tar.xz
+    dest: '{{sway_dir}}'
+    remote_src: yes
+    creates: '{{sway_dir}}/bison'
+  register: download_bison
+
+- name: rename bison directory
+  become_user: '{{username}}'
+  command: mv {{sway_dir}}/bison-3.8 {{sway_dir}}/bison
+  when: download_bison.changed
+
+- name: download mtdev
+  become_user: '{{username}}'
+  unarchive:
+    src: https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.gz
+    dest: '{{sway_dir}}'
+    remote_src: yes
+    creates: '{{sway_dir}}/mtdev'
+  register: download_mtdev
+
+- name: rename mtdev directory
+  become_user: '{{username}}'
+  command: mv {{sway_dir}}/mtdev-1.1.6 {{sway_dir}}/mtdev
+  when: download_mtdev.changed
