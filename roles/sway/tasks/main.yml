@@ -1,5 +1,5 @@
 - name: install dependencies
-  apt: 
+  apt:
     update_cache: yes
     pkg:
       - libwacom-dev
