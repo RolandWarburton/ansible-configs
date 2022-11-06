@@ -18,6 +18,22 @@
       - libffi-dev
       - libxkbcommon-dev
       - libudev-dev
+      - valgrind
+      - ninja-build
+      - fontconfig
+      - libpng-dev
+      - xorg
+      - libxext-dev
+      - libfreetype6-dev
+      - libcairo2
+      - libcairo2-dev
+      - libgtk-3-0
+      - libinput-dev
+      - libsystemd-dev
+      - libharfbuzz-dev
+      - libxft-dev
+      - libpango1.0-dev
+#       - libgtk-3-dev
 
 - name: install pip packages
   become_user: '{{username}}'
@@ -26,6 +42,7 @@
       - meson
       - pyudev
       - pytest
+      - libevdev
 
 - name: install pip packages
   pip:
@@ -39,6 +56,7 @@
       - pygments
       - toml
       - typogrify
+      # - libevdev
 
 - name: create sway build directory
   become_user: '{{username}}'
@@ -70,12 +88,19 @@
     dest: '{{sway_dir}}/json-c'
     version: 'json-c-0.16'
 
+- name: clone pixman
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/freedesktop/pixman.git'
+    dest: '{{sway_dir}}/pixman'
+    version: '0.34'
+
 - name: clone libffi
   become_user: '{{username}}'
   git:
     repo: 'https://github.com/libffi/libffi.git'
     dest: '{{sway_dir}}/libffi'
-    version: 'v3.4.4'
+    version: 'v3.3'
 
 - name: clone wayland
   become_user: '{{username}}'
@@ -98,12 +123,12 @@
     dest: '{{sway_dir}}/cairo'
     version: '1.16'
 
-- name: clone pango
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/GNOME/pango.git'
-    dest: '{{sway_dir}}/pango'
-    version: '1.50.11'
+# - name: clone pango
+#   become_user: '{{username}}'
+#   git:
+#     repo: 'https://github.com/GNOME/pango.git'
+#     dest: '{{sway_dir}}/pango'
+#     version: '1.50.11'
 
 - name: clone libevdev
   become_user: '{{username}}'
@@ -119,12 +144,12 @@
     dest: '{{sway_dir}}/check'
     version: '0.15.2'
 
-- name: clone doxygen
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/doxygen/doxygen.git'
-    dest: '{{sway_dir}}/doxygen'
-    version: 'Release_1_9_5'
+# - name: clone doxygen
+#   become_user: '{{username}}'
+#   git:
+#     repo: 'https://github.com/doxygen/doxygen.git'
+#     dest: '{{sway_dir}}/doxygen'
+#     version: 'Release_1_9_5'
 
 - name: clone libinput
   become_user: '{{username}}'
@@ -181,3 +206,269 @@
   become_user: '{{username}}'
   command: mv {{sway_dir}}/mtdev-1.1.6 {{sway_dir}}/mtdev
   when: download_mtdev.changed
+
+# --------------------------------------------------------------------------------------------------
+
+# bison
+- name: build bison (configure and make)
+  become_user: '{{username}}'
+  shell:
+    cmd: './configure && make'
+    chdir: '{{sway_dir}}/bison'
+
+- name: build bison (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{sway_dir}}/bison'
+  tags: test
+
+# mtdev
+- name: build mtdev (configure and make)
+  become_user: '{{username}}'
+  shell:
+    cmd: './configure && make'
+    chdir: '{{sway_dir}}/mtdev'
+
+- name: build mtdev (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{sway_dir}}/mtdev'
+
+# check
+- name: build check (config)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'autoreconf --install && ./configure && make && make check'
+    chdir: '{{sway_dir}}/check'
+
+- name: build check (install)
+  shell:
+    cmd: 'make install && ldconfig'
+    chdir: '{{sway_dir}}/check'
+
+  # doxygen
+# - name: create doxygen build directory
+#   become_user: '{{username}}'
+#   file:
+#     path: '{{sway_dir}}/doxygen/build'
+#     mode: 0775
+#     owner: '{{username}}'
+#     group: '{{username}}'
+#     state: directory
+#
+# - name: build doxygen
+#   become_user: '{{username}}'
+#   shell:
+#     cmd: 'cmake -G "Unix Makefiles" .. && make && sudo make install'
+#     chdir: '{{sway_dir}}/doxygen/build'
+
+# json-c
+- name: create json c build directory
+  become_user: '{{username}}'
+  file:
+    path: '{{sway_dir}}/json-c-build'
+    mode: 0775
+    owner: '{{username}}'
+    group: '{{username}}'
+    state: directory
+
+- name: build json c (configure)
+  become_user: '{{username}}'
+  shell:
+    # missing these parts as the tests seem to fail
+    # cmd: 'cmake ../json-c && make test && make USE_VALGRIND=1 test'
+    cmd: 'cmake ../json-c'
+    chdir: '{{sway_dir}}/json-c-build'
+
+- name: build json c (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{sway_dir}}/json-c-build'
+
+# libffi
+- name: build libffi (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: './autogen.sh && ./configure && make'
+    chdir: '{{sway_dir}}/libffi'
+
+- name: build libffi (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{sway_dir}}/libffi'
+
+# drm
+- name: build drm (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/drm'
+
+- name: build drm (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/drm'
+
+# libevdev
+- name: build libevdev (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: './autogen.sh && ./configure && make'
+    chdir: '{{sway_dir}}/libevdev'
+
+- name: build libevdev (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{sway_dir}}/libevdev'
+
+  # The order might matter here (Requires testing)
+- name: install pip packages
+  become_user: '{{username}}'
+  pip:
+    name:
+      - libevdev
+
+# libwacom
+- name: build libwacom (configure)
+  become_user: '{{username}}'
+  shell:
+    # remove libevdev from line 290
+    # cmd: sed -i "s/'libevdev', //" meson.build && meson build/ && sudo ninja -C build/
+    # cmd: sed -i "s/'libevdev', //" meson.build && meson build/ && sudo ninja -C build/
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/libwacom'
+
+- name: build libwacom (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/libwacom'
+
+# - name: build cairo
+#   become_user: '{{username}}'
+#   shell:
+#     cmd: './autogen.sh --with-x11=false && ./configure && make && sudo make install'
+#     chdir: '{{sway_dir}}/cairo'
+
+# # pango
+# - name: build pango (configure)
+#   become_user: '{{username}}'
+#   shell:
+#     cmd: 'meson build/'
+#     chdir: '{{sway_dir}}/pango'
+#
+# - name: build pango (install)
+#   shell:
+#     cmd: 'ninja -C build/ install'
+#     chdir: '{{sway_dir}}/pango'
+
+# libinput
+- name: build libinput (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/libinput'
+
+- name: build libinput (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/libinput'
+
+- name: build seatd (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: > 
+      meson setup
+      -Dlibseat-builtin=enabled
+      -Dlibseat-seatd=enabled
+      -Dlibseat-logind=systemd
+      build/
+    chdir: '{{sway_dir}}/seatd'
+
+- name: build seatd (install)
+  shell:
+    cmd: ninja -C build/ install
+    chdir: '{{sway_dir}}/seatd'
+
+# pixman
+- name: build pixman (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: './autogen.sh && ./configure && make'
+    chdir: '{{sway_dir}}/pixman'
+
+- name: build pixman (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{sway_dir}}/pixman'
+
+# wayland
+- name: build wayland (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/ -Ddocumentation=false'
+    chdir: '{{sway_dir}}/wayland'
+
+- name: build wayland (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/wayland'
+
+# wayland-protocols
+- name: build wayland-protocols (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/wayland'
+
+- name: build wayland-protocols (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/wayland'
+
+# wlroots
+- name: build wlroots (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: >
+      meson setup
+      -Drenderers=gles2
+      -Dbackends=libinput,drm
+      build/
+    chdir: '{{sway_dir}}/wayland'
+
+- name: build wlroots (install)
+  shell:
+    cmd: ninja -C build/ install
+    chdir: '{{sway_dir}}/wayland'
+
+# sway
+- name: build sway (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/sway'
+
+- name: build sway (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/sway'
+
+# group setup
+- name: Ensure group "seat" exists
+  group:
+    name: seat
+    state: present
+ 
+- name: adding '{{username}}' to group seat
+  user:
+    name: '{{username}}'
+    groups: seat
+    append: yes
+
+# fix library location
+# - name: symlink libwlroots.so.10
+#   shell:
+#     cmd: 'ln -s /usr/local/lib/x86_64-linux-gnu/libwlroots.so.10 /usr/lib/'
+
+# NOTE: to start sway
+# dbus-run-session sway
