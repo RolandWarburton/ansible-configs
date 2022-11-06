@@ -33,7 +33,6 @@
       - libharfbuzz-dev
       - libxft-dev
       - libpango1.0-dev
-#       - libgtk-3-dev
 
 - name: install pip packages
   become_user: '{{username}}'
@@ -56,7 +55,6 @@
       - pygments
       - toml
       - typogrify
-      # - libevdev
 
 - name: create sway build directory
   become_user: '{{username}}'
@@ -116,20 +114,6 @@
     dest: '{{sway_dir}}/wayland-protocols'
     version: '1.28'
 
-- name: clone cairo
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/freedesktop/cairo.git'
-    dest: '{{sway_dir}}/cairo'
-    version: '1.16'
-
-# - name: clone pango
-#   become_user: '{{username}}'
-#   git:
-#     repo: 'https://github.com/GNOME/pango.git'
-#     dest: '{{sway_dir}}/pango'
-#     version: '1.50.11'
-
 - name: clone libevdev
   become_user: '{{username}}'
   git:
@@ -143,13 +127,6 @@
     repo: 'https://github.com/libcheck/check.git'
     dest: '{{sway_dir}}/check'
     version: '0.15.2'
-
-# - name: clone doxygen
-#   become_user: '{{username}}'
-#   git:
-#     repo: 'https://github.com/doxygen/doxygen.git'
-#     dest: '{{sway_dir}}/doxygen'
-#     version: 'Release_1_9_5'
 
 - name: clone libinput
   become_user: '{{username}}'
@@ -246,22 +223,6 @@
     cmd: 'make install && ldconfig'
     chdir: '{{sway_dir}}/check'
 
-  # doxygen
-# - name: create doxygen build directory
-#   become_user: '{{username}}'
-#   file:
-#     path: '{{sway_dir}}/doxygen/build'
-#     mode: 0775
-#     owner: '{{username}}'
-#     group: '{{username}}'
-#     state: directory
-#
-# - name: build doxygen
-#   become_user: '{{username}}'
-#   shell:
-#     cmd: 'cmake -G "Unix Makefiles" .. && make && sudo make install'
-#     chdir: '{{sway_dir}}/doxygen/build'
-
 # json-c
 - name: create json c build directory
   become_user: '{{username}}'
@@ -332,9 +293,6 @@
 - name: build libwacom (configure)
   become_user: '{{username}}'
   shell:
-    # remove libevdev from line 290
-    # cmd: sed -i "s/'libevdev', //" meson.build && meson build/ && sudo ninja -C build/
-    # cmd: sed -i "s/'libevdev', //" meson.build && meson build/ && sudo ninja -C build/
     cmd: 'meson build/'
     chdir: '{{sway_dir}}/libwacom'
 
@@ -342,24 +300,6 @@
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/libwacom'
-
-# - name: build cairo
-#   become_user: '{{username}}'
-#   shell:
-#     cmd: './autogen.sh --with-x11=false && ./configure && make && sudo make install'
-#     chdir: '{{sway_dir}}/cairo'
-
-# # pango
-# - name: build pango (configure)
-#   become_user: '{{username}}'
-#   shell:
-#     cmd: 'meson build/'
-#     chdir: '{{sway_dir}}/pango'
-#
-# - name: build pango (install)
-#   shell:
-#     cmd: 'ninja -C build/ install'
-#     chdir: '{{sway_dir}}/pango'
 
 # libinput
 - name: build libinput (configure)
@@ -373,6 +313,7 @@
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/libinput'
 
+# seatd
 - name: build seatd (configure)
   become_user: '{{username}}'
   shell:
