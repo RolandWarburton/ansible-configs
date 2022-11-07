@@ -215,7 +215,7 @@
 - name: build check (config)
   become_user: '{{username}}'
   shell:
-    cmd: 'autoreconf --install && ./configure && make && make check'
+    cmd: 'autoreconf --install && ./configure && make'
     chdir: '{{sway_dir}}/check'
 
 - name: build check (install)
