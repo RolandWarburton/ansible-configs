@@ -13,7 +13,6 @@
       - libgles-dev
       - doxygen
       - libgudev-1.0-dev
-      - libgtk-3-dev
       - libgbm-dev
       - libffi-dev
       - libxkbcommon-dev
@@ -301,6 +300,30 @@
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/libwacom'
 
+# wayland
+- name: build wayland (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/ -Ddocumentation=false'
+    chdir: '{{sway_dir}}/wayland'
+
+- name: build wayland (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/wayland'
+
+# wayland-protocols
+- name: build wayland-protocols (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/wayland'
+
+- name: build wayland-protocols (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/wayland'
+
 # libinput
 - name: build libinput (configure)
   become_user: '{{username}}'
@@ -342,30 +365,6 @@
     cmd: 'make install'
     chdir: '{{sway_dir}}/pixman'
 
-# wayland
-- name: build wayland (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: 'meson build/ -Ddocumentation=false'
-    chdir: '{{sway_dir}}/wayland'
-
-- name: build wayland (install)
-  shell:
-    cmd: 'ninja -C build/ install'
-    chdir: '{{sway_dir}}/wayland'
-
-# wayland-protocols
-- name: build wayland-protocols (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: 'meson build/'
-    chdir: '{{sway_dir}}/wayland'
-
-- name: build wayland-protocols (install)
-  shell:
-    cmd: 'ninja -C build/ install'
-    chdir: '{{sway_dir}}/wayland'
-
 # wlroots
 - name: build wlroots (configure)
   become_user: '{{username}}'
@@ -386,7 +385,7 @@
 - name: build sway (configure)
   become_user: '{{username}}'
   shell:
-    cmd: 'meson build/'
+    cmd: 'meson setup build/'
     chdir: '{{sway_dir}}/sway'
 
 - name: build sway (install)
