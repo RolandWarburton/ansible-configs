@@ -191,12 +191,13 @@
   shell:
     cmd: './configure && make'
     chdir: '{{sway_dir}}/bison'
+  tags: sway-compile
 
 - name: build bison (install)
   shell:
     cmd: 'make install'
     chdir: '{{sway_dir}}/bison'
-  tags: test
+  tags: sway-compile
 
 # mtdev
 - name: build mtdev (configure and make)
@@ -204,11 +205,13 @@
   shell:
     cmd: './configure && make'
     chdir: '{{sway_dir}}/mtdev'
+  tags: sway-compile
 
 - name: build mtdev (install)
   shell:
     cmd: 'make install'
     chdir: '{{sway_dir}}/mtdev'
+  tags: sway-compile
 
 # check
 - name: build check (config)
@@ -216,11 +219,13 @@
   shell:
     cmd: 'autoreconf --install && ./configure && make'
     chdir: '{{sway_dir}}/check'
+  tags: sway-compile
 
 - name: build check (install)
   shell:
     cmd: 'make install && ldconfig'
     chdir: '{{sway_dir}}/check'
+  tags: sway-compile
 
 # json-c
 - name: create json c build directory
@@ -231,19 +236,20 @@
     owner: '{{username}}'
     group: '{{username}}'
     state: directory
+  tags: sway-compile
 
 - name: build json c (configure)
   become_user: '{{username}}'
   shell:
-    # missing these parts as the tests seem to fail
-    # cmd: 'cmake ../json-c && make test && make USE_VALGRIND=1 test'
     cmd: 'cmake ../json-c'
     chdir: '{{sway_dir}}/json-c-build'
+  tags: sway-compile
 
 - name: build json c (install)
   shell:
     cmd: 'make install'
     chdir: '{{sway_dir}}/json-c-build'
+  tags: sway-compile
 
 # libffi
 - name: build libffi (configure)
@@ -251,23 +257,27 @@
   shell:
     cmd: './autogen.sh && ./configure && make'
     chdir: '{{sway_dir}}/libffi'
+  tags: sway-compile
 
 - name: build libffi (install)
   shell:
     cmd: 'make install'
     chdir: '{{sway_dir}}/libffi'
+  tags: sway-compile
 
 # drm
 - name: build drm (configure)
   become_user: '{{username}}'
   shell:
-    cmd: 'meson build/'
+    cmd: 'meson build/ --prefix=/usr'
     chdir: '{{sway_dir}}/drm'
+  tags: sway-compile
 
 - name: build drm (install)
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/drm'
+  tags: sway-compile
 
 # libevdev
 - name: build libevdev (configure)
@@ -275,11 +285,13 @@
   shell:
     cmd: './autogen.sh && ./configure && make'
     chdir: '{{sway_dir}}/libevdev'
+  tags: sway-compile
 
 - name: build libevdev (install)
   shell:
     cmd: 'make install'
     chdir: '{{sway_dir}}/libevdev'
+  tags: sway-compile
 
   # The order might matter here (Requires testing)
 - name: install pip packages
@@ -287,6 +299,7 @@
   pip:
     name:
       - libevdev
+  tags: sway-compile
 
 # libwacom
 - name: build libwacom (configure)
@@ -294,11 +307,13 @@
   shell:
     cmd: 'meson build/'
     chdir: '{{sway_dir}}/libwacom'
+  tags: sway-compile
 
 - name: build libwacom (install)
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/libwacom'
+  tags: sway-compile
 
 # wayland
 - name: build wayland (configure)
@@ -306,35 +321,41 @@
   shell:
     cmd: 'meson build/ -Ddocumentation=false'
     chdir: '{{sway_dir}}/wayland'
+  tags: sway-compile
 
 - name: build wayland (install)
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/wayland'
+  tags: sway-compile
 
 # wayland-protocols
 - name: build wayland-protocols (configure)
   become_user: '{{username}}'
   shell:
     cmd: 'meson build/'
-    chdir: '{{sway_dir}}/wayland'
+    chdir: '{{sway_dir}}/wayland-protocols'
+  tags: sway-compile
 
 - name: build wayland-protocols (install)
   shell:
     cmd: 'ninja -C build/ install'
-    chdir: '{{sway_dir}}/wayland'
+    chdir: '{{sway_dir}}/wayland-protocols'
+  tags: sway-compile
 
 # libinput
 - name: build libinput (configure)
   become_user: '{{username}}'
   shell:
-    cmd: 'meson build/'
+    cmd: 'meson build/ -Ddebug-gui=false'
     chdir: '{{sway_dir}}/libinput'
+  tags: sway-compile
 
 - name: build libinput (install)
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/libinput'
+  tags: sway-compile
 
 # seatd
 - name: build seatd (configure)
@@ -345,13 +366,16 @@
       -Dlibseat-builtin=enabled
       -Dlibseat-seatd=enabled
       -Dlibseat-logind=systemd
+      --prefix=/usr
       build/
     chdir: '{{sway_dir}}/seatd'
+  tags: sway-compile
 
 - name: build seatd (install)
   shell:
     cmd: ninja -C build/ install
     chdir: '{{sway_dir}}/seatd'
+  tags: sway-compile
 
 # pixman
 - name: build pixman (configure)
@@ -359,11 +383,13 @@
   shell:
     cmd: './autogen.sh && ./configure && make'
     chdir: '{{sway_dir}}/pixman'
+  tags: sway-compile
 
 - name: build pixman (install)
   shell:
     cmd: 'make install'
     chdir: '{{sway_dir}}/pixman'
+  tags: sway-compile
 
 # wlroots
 - name: build wlroots (configure)
@@ -373,13 +399,16 @@
       meson setup
       -Drenderers=gles2
       -Dbackends=libinput,drm
+      --prefix=/usr
       build/
-    chdir: '{{sway_dir}}/wayland'
+    chdir: '{{sway_dir}}/wlroots'
+  tags: sway-compile
 
 - name: build wlroots (install)
   shell:
     cmd: ninja -C build/ install
-    chdir: '{{sway_dir}}/wayland'
+    chdir: '{{sway_dir}}/wlroots'
+  tags: sway-compile
 
 # sway
 - name: build sway (configure)
@@ -387,11 +416,13 @@
   shell:
     cmd: 'meson setup build/'
     chdir: '{{sway_dir}}/sway'
+  tags: sway-compile
 
 - name: build sway (install)
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/sway'
+  tags: sway-compile
 
 # group setup
 - name: Ensure group "seat" exists
@@ -405,10 +436,8 @@
     groups: seat
     append: yes
 
-# fix library location
-# - name: symlink libwlroots.so.10
-#   shell:
-#     cmd: 'ln -s /usr/local/lib/x86_64-linux-gnu/libwlroots.so.10 /usr/lib/'
-
 # NOTE: to start sway
 # dbus-run-session sway
+
+# NOTE: you can find out where stuff is located using commands like this
+# sudo ldconfig -p | grep libdrm
