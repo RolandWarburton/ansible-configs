@@ -36,6 +36,7 @@
       - libpixman-1-dev
       - libbison-dev
       - libmtdev-dev
+      - check
 
 - name: install pip packages
   become_user: '{{username}}'
@@ -96,13 +97,6 @@
     dest: '{{sway_dir}}/wayland-protocols'
     version: '1.28'
 
-- name: clone check
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/libcheck/check.git'
-    dest: '{{sway_dir}}/check'
-    version: '0.15.2'
-
 - name: clone libinput
   become_user: '{{username}}'
   git:
@@ -125,20 +119,6 @@
     version: '0.7.0'
 
 # --------------------------------------------------------------------------------------------------
-
-# check
-- name: build check (config)
-  become_user: '{{username}}'
-  shell:
-    cmd: 'autoreconf --install && ./configure && make'
-    chdir: '{{sway_dir}}/check'
-  tags: sway-compile
-
-- name: build check (install)
-  shell:
-    cmd: 'make install && ldconfig'
-    chdir: '{{sway_dir}}/check'
-  tags: sway-compile
 
 # drm
 - name: build drm (configure)
