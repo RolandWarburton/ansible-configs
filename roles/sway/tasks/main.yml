@@ -32,6 +32,8 @@
       - libharfbuzz-dev
       - libxft-dev
       - libpango1.0-dev
+      - libjson-c-dev
+      - libpixman-1-dev
 
 - name: install pip packages
   become_user: '{{username}}'
@@ -77,20 +79,6 @@
     repo: 'https://gitlab.freedesktop.org/wlroots/wlroots.git'
     dest: '{{sway_dir}}/wlroots'
     version: '0.15'
-
-- name: clone json-c
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/json-c/json-c.git'
-    dest: '{{sway_dir}}/json-c'
-    version: 'json-c-0.16'
-
-- name: clone pixman
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/freedesktop/pixman.git'
-    dest: '{{sway_dir}}/pixman'
-    version: '0.34'
 
 - name: clone libffi
   become_user: '{{username}}'
@@ -227,30 +215,6 @@
     chdir: '{{sway_dir}}/check'
   tags: sway-compile
 
-# json-c
-- name: create json c build directory
-  become_user: '{{username}}'
-  file:
-    path: '{{sway_dir}}/json-c-build'
-    mode: 0775
-    owner: '{{username}}'
-    group: '{{username}}'
-    state: directory
-  tags: sway-compile
-
-- name: build json c (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: 'cmake ../json-c'
-    chdir: '{{sway_dir}}/json-c-build'
-  tags: sway-compile
-
-- name: build json c (install)
-  shell:
-    cmd: 'make install'
-    chdir: '{{sway_dir}}/json-c-build'
-  tags: sway-compile
-
 # libffi
 - name: build libffi (configure)
   become_user: '{{username}}'
@@ -375,20 +339,6 @@
   shell:
     cmd: ninja -C build/ install
     chdir: '{{sway_dir}}/seatd'
-  tags: sway-compile
-
-# pixman
-- name: build pixman (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: './autogen.sh && ./configure && make'
-    chdir: '{{sway_dir}}/pixman'
-  tags: sway-compile
-
-- name: build pixman (install)
-  shell:
-    cmd: 'make install'
-    chdir: '{{sway_dir}}/pixman'
   tags: sway-compile
 
 # wlroots
