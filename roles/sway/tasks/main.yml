@@ -34,6 +34,8 @@
       - libpango1.0-dev
       - libjson-c-dev
       - libpixman-1-dev
+      - libbison-dev
+      - libmtdev-dev
 
 - name: install pip packages
   become_user: '{{username}}'
@@ -80,13 +82,6 @@
     dest: '{{sway_dir}}/wlroots'
     version: '0.15'
 
-- name: clone libffi
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/libffi/libffi.git'
-    dest: '{{sway_dir}}/libffi'
-    version: 'v3.3'
-
 - name: clone wayland
   become_user: '{{username}}'
   git:
@@ -100,13 +95,6 @@
     repo: 'https://gitlab.freedesktop.org/wayland/wayland-protocols.git'
     dest: '{{sway_dir}}/wayland-protocols'
     version: '1.28'
-
-- name: clone libevdev
-  become_user: '{{username}}'
-  git:
-    repo: 'https://gitlab.freedesktop.org/libevdev/libevdev.git'
-    dest: '{{sway_dir}}/libevdev'
-    version: 'libevdev-1.13.0'
 
 - name: clone check
   become_user: '{{username}}'
@@ -122,13 +110,6 @@
     dest: '{{sway_dir}}/libinput'
     version: '1.21.0'
 
-- name: clone libwacom
-  become_user: '{{username}}'
-  git:
-    repo: 'https://github.com/linuxwacom/libwacom.git'
-    dest: '{{sway_dir}}/libwacom'
-    version: 'libwacom-2.5.0'
-
 - name: clone drm
   become_user: '{{username}}'
   git:
@@ -143,63 +124,7 @@
     dest: '{{sway_dir}}/seatd'
     version: '0.7.0'
 
-- name: download bison
-  become_user: '{{username}}'
-  unarchive:
-    src: https://ftp.gnu.org/gnu/bison/bison-3.8.tar.xz
-    dest: '{{sway_dir}}'
-    remote_src: yes
-    creates: '{{sway_dir}}/bison'
-  register: download_bison
-
-- name: rename bison directory
-  become_user: '{{username}}'
-  command: mv {{sway_dir}}/bison-3.8 {{sway_dir}}/bison
-  when: download_bison.changed
-
-- name: download mtdev
-  become_user: '{{username}}'
-  unarchive:
-    src: https://bitmath.org/code/mtdev/mtdev-1.1.6.tar.gz
-    dest: '{{sway_dir}}'
-    remote_src: yes
-    creates: '{{sway_dir}}/mtdev'
-  register: download_mtdev
-
-- name: rename mtdev directory
-  become_user: '{{username}}'
-  command: mv {{sway_dir}}/mtdev-1.1.6 {{sway_dir}}/mtdev
-  when: download_mtdev.changed
-
 # --------------------------------------------------------------------------------------------------
-
-# bison
-- name: build bison (configure and make)
-  become_user: '{{username}}'
-  shell:
-    cmd: './configure && make'
-    chdir: '{{sway_dir}}/bison'
-  tags: sway-compile
-
-- name: build bison (install)
-  shell:
-    cmd: 'make install'
-    chdir: '{{sway_dir}}/bison'
-  tags: sway-compile
-
-# mtdev
-- name: build mtdev (configure and make)
-  become_user: '{{username}}'
-  shell:
-    cmd: './configure && make'
-    chdir: '{{sway_dir}}/mtdev'
-  tags: sway-compile
-
-- name: build mtdev (install)
-  shell:
-    cmd: 'make install'
-    chdir: '{{sway_dir}}/mtdev'
-  tags: sway-compile
 
 # check
 - name: build check (config)
@@ -215,20 +140,6 @@
     chdir: '{{sway_dir}}/check'
   tags: sway-compile
 
-# libffi
-- name: build libffi (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: './autogen.sh && ./configure && make'
-    chdir: '{{sway_dir}}/libffi'
-  tags: sway-compile
-
-- name: build libffi (install)
-  shell:
-    cmd: 'make install'
-    chdir: '{{sway_dir}}/libffi'
-  tags: sway-compile
-
 # drm
 - name: build drm (configure)
   become_user: '{{username}}'
@@ -241,42 +152,6 @@
   shell:
     cmd: 'ninja -C build/ install'
     chdir: '{{sway_dir}}/drm'
-  tags: sway-compile
-
-# libevdev
-- name: build libevdev (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: './autogen.sh && ./configure && make'
-    chdir: '{{sway_dir}}/libevdev'
-  tags: sway-compile
-
-- name: build libevdev (install)
-  shell:
-    cmd: 'make install'
-    chdir: '{{sway_dir}}/libevdev'
-  tags: sway-compile
-
-  # The order might matter here (Requires testing)
-- name: install pip packages
-  become_user: '{{username}}'
-  pip:
-    name:
-      - libevdev
-  tags: sway-compile
-
-# libwacom
-- name: build libwacom (configure)
-  become_user: '{{username}}'
-  shell:
-    cmd: 'meson build/'
-    chdir: '{{sway_dir}}/libwacom'
-  tags: sway-compile
-
-- name: build libwacom (install)
-  shell:
-    cmd: 'ninja -C build/ install'
-    chdir: '{{sway_dir}}/libwacom'
   tags: sway-compile
 
 # wayland
