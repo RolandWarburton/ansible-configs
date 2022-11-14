@@ -3,3 +3,4 @@ dotbot_configure_cli: true
 dotbot_configure_gui: false
 config_system_locale: en_AU.UTF-8
 config_system_language: en_US.UTF-8
+overwrite_apt_sources: true
