@@ -1,0 +1,54 @@
+- include_role:
+    name: ./roles/rust
+
+- name: install packages
+  apt: 
+    update_cache: yes
+    pkg:
+      - grim
+      - flameshot
+      - cmake
+      - pkg-config
+      - libfreetype6-dev
+      - libfontconfig1-dev
+      - libxcb-xfixes0-dev
+      - libxkbcommon-dev
+      - python3
+
+- name: create sway extra build directory
+  become_user: '{{username}}'
+  file:
+    path: '{{alacritty_install_dir}}'
+    mode: 0775
+    owner: '{{username}}'
+    group: '{{username}}'
+    state: directory
+
+- name: clone alacritty
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/alacritty/alacritty.git'
+    dest: '{{alacritty_install_dir}}/alacritty'
+    version: 'v0.11.0'
+
+- name: set rustup compiler to stable
+  become_user: '{{username}}'
+  shell:
+    cmd: 'rustup override set stable && rustup update stable'
+
+- name: build alacritty
+  become_user: '{{username}}'
+  shell:
+    cmd: cargo build --release --no-default-features --features=wayland
+    executable: /usr/bin/zsh
+    chdir: '{{alacritty_install_dir}}/alacritty'
+    creates: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
+
+- name: stat alacritty binary
+  stat:
+    path: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
+  register: alacritty_stat
+
+- name: Move alacritty to /usr/bin
+  command: mv {{alacritty_install_dir}}/alacritty/target/release/alacritty /usr/bin/alacritty
+  when: alacritty_stat.stat.exists
