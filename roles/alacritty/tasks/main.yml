@@ -49,14 +49,19 @@
     path: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
   register: alacritty_stat
 
+- name: stat alacritty binary in /usr/bin
+  stat:
+    path: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
+  register: alacritty_stat_bin
+
 - name: Move alacritty to /usr/bin
-  shell:
-    cmd: mv {{alacritty_install_dir}}/alacritty/target/release/alacritty /usr/bin/alacritty
-  when: alacritty_stat.stat.exists
+  command: mv {{alacritty_install_dir}}/alacritty/target/release/alacritty /usr/bin/alacritty
+  when: alacritty_stat.stat.exists == true and alacritty_stat_bin.stat.exists == false
 
 - name: chown alacritty
   file:
-    path: chown /usr/bin/alacritty
+    path: /usr/bin/alacritty
     owner: root
     group: root
-  when: alacritty_stat.stat.exists
+    state: file
+  when: alacritty_stat_bin.stat.exists
