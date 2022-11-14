@@ -1,0 +1,23 @@
+- name: check if cargo is installed
+  become_user: '{{username}}'
+  shell: command -v cargo
+  register: cargo_exists
+  ignore_errors: yes
+  failed_when: false
+  changed_when: false
+
+- name: Download Installer
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/sh.rustup.rs
+    owner: '{{username}}'
+    group: '{{username}}'
+    mode: '0755'
+    force: 'yes'
+  when: cargo_exists.rc != 0
+
+- name: install rust/cargo
+  become_user: '{{username}}'
+  shell: zsh -c '/tmp/sh.rustup.rs -y'
+  when: cargo_exists.rc != 0
+  register: cargo_install
