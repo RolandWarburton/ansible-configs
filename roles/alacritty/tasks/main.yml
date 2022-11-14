@@ -5,8 +5,6 @@
   apt: 
     update_cache: yes
     pkg:
-      - grim
-      - flameshot
       - cmake
       - pkg-config
       - libfreetype6-dev
