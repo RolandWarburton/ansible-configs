@@ -1,0 +1,6 @@
+- name: install packages
+  apt: 
+    update_cache: yes
+    pkg:
+      - grim
+      - flameshot
