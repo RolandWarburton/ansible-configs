@@ -50,5 +50,13 @@
   register: alacritty_stat
 
 - name: Move alacritty to /usr/bin
-  command: mv {{alacritty_install_dir}}/alacritty/target/release/alacritty /usr/bin/alacritty
+  shell:
+    cmd: mv {{alacritty_install_dir}}/alacritty/target/release/alacritty /usr/bin/alacritty
+  when: alacritty_stat.stat.exists
+
+- name: chown alacritty
+  file:
+    path: chown /usr/bin/alacritty
+    owner: root
+    group: root
   when: alacritty_stat.stat.exists
