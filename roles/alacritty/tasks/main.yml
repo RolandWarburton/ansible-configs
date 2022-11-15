@@ -13,7 +13,7 @@
       - libxkbcommon-dev
       - python3
 
-- name: create sway extra build directory
+- name: create alacritty build directory
   become_user: '{{username}}'
   file:
     path: '{{alacritty_install_dir}}'
