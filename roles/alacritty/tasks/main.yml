@@ -49,7 +49,7 @@
 
 - name: stat alacritty binary in /usr/bin
   stat:
-    path: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
+    path: '/usr/bin/alacritty'
   register: alacritty_stat_bin
 
 - name: Move alacritty to /usr/bin
