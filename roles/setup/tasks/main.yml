@@ -41,6 +41,7 @@
     update_cache: no
     pkg:
       - firmware-iwlwifi
+      - firmware-realtek
       - network-manager
       - acpi
   when: >
