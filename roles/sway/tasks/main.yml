@@ -235,7 +235,7 @@
     name: seat
     state: present
  
-- name: adding '{{username}}' to group seat
+- name: add '{{username}}' to group seat
   user:
     name: '{{username}}'
     groups: seat
