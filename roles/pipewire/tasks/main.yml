@@ -1,0 +1,149 @@
+- name: install packages
+  apt: 
+    update_cache: yes
+    pkg:
+      - libasound2 
+      - alsa-utils 
+      - alsa-oss 
+      - libspa-0.2-dev
+      - libdbus-1-dev 
+      - libasound2-dev
+      - pulseaudio-utils
+      - rtkit
+      # - xdl-desktop-portal-wlr (waiting for debian 12 for pipewire to be updated)
+
+- name: Ensure group "pipewire" exists
+  group:
+    name: pipewire
+    state: present
+
+- name: Ensure group "realtime" exists
+  group:
+    name: realtime
+    state: present
+
+- name: add '{{username}}' to group pipewire
+  user:
+    name: '{{username}}'
+    groups: pipewire
+    append: yes
+
+- name: add '{{username}}' to group realtime
+  user:
+    name: '{{username}}'
+    groups: realtime
+    append: yes
+
+
+# ensure build dir is created
+- name: ensure build dir created
+  file:
+    path: '{{tmp_dir}}'
+    state: directory
+    mode: '0755'
+    owner: '{{username}}'
+    group: '{{username}}'
+
+# get repos
+- name: clone pipewire
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/pipewire/pipewire.git'
+    dest: '{{tmp_dir}}/pipewire'
+    version: '0.3.43'
+    depth: 1
+
+- name: clone wireplumber
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/pipewire/wireplumber.git'
+    dest: '{{tmp_dir}}/wireplumber'
+    version: '0.4.7'
+    depth: 1
+
+# pipewire
+- name: build pipewire (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson setup builddir'
+    chdir: '{{tmp_dir}}/pipewire'
+
+- name: build pipewire (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson configure builddir -Dprefix=/usr'
+    chdir: '{{tmp_dir}}/pipewire'
+
+- name: build pipewire (install)
+  shell:
+    cmd: 'meson install -C builddir'
+    chdir: '{{tmp_dir}}/pipewire'
+
+# wireplumber
+- name: build wireplumber (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson setup --prefix=/usr build'
+    chdir: '{{tmp_dir}}/wireplumber'
+
+- name: build wireplumber (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson compile -C build'
+    chdir: '{{tmp_dir}}/wireplumber'
+
+- name: build wireplumber (install)
+  shell:
+    cmd: 'ninja -C build install'
+    chdir: '{{tmp_dir}}/wireplumber'
+
+# patch polkit to allow any user to set rtkit nice level
+- name: patch polkit
+  shell:
+    cmd: >
+      sed -Ei
+      '/Authentication is required to grant an application high priority scheduling/,+3 
+      s/no/yes/'
+      /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
+
+- name: Check pipewire config exists
+  stat:
+    path: /usr/share/pipewire
+  register: stat_pipewire
+  failed_when: not stat_pipewire.stat.exists
+  tags: test
+
+- name: copy pipewire configs to etc
+  shell:
+    cmd: 'cp -r /usr/share/pipewire /etc'
+    creates: /etc/pipewire/pipewire.conf
+  tags: test
+
+# copy wireplumber configs
+- name: Check wireplumber config exists
+  stat:
+    path: /usr/share/wireplumber
+  register: stat_wireplumber
+  failed_when: not stat_wireplumber.stat.exists
+
+- name: copy wireplumber configs to etc
+  shell:
+    cmd: 'cp -r /usr/share/wireplumber /etc'
+    creates: /etc/wireplumber/wireplumber.conf
+
+# enable services
+- name: daemon reload
+  ansible.builtin.systemd:
+    daemon_reexec: yes
+
+- name: systemd enable pipewire
+  systemd:
+    state: enabled
+    name: pipewire
+  when: enable_systemd_pipewire
+
+- name: systemd enable wireplumber
+  systemd:
+    state: enabled
+    name: wireplumber
+  when: enable_systemd_wireplumber

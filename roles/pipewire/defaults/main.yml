@@ -1,0 +1,3 @@
+tmp_dir: /usr/local/src
+enable_systemd_pipewire: false
+enable_systemd_wireplumber: false
