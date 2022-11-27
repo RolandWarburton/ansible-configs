@@ -106,6 +106,14 @@
       s/no/yes/'
       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
 
+# https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Performance-tuning#rlimits
+- name: copy 95-pipewire.conf to set rlimits
+  copy:
+    src: ./95-pipewire.conf
+    dest: /etc/security/limits.d/95-pipewire.conf
+    mode: 0755
+ 
+# copy config files to etc
 - name: Check pipewire config exists
   stat:
     path: /usr/share/pipewire
