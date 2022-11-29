@@ -107,6 +107,7 @@
       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
 
 # https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Performance-tuning#rlimits
+# note this requires a reboot after
 - name: copy 95-pipewire.conf to set rlimits
   copy:
     src: ./95-pipewire.conf
