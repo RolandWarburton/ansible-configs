@@ -106,6 +106,14 @@
       s/no/yes/'
       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
 
+- name: patch polkit
+  shell:
+    cmd: >
+      sed -Ei
+      '/Authentication is required to grant an application realtime scheduling/,+3 
+      s/no/yes/'
+      /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
+
 # https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Performance-tuning#rlimits
 # note this requires a reboot after
 - name: copy 95-pipewire.conf to set rlimits
