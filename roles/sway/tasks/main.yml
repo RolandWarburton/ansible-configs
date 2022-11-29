@@ -37,6 +37,8 @@
       - libbison-dev
       - libmtdev-dev
       - check
+      - libpciaccess-dev
+      - libjansson-dev
 
 - name: install pip packages
   become_user: '{{username}}'
@@ -124,7 +126,7 @@
 - name: build drm (configure)
   become_user: '{{username}}'
   shell:
-    cmd: 'meson build/ --prefix=/usr'
+    cmd: 'meson build/ --prefix=/usr -Dintel=enabled'
     chdir: '{{sway_dir}}/drm'
   tags: sway-compile
 
