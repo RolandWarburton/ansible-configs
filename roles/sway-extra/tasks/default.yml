@@ -4,3 +4,4 @@
     pkg:
       - grim
       - flameshot
+      - wl-clipboard
