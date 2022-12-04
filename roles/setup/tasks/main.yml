@@ -107,11 +107,8 @@
   stat:
     path: /dev/input/by-path/platform-pcspkr-event-spkr
   register: speaker_permissions
-  tags: test
 
 - name: Set speaker permissions to 666
   file:
     path: /dev/input/by-path/platform-pcspkr-event-spkr
     mode: "{{ '666' if speaker_permissions.stat.mode != '0666' else '' }}"
-  tags: test
-
