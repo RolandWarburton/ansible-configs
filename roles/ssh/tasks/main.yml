@@ -1,0 +1,10 @@
+# if the default ssh-agent.service exists then remove the X11 file requirement to start
+- name: Copy ssh-agent.service to /usr/lib/systemd/user/
+  copy:
+    src: ssh-agent.service
+    dest: /usr/lib/systemd/user/ssh-agent.service
+
+- name: Reload systemd daemon
+  become_user: '{{username}}'
+  when: ssh_agent_condition.changed
+  command: systemctl --user daemon-reload
