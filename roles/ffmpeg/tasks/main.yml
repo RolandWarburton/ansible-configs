@@ -1,0 +1,85 @@
+# - name: install packages
+#   apt: 
+#     update_cache: yes
+#     pkg:
+#       - yasm
+#       - libx264-dev
+#       - libx265-dev
+#       - libgmp-dev
+#       - libaom-dev
+#       - libdav1d-dev
+#       - libfdk-aac-dev
+#       - libmp3lame-dev
+#       - libopencore-amrnb-dev
+#       - libopus-dev
+#       - librtmp-dev
+#       - libsnappy-dev
+#       - libsoxr-dev
+#       - libssh-dev
+#       - libvorbis-dev
+#       - libvpx-dev
+#       - libwebp-dev
+
+- name: ensure build dir created
+  file:
+    path: '{{tmp_dir}}'
+    state: directory
+    mode: '0755'
+    owner: '{{username}}'
+    group: '{{username}}'
+
+# get repos
+- name: clone ffmpeg
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/FFmpeg/FFmpeg.git'
+    dest: '{{tmp_dir}}/ffmpeg'
+    version: 'n5.0.2'
+    depth: 1
+
+- name: build mpv (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: >
+      ./configure
+      --enable-libx264
+      --enable-libx265
+      --enable-gmp
+      --enable-gpl
+      --enable-libaom
+      --enable-libass
+      --enable-libdav1d
+      --enable-libdrm
+      --enable-libfdk-aac
+      --enable-libfreetype
+      --enable-libmp3lame
+      --enable-libopencore-amrnb
+      --enable-libopencore-amrwb
+      --enable-libopus
+      --enable-librtmp
+      --enable-libsnappy
+      --enable-libsoxr
+      --enable-libssh
+      --enable-libvorbis
+      --enable-libvpx
+      --enable-libwebp
+      --enable-libxml2
+      --disable-mmal
+      --enable-nonfree
+      --enable-version3
+      --target-os=linux
+      --enable-pthreads
+      --enable-openssl
+      --enable-hardcoded-tables
+    chdir: '{{tmp_dir}}/ffmpeg'
+
+- name: build ffmpeg (make)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'make'
+    chdir: '{{tmp_dir}}/ffmpeg'
+
+- name: build mpv (install)
+  shell:
+    cmd: 'make install'
+    chdir: '{{tmp_dir}}/ffmpeg'
