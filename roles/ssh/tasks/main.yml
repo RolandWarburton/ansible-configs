@@ -3,6 +3,7 @@
   copy:
     src: ssh-agent.service
     dest: /usr/lib/systemd/user/ssh-agent.service
+  register: ssh_agent_condition
 
 - name: Reload systemd daemon
   become_user: '{{username}}'
