@@ -9,3 +9,11 @@
   become_user: '{{username}}'
   when: ssh_agent_condition.changed
   command: systemctl --user daemon-reload
+
+- name: Enable the ssh-agent service
+  become_user: '{{username}}'
+  systemd:
+    scope: user
+    name: ssh-agent
+    enabled: yes
+    state: started
