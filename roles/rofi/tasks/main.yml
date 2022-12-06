@@ -16,7 +16,7 @@
 - name: clone rofi
   become_user: '{{username}}'
   git:
-    repo: 'git clone https://github.com/lbonn/rofi.git'
+    repo: 'https://github.com/lbonn/rofi.git'
     dest: '{{tmp_dir}}/rofi'
     version: 'wayland'
 
