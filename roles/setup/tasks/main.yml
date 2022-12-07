@@ -11,6 +11,16 @@
     force: yes
   when: overwrite_apt_sources is true
 
+- name: copy package preferences
+  copy:
+    src: ./preferences
+    dest: /etc/apt/preferences
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+    force: yes
+
+
 - name: install packages
   apt: 
     update_cache: yes
