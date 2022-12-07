@@ -29,6 +29,7 @@
       - ripgrep
       - fd-find
       - htop
+      - psmisc
 
 - name: check if device is laptop
   shell:
