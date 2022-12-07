@@ -60,6 +60,7 @@
     dest: /home/{{username}}/dotfiles
     accept_hostkey: yes
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
+    version: 'wayland'
 
 - name: install dotbot
   become_user: '{{username}}'
