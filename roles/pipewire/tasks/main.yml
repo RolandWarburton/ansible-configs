@@ -129,13 +129,11 @@
     path: /usr/share/pipewire
   register: stat_pipewire
   failed_when: not stat_pipewire.stat.exists
-  tags: test
 
 - name: copy pipewire configs to etc
   shell:
     cmd: 'cp -r /usr/share/pipewire /etc'
     creates: /etc/pipewire/pipewire.conf
-  tags: test
 
 # copy wireplumber configs
 - name: Check wireplumber config exists
