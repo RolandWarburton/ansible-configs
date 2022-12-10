@@ -114,13 +114,10 @@
     remote_src: yes
   when: not test_starship_binary.stat.exists
 
-# enable pcspkr device for all users
-- name: Check speaker permissions
-  stat:
-    path: /dev/input/by-path/platform-pcspkr-event-spkr
-  register: speaker_permissions
-
-- name: Set speaker permissions to 666
-  file:
-    path: /dev/input/by-path/platform-pcspkr-event-spkr
-    mode: "{{ '666' if speaker_permissions.stat.mode != '0666' else '' }}"
+# enable pcspkr device for roland
+# allows access to /dev/input/by-path/platform-pcspkr-event-spkr
+- name: add '{{username}}' to group realtime
+  user:
+    name: '{{username}}'
+    groups: input
+    append: yes
