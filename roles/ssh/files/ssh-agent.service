@@ -8,5 +8,5 @@ After=dbus.socket
 [Service]
 Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
 ExecStart=ssh-agent -D -a %t/ssh-agent.socket
-ExecPostStart=export SSH_AUTH_SOCK=%t/ssh-agent.socket
+ExecStartPost=export SSH_AUTH_SOCK=%t/ssh-agent.socket
 ExecStop=ssh-agent -k
