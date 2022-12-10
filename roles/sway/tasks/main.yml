@@ -233,7 +233,7 @@
 
 - name: patch sway default config comment default wallpaper out
   shell:
-    cmd: sed -i '/output * bg/s/^/# /' /usr/local/etc/sway/config
+    cmd: sed -i '/^output/s/^/# /' /usr/local/etc/sway/config
 
 # group setup
 - name: Ensure group "seat" exists
