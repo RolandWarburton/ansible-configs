@@ -7,8 +7,9 @@
 
 - name: Reload systemd daemon
   become_user: '{{username}}'
+  shell:
+    cmd: systemctl --user daemon-reload
   when: ssh_agent_condition.changed
-  command: systemctl --user daemon-reload
 
 - name: Enable the ssh-agent service
   become_user: '{{username}}'
