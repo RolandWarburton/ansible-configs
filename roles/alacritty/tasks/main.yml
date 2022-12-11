@@ -32,7 +32,9 @@
 - name: set rustup compiler to stable
   become_user: '{{username}}'
   shell:
-    cmd: 'rustup override set stable && rustup update stable'
+    cmd: '/home/{{username}}/.cargo/bin/rustup override set stable && rustup update stable'
+  failed_when: false
+  changed_when: false
 
 - name: build alacritty
   become_user: '{{username}}'
