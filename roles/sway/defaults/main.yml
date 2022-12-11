@@ -1,1 +1,2 @@
 sway_dir: /home/{{username}}/sway-build
+xwayland: true

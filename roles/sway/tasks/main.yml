@@ -40,6 +40,24 @@
       - libpciaccess-dev
       - libjansson-dev
 
+- name: Install packages for xwayland
+  apt:
+    name:
+      - x11proto-dev
+      - libxkbfile-dev
+      - libxfont-dev
+      - xfonts-utils
+      - libdrm-dev
+      - openssl
+      - libssl-dev
+      - xorg-dev
+      - libxshmfence-dev
+      - libxcb-composite0-dev
+      - libxcb-icccm4-dev
+      - libxcb-res0-dev
+    update_cache: yes
+  when: xwayland == true
+
 - name: install pip packages
   become_user: '{{username}}'
   pip:
@@ -49,7 +67,14 @@
       - pytest
       - libevdev
 
-- name: install pip packages
+- name: install pip packages for xwayland
+  become_user: '{{username}}'
+  pip:
+    name:
+      - mako
+  when: xwayland == true
+
+- name: install pip packages (for root user)
   pip:
     name:
       - meson
@@ -119,6 +144,64 @@
     repo: 'https://git.sr.ht/~kennylevinsen/seatd'
     dest: '{{sway_dir}}/seatd'
     version: '0.7.0'
+
+# xwayland only
+- name: Clone libepoxy repository
+  become_user: '{{username}}'
+  git:
+    repo: https://github.com/anholt/libepoxy.git
+    dest: '{{sway_dir}}/libepoxy'
+    version: '1.5.10'
+    depth: 1
+  when: xwayland == true
+
+# xwayland only
+- name: Clone xorgproto repository
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/xorg/proto/xorgproto.git'
+    dest: '{{sway_dir}}/xorgproto'
+    version: 'xorgproto-2022.2'
+    depth: 1
+  when: xwayland == true
+
+# xwayland only
+- name: Clone xserver repository
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/xorg/xserver.git'
+    dest: '{{sway_dir}}/xserver'
+    version: 'xwayland-22.1.5'
+    depth: 1
+  when: xwayland == true
+
+# xwayland only
+- name: Clone libxcvt repository
+  become_user: '{{username}}'
+  git:
+    repo: 'https://gitlab.freedesktop.org/xorg/lib/libxcvt.git'
+    dest: '{{sway_dir}}/libxcvt'
+    version: 'libxcvt-0.1.2'
+    depth: 1
+  when: xwayland == true
+
+# xwayland only
+- name: create xdg-desktop-portal-wlr sway build directory
+  become_user: '{{username}}'
+  file:
+    path: '{{sway_dir}}/xdg-desktop-portal-wlr'
+    mode: 0775
+    owner: '{{username}}'
+    group: '{{username}}'
+    state: directory
+
+# xwayland only
+- name: download xdg-desktop-portal-wlr
+  become_user: '{{username}}'
+  unarchive:
+    src: 'https://github.com/emersion/xdg-desktop-portal-wlr/releases/download/v0.6.0/xdg-desktop-portal-wlr-0.6.0.tar.gz'
+    dest: '{{sway_dir}}/xdg-desktop-portal-wlr'
+    remote_src: yes
 
 # --------------------------------------------------------------------------------------------------
 
@@ -198,6 +281,62 @@
     chdir: '{{sway_dir}}/seatd'
   tags: sway-compile
 
+# libepoxy (xwayland only)
+- name: build libepoxy (configure)
+  become_user: '{{username}}'
+  command: meson setup build
+  args:
+    chdir: '{{sway_dir}}/libepoxy'
+  when: xwayland == true
+
+- name: build libepoxy (build)
+  command: ninja -C build install
+  args:
+    chdir: '{{sway_dir}}/libepoxy'
+  when: xwayland == true
+
+# xorgproto (xwayland only)
+- name: build xorgproto (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson setup build/'
+    chdir: '{{sway_dir}}/xorgproto'
+  when: xwayland == true
+
+- name: build xorgproto (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/xorgproto'
+  when: xwayland == true
+
+# libxcvt (xwayland only)
+- name: build libxcvt (configure)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'meson build/'
+    chdir: '{{sway_dir}}/libxcvt'
+  when: xwayland == true
+
+- name: build libxcvt (install)
+  shell:
+    cmd: 'ninja -C build/ install'
+    chdir: '{{sway_dir}}/libxcvt'
+  when: xwayland == true
+
+# xserver (xwayland only)
+- name: build server (configure)
+  become_user: '{{username}}'
+  command: meson setup build/
+  args:
+    chdir: '{{sway_dir}}/xserver'
+  when: xwayland == true
+
+- name: build xserver (build)
+  command: ninja -C build install
+  args:
+    chdir: '{{sway_dir}}/xserver'
+  when: xwayland == true
+
 # wlroots
 - name: build wlroots (configure)
   become_user: '{{username}}'
@@ -210,6 +349,22 @@
       build/
     chdir: '{{sway_dir}}/wlroots'
   tags: sway-compile
+  when: xwayland == false
+
+- name: build wlroots (configure) for xwayland
+  become_user: '{{username}}'
+  shell:
+    cmd: >
+      meson setup
+      -Drenderers=gles2
+      -Dbackends=libinput,drm
+      -Dxwayland=enabled
+      --prefix=/usr
+      build/
+    chdir: '{{sway_dir}}/wlroots'
+  tags: 
+    - sway-compile 
+  when: xwayland == true
 
 - name: build wlroots (install)
   shell:
