@@ -63,7 +63,7 @@
     version: '0.4.7'
     depth: 1
 
-# wireplumber
+# pipewire
 - name: build pipewire (configure)
   become_user: '{{username}}'
   shell:
