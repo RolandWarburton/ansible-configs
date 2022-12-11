@@ -12,6 +12,7 @@
       - pulseaudio-utils
       - rtkit
       - gstreamer1.0-tools
+      - pulsemixer
       # - xdg-desktop-portal-wlr (waiting for debian 12 for pipewire to be updated)
 
 - name: Ensure group "pipewire" exists
