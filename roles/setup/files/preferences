@@ -1,3 +1,19 @@
+Package: libpipewire-0.3-0
+Pin: release *
+Pin-Priority: -1
+
+Package: libpipewire-0.3-modules
+Pin: release *
+Pin-Priority: -1
+
+package: pipewire-bin
+pin: release *
+pin-priority: -1
+
+package: pipewire
+pin: release *
+pin-priority: -1
+
 Package: libx11-data
 Pin: release *
 Pin-Priority: -1
