@@ -128,7 +128,16 @@
 # copy config files to etc
 - name: Check pipewire config exists
   stat:
-    path: /usr/share/pipewire
+    path: '{{item}}'
+  loop:
+   - /usr/share/pipewire
+   - /usr/share/pipewire/pipewire.conf
+   - /usr/share/pipewire/client.conf
+   - /usr/share/pipewire/pipewire-pulse.conf
+   - /usr/share/pipewire/jack.conf
+   - /usr/share/pipewire/client-rt.conf
+   - /usr/share/pipewire/filter-chain
+   - /usr/share/pipewire/media-session.d
   register: stat_pipewire
   failed_when: not stat_pipewire.stat.exists
 
