@@ -40,6 +40,7 @@
       - fd-find
       - htop
       - psmisc
+      - fuse
 
 - name: check if device is laptop
   shell:
