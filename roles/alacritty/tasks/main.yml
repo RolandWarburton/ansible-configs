@@ -66,3 +66,8 @@
     group: root
     state: file
   when: alacritty_stat_bin.stat.exists
+
+- name: refresh fonts cache
+  become_user: '{{username}}'
+  shell:
+    cmd: 'fc-cache -fv'
