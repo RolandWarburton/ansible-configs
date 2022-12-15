@@ -1,7 +1,7 @@
 #!/usr/bin/bash
-LAPTOP=eDP-1
+LAPTOP="eDP-1";
 if [ $(grep -q open /proc/acpi/button/lid/LID/state) -a $(lsmod | grep -q i915) ]; then
-  swaymsg output eDP-1 enable
+  swaymsg output "$LAPTOP" enable
 else
-  swaymsg output eDP-1 disable
+  swaymsg output "$LAPTOP" disable
 fi
