@@ -1,8 +1,12 @@
 # Ansible Playbooks
 
-Edit the host_vars file:
+Pairs with [rolandwarburton/dotfiles](https://github.com/RolandWarburton/dotfiles).
+
+Editor config can be found at [rolandwarburton/nvim.conf](https://github.com/RolandWarburton/nvim.conf).
 
 ### Adding a New Ansible Host
+
+Edit the host_vars file:
 
 * Rename the IP to be correct in `hosts.ini`.
 * Rename the `host_vars/<ip>` file to be correct.
