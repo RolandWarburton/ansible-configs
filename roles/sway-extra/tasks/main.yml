@@ -6,3 +6,53 @@
       - flameshot
       - wl-clipboard
       - clipman
+
+# swww
+- name: Check if cargo is in the PATH
+  shell: 'zsh -c "source ~/.zshrc; cargo"'
+  register: cargo_check
+  failed_when: cargo_check.rc != 0
+
+- name: Check if build dir exists
+  stat:
+    path: '{{build_dir}}/swww'
+  register: build_dir_exists
+
+- name: Create build dir if it does not exist
+  file:
+    path: '{{build_dir}}/swww'
+    state: directory
+    owner: '{{username}}'
+    group: '{{username}}'
+  when: build_dir_exists.stat.exists == False
+
+- name: clone swww
+  become_user: '{{username}}'
+  git:
+    repo: 'https://github.com/Horus645/swww.git'
+    dest: '{{build_dir}}/swww'
+
+- name: build swww (compile)
+  become_user: '{{username}}'
+  shell:
+    cmd: 'cargo build --release'
+    chdir: '{{build_dir}}/swww'
+    creates: '{{build_dir}}/swww/target/release/swww'
+
+- name: Copy 'swww' binary to '/usr/bin' directory
+  copy:
+    src: '{{build_dir}}/swww/target/release/swww'
+    dest: /usr/bin/swww
+    owner: root
+    group: root
+    remote_src: true
+    mode: 0755
+
+- name: Copy 'swww-daemon' binary to '/usr/bin' directory
+  copy:
+    src: '{{build_dir}}/swww/target/release/swww-daemon'
+    dest: /usr/bin
+    owner: root
+    group: root
+    remote_src: true
+    mode: 0755
