@@ -6,6 +6,7 @@
       - flameshot
       - wl-clipboard
       - clipman
+      - inotify-tools
 
 # swww
 - name: Check if cargo is in the PATH
