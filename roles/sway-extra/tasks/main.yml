@@ -56,3 +56,8 @@
     group: root
     remote_src: true
     mode: 0755
+
+- name: Copy on_hdmi_connected.rules to /etc/udev/rules.d/
+  copy:
+    src: 'on_hdmi_connected.rules'
+    dest: /etc/udev/rules.d/on_hdmi_connected.rules

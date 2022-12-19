@@ -1,0 +1,1 @@
+SUBSYSTEM=="drm", RUN+="/bin/bash /usr/local/bin/display_hotplug.sh"
