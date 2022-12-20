@@ -6,6 +6,7 @@
       - flameshot
       - wl-clipboard
       - clipman
+      - inotify-tools
 
 # swww
 - name: Check if cargo is in the PATH
@@ -63,3 +64,9 @@
     path: /etc/systemd/logind.conf
     regexp: '^#HandleLidSwitch=suspend'
     line: HandleLidSwitch=ignore
+
+# udev rule to configure screens and desktop background when HDMI plug in or out
+- name: Copy on_hdmi_connected.rules to /etc/udev/rules.d/
+  copy:
+    src: 'on_hdmi_connected.rules'
+    dest: /etc/udev/rules.d/on_hdmi_connected.rules

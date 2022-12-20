@@ -1,0 +1,1 @@
+SUBSYSTEM=="drm", RUN+="/bin/bash /usr/local/etc/sway/configure-laptop-display.sh"
