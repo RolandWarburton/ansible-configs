@@ -12,4 +12,9 @@ if [[ $displays -gt 1 ]] && $(grep -q closed /proc/acpi/button/lid/LID/state); t
 else
   swaymsg output "$LAPTOP" enable
 fi;
+
+swww init &> /dev/null
+status=$?
+if [ -n "$SWAY_ENABLE_DESKTOP_BACKGROUND" ]; then
+  swww img $HOME/.local/media/background.png;
 fi
