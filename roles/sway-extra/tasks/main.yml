@@ -56,3 +56,10 @@
     group: root
     remote_src: true
     mode: 0755
+
+# power config
+- name: Set the HandleLidSwitch to be ignored
+  lineinfile:
+    path: /etc/systemd/logind.conf
+    regexp: '^#HandleLidSwitch=suspend'
+    line: HandleLidSwitch=ignore
