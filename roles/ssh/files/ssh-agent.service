@@ -6,9 +6,14 @@ Wants=dbus.socket
 After=dbus.socket
 
 [Service]
+# export this to the users environment
 Environment=SSH_AUTH_SOCK=%t/ssh-agent.socket
+# run the ssh agent as a daemon (-D) and create a socket in /run/*/ called ssh-agent.pid (-a)
+# %t refers to the runtime root dir (/run) https://www.freedesktop.org/software/systemd/man/systemd.unit.html
 ExecStart=/usr/bin/ssh-agent -D -a %t/ssh-agent.socket
+# after starting create a PID file in /tmp
 ExecStartPost=/bin/sh -c "echo $MAINPID > /tmp/ssh-agent.pid;"
+# stop the service by its PID file to instruct the ssh-agent which process to kill (-k)
 ExecStop=/bin/sh -c "source export $(cat /tmp/ssh-agent.pid) && /usr/bin/ssh-agent -k"
 
 [Install]
