@@ -41,6 +41,8 @@
       - htop
       - psmisc
       - fuse
+      - pinentry-curses
+      - pinentry-tty
 
 - name: check if device is laptop
   shell:
@@ -122,3 +124,21 @@
     name: '{{username}}'
     groups: input
     append: yes
+
+# copy over the gpg config file
+- name: ensure gnupg dir created in home directory
+  file:
+    path: '/home/{{username}}/.gnupg'
+    state: directory
+    mode: '0755'
+    owner: '{{username}}'
+    group: '{{username}}'
+
+- name: copy gpg-agent.conf to gnupg directory
+  copy:
+    src: ./gpg-agent.conf
+    dest: '/home/{{username}}/.gnupg/gpg-agent.conf'
+    owner: 'root'
+    group: 'root'
+    mode: 0644
+    force: yes
