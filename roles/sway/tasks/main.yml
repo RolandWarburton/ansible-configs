@@ -407,7 +407,6 @@
     src: configure-laptop-display.sh
     dest: /usr/local/etc/sway
     mode: 0755
-  register: ssh_agent_condition
 
 # NOTE: to start sway
 # dbus-run-session sway
