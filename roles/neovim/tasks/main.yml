@@ -15,19 +15,35 @@
 
 - name: download neovim
   get_url:
-    url: https://github.com/neovim/neovim/releases/download/v0.8.0/nvim-linux64.deb
-    dest: /tmp/nvim-linux64.deb
+    url: https://github.com/neovim/neovim/releases/download/v0.9.1/nvim-linux64.tar.gz
+    dest: /tmp/nvim-linux64.tar.gz
     mode: '0755'
     group: '{{username}}'
     owner: '{{username}}'
   register: nvim_downloaded
   when: nvim_deb_stat.stat.islnk is not defined # the file does not exist
 
-- name: install neovim
-  apt:
-    deb: /tmp/nvim-linux64.deb
-  register: nvim_install
-  when: nvim_downloaded is defined
+- name: Unzip Neovim tar gz
+  ansible.builtin.unarchive:
+    src: /tmp/nvim-linux64.tar.gz
+    dest: /tmp
+    remote_src: true
+
+- name: Copy nvim to /usr/bin/nvim
+  ansible.builtin.copy:
+    src: /tmp/nvim-linux64
+    dest: /usr/bin
+    remote_src: true
+    mode: '0755'
+    group: '{{username}}'
+    owner: '{{username}}'
+
+- name: Create symbolic link for nvim binary
+  ansible.builtin.file:
+    src: /usr/bin/nvim-linux64/bin/nvim
+    dest: /usr/bin/nvim
+    state: link
+    force: yes
 
 - name: clone neovim config
   become_user: '{{username}}'
