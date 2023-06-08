@@ -8,12 +8,15 @@ else
 fi;
 
 if [ -n "$SWAY_ENABLE_DESKTOP_BACKGROUND" ]; then
-  # try and start swww
-  swww init &> /dev/null
+  # Check if swww is not running
+  if ! pgrep swww >/dev/null 2>&1; then
+    # try and start swww
+    swww init &> /dev/null
 
-  # this is not used at the moment
-  status=$?
+    # this is not used at the moment
+    status=$?
 
-  # set the background
-  swww img $HOME/.local/media/background.png;
+    # set the background
+    swww img $HOME/.local/media/background.png;
+  fi
 fi
