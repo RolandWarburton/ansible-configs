@@ -30,12 +30,13 @@
 # gopls
 - name: check gopls is installed
   become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  shell: 'zsh -c "source ~/.zshrc; command -v gopls"'
   register: gopls_command_check
   changed_when: false
   failed_when: false
 
 - name: install gopls
+  become_user: '{{username}}'
   shell:
     cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gopls@latest"'
     creates: /home/{{username}}/.local/go/bin/gopls
@@ -43,13 +44,14 @@
   
 - name: check gofmt is installed
   become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  shell: 'zsh -c "source ~/.zshrc; command -v gofmt"'
   register: gofmt_command_check
   changed_when: false
   failed_when: false
 
 # gofmt
 - name: install gofmt
+  become_user: '{{username}}'
   shell:
     cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gofmt@latest"'
     creates: /home/{{username}}/.local/go/bin/gofmt
