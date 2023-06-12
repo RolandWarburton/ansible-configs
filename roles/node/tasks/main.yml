@@ -5,12 +5,26 @@
   changed_when: false
   failed_when: false
 
+- name: Check if ~/.nvm exists
+  stat:
+    path: "/home/{{username}}/.nvm"
+  register: nvm_dir
+
+- name: Create ~/.nvm directory
+  file:
+    path: "/home/{{username}}/.nvm"
+    state: directory
+    mode: '0755'
+    owner: "{{username}}"
+    group: "{{username}}"
+  when: not nvm_dir.stat.exists
+
 - name: install nvm
   become_user: '{{username}}'
   shell: >
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{nvm_version}}/install.sh | bash
   args:
-    creates: "{{ ansible_env.HOME }}/.nvm/nvm.sh" # When this exists, this step will not be run
+    creates: "/home/{{username}}/.nvm/nvm.sh" # When this exists, this step will not be run
   when: nvim_command_check.rc != 0
 
 - name: check node is installed
@@ -44,4 +58,3 @@
       ln -s /home/{{username}}/.nvm/versions/npm/v{{node_version}}/bin/npm /usr/bin/npm;
   failed_when: false
   changed_when: false
-    
