@@ -20,18 +20,18 @@
     executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
     state: present
 
-- name: install eslint_d package
+- name: install eslint package
   become_user: '{{username}}'
   community.general.npm:
-    name: eslint_d
+    name: eslint
     global: yes
     executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
     state: present
 
-- name: install prettierd package
+- name: install prettier package
   become_user: '{{username}}'
   community.general.npm:
-    name: '@fsouza/prettierd'
+    name: 'prettier'
     global: yes
     executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
     state: present
@@ -79,31 +79,21 @@
 - name: clone lua lsp
   become_user: '{{username}}'
   git:
-    repo: https://github.com/sumneko/lua-language-server
+    repo: https://github.com/LuaLS/lua-language-server
     depth: 1
-    track_submodules: yes
-    recursive: yes
     dest: /home/{{username}}/.local/lsp/lua-language-server
     accept_hostkey: yes
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
 
-- name: lua lsp update submodules
-  become_user: '{{username}}'
-  shell:
-    cmd: 'git submodule update --depth 1 --init --recursive'
-    chdir: '/home/{{username}}/.local/lsp/lua-language-server'
-  changed_when: false # just ignore this
+- name: check if lua-language-server bin file exists
+  stat:
+    path: /home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server
+  register: bin_file
+  failed_when: false
 
-- name: run luamake build.sh
+- name: run make.sh
   become_user: '{{username}}'
   shell:
-    cmd: './compile/build.sh'
-    chdir: '/home/{{username}}/.local/lsp/lua-language-server/3rd/luamake'
-  changed_when: false # just ignore this
-
-- name: run luamake rebuild
-  become_user: '{{username}}'
-  shell:
-    cmd: './3rd/luamake/luamake rebuild'
-    chdir: '/home/{{username}}/.local/lsp/lua-language-server'
-    creates: '/home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server'
+    cmd: './make.sh'
+    chdir: '/home/{{username}}/.local/lsp/lua-language-server/'
+  when: not bin_file.stat.exists
