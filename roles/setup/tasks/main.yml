@@ -75,29 +75,28 @@
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
     version: 'wayland'
 
-- name: install dotbot
-  become_user: '{{username}}'
-  pip:
-    name: dotbot
-    executable: pip3
+- name: download casa file release
+  get_url:
+    url: https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa.zip
+    dest: /tmp/casa.zip
 
-- name: run dotbot for cli settings
+- name: unzip casa release
+  unarchive:
+    src: /tmp/casa.zip
+    dest: '/home/{{username}}/.local/bin/casa'
+    remote_src: yes
+    group: '{{username}}'
+    owner: '{{username}}'
+    mode: '0755'
+
+- name: run casa
   become_user: '{{username}}'
   shell:
-    cmd: /home/{{username}}/.local/bin/dotbot -c /home/{{username}}/dotfiles/install.conf.yaml
-  register: dotbot_output
-  failed_when: not dotbot_output.stdout is search('All tasks executed successfully')
-  changed_when: not dotbot_output.stdout is search('Link exists')
-  when: dotbot_configure_cli
-
-- name: run dotbot for gui settings
-  become_user: '{{username}}'
-  shell:
-    cmd: /home/{{username}}/.local/bin/dotbot -c /home/{{username}}/dotfiles/install.gui.conf.yaml
-  register: dotbot_output
-  failed_when: not dotbot_output.stdout is search('All tasks executed successfully')
-  changed_when: not dotbot_output.stdout is search('Link exists')
-  when: dotbot_configure_gui
+    cmd: /home/{{username}}/.local/bin/casa -c /home/{{username}}/dotfiles/install.conf.yaml
+    chdir: /home/{{username}}/dotfiles
+  register: casa_output
+  failed_when: not casa_output.rc != 0
+  changed_when: not casa_output.stdout is search('[LINK] Created symlink:')
 
 - name: test starship binary exists
   stat:
