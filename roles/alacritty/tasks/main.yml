@@ -12,7 +12,8 @@
       - libxcb-xfixes0-dev
       - libxkbcommon-dev
       - python3
-      - fonts-hack-ttt
+      - fontconfig
+      - fonts-hack-ttf
 
 - name: create alacritty build directory
   become_user: '{{username}}'

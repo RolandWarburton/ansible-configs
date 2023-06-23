@@ -39,6 +39,18 @@
       - check
       - libpciaccess-dev
       - libjansson-dev
+      - pipx
+      - meson
+      - python3-pyudev
+      - python3-pytest
+      - python3-libevdev
+      - python3-mako
+      - python3-jinja2
+      - python3-markdown
+      - python3-markupsafe
+      - python3-pygments
+      - python3-toml
+      - python3-typogrify
 
 - name: Install packages for xwayland
   apt:
@@ -58,35 +70,6 @@
     update_cache: yes
   when: xwayland == true
 
-- name: install pip packages
-  become_user: '{{username}}'
-  pip:
-    name:
-      - meson
-      - pyudev
-      - pytest
-      - libevdev
-
-- name: install pip packages for xwayland
-  become_user: '{{username}}'
-  pip:
-    name:
-      - mako
-  when: xwayland == true
-
-- name: install pip packages (for root user)
-  pip:
-    name:
-      - meson
-      - pyudev
-      - pytest
-      - jinja2
-      - markdown
-      - markupsafe
-      - pygments
-      - toml
-      - typogrify
-
 - name: create sway build directory
   become_user: '{{username}}'
   file:
@@ -101,42 +84,48 @@
   git:
     repo: 'https://github.com/swaywm/sway.git'
     dest: '{{sway_dir}}/sway'
-    version: 'v1.7'
+    version: '1.8.1'
+
+- name: Cherry-pick sway commit (temp patch before 1.8.2 release)
+  command: git cherry-pick dee032d0a0ecd958c902b88302dc59703d703c7f
+  args:
+    chdir: "{{ sway_dir }}/sway"
+  become_user: "{{ username }}"
 
 - name: clone wlroots
   become_user: '{{username}}'
   git:
     repo: 'https://gitlab.freedesktop.org/wlroots/wlroots.git'
     dest: '{{sway_dir}}/wlroots'
-    version: '0.15'
+    version: '0.16.2'
 
 - name: clone wayland
   become_user: '{{username}}'
   git:
     repo: 'https://gitlab.freedesktop.org/wayland/wayland.git'
     dest: '{{sway_dir}}/wayland'
-    version: '1.21.0'
+    version: '1.22.0'
 
 - name: clone wayland-protocols
   become_user: '{{username}}'
   git:
     repo: 'https://gitlab.freedesktop.org/wayland/wayland-protocols.git'
     dest: '{{sway_dir}}/wayland-protocols'
-    version: '1.28'
+    version: '1.31'
 
 - name: clone libinput
   become_user: '{{username}}'
   git:
-    repo: 'https://github.com/wayland-project/libinput.git'
+    repo: 'https://gitlab.freedesktop.org/libinput/libinput'
     dest: '{{sway_dir}}/libinput'
-    version: '1.21.0'
+    version: '1.23.0'
 
 - name: clone drm
   become_user: '{{username}}'
   git:
-    repo: 'https://github.com/freedesktop/mesa-drm.git'
+    repo: 'https://gitlab.freedesktop.org/mesa/drm.git'
     dest: '{{sway_dir}}/drm'
-    version: 'libdrm-2.4.114'
+    version: 'libdrm-2.4.115'
 
 - name: clone seatd
   become_user: '{{username}}'
@@ -161,7 +150,7 @@
   git:
     repo: 'https://gitlab.freedesktop.org/xorg/proto/xorgproto.git'
     dest: '{{sway_dir}}/xorgproto'
-    version: 'xorgproto-2022.2'
+    version: 'xorgproto-2023.2'
     depth: 1
   when: xwayland == true
 
@@ -171,7 +160,7 @@
   git:
     repo: 'https://gitlab.freedesktop.org/xorg/xserver.git'
     dest: '{{sway_dir}}/xserver'
-    version: 'xwayland-22.1.5'
+    version: 'xwayland-23.1.2'
     depth: 1
   when: xwayland == true
 
@@ -199,7 +188,7 @@
 - name: download xdg-desktop-portal-wlr
   become_user: '{{username}}'
   unarchive:
-    src: 'https://github.com/emersion/xdg-desktop-portal-wlr/releases/download/v0.6.0/xdg-desktop-portal-wlr-0.6.0.tar.gz'
+    src: 'https://github.com/emersion/xdg-desktop-portal-wlr/releases/download/v0.7.0/xdg-desktop-portal-wlr-0.7.0.tar.gz'
     dest: '{{sway_dir}}/xdg-desktop-portal-wlr'
     remote_src: yes
 
