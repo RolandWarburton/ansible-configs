@@ -75,16 +75,18 @@
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
     version: 'wayland'
 
+- name: ensure .local/bin directory exists
+  file:
+    path: /home/{{username}}/.local/bin
+    state: directory
+    mode: '0755'
+    group: '{{username}}'
+    owner: '{{username}}'
+
 - name: download casa file release
   get_url:
-    url: https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa.zip
-    dest: /tmp/casa.zip
-
-- name: unzip casa release
-  unarchive:
-    src: /tmp/casa.zip
-    dest: '/home/{{username}}/.local/bin/casa'
-    remote_src: yes
+    url: 'https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa'
+    dest: /home/{{username}}/.local/bin/casa
     group: '{{username}}'
     owner: '{{username}}'
     mode: '0755'
@@ -95,8 +97,7 @@
     cmd: /home/{{username}}/.local/bin/casa -c /home/{{username}}/dotfiles/install.conf.yaml
     chdir: /home/{{username}}/dotfiles
   register: casa_output
-  failed_when: not casa_output.rc != 0
-  changed_when: not casa_output.stdout is search('[LINK] Created symlink:')
+  failed_when: casa_output.rc != 0
 
 - name: test starship binary exists
   stat:
