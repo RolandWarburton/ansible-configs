@@ -1,0 +1,37 @@
+# Notes:
+#
+# you can find the name of fonts using
+# fc-query HackNerdFont-Regular.ttf
+#
+# roles/alacritty uses this to set the terminal fonts
+#
+
+- name: install packages
+  apt:
+    update_cache: yes
+    pkg:
+      - fontconfig
+      - fd-find
+
+- name: create temp directory
+  file:
+    path: '/tmp/ttf-hack-patched'
+    mode: 0775
+    state: directory
+
+- name: download nerd fonts patched ttf-hack
+  unarchive:
+    src: 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Hack.tar.xz'
+    dest: '/tmp/ttf-hack-patched'
+    remote_src: yes
+
+- name: create hack font directory
+  file:
+    path: '/usr/share/fonts/truetype/hack'
+    mode: 0775
+    state: directory
+
+- name: copy fonts to font directory
+  shell:
+    cmd: 'fdfind --max-depth=1 "ttf$" --exec cp {} /usr/share/fonts/truetype/hack/{} '
+    chdir: '/tmp/ttf-hack-patched'
