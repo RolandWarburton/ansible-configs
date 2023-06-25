@@ -10,6 +10,7 @@
 
 # swww
 - name: Check if cargo is in the PATH
+  become_user: '{{username}}'
   shell: 'zsh -c "source ~/.zshrc; cargo"'
   register: cargo_check
   failed_when: cargo_check.rc != 0
