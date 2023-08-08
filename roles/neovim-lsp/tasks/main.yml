@@ -97,3 +97,11 @@
     cmd: './make.sh'
     chdir: '/home/{{username}}/.local/lsp/lua-language-server/'
   when: not bin_file.stat.exists
+
+- name: symlink for lua-language-server executable
+  become_user: '{{username}}'
+  file:
+    src: /home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server
+    dest: /home/{{username}}/.local/bin/lua-language-server
+    state: link
+  when: bin_file.stat.exists
