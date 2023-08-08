@@ -2,18 +2,37 @@
   apt: 
     update_cache: yes
     pkg:
-      - libasound2 
-      - alsa-utils 
-      - alsa-oss 
-      - libspa-0.2-dev
-      - libspa-0.2-modules
-      - libdbus-1-dev 
+      - libasound2
+      - alsa-utils
+      - alsa-oss
+      - alsa-tools
+      - libdbus-1-dev
       - libasound2-dev
-      - pulseaudio-utils
       - rtkit
-      - gstreamer1.0-tools
-      - pulsemixer
-      # - xdg-desktop-portal-wlr (waiting for debian 12 for pipewire to be updated)
+      - libcamera-dev
+      - python3-lxml
+      - libusb-dev 
+      - libusb-1.0-0-dev
+      # BLUETOOTH STUFF
+      - bluez
+      - bluez-firmware
+      - bluez-tools
+      - libspa-0.2-bluetooth
+      - pulseaudio-module-bluetooth
+      - bluez-source
+      - libbluetooth-dev
+      - libasound2-plugin-bluez
+      - bluemon
+      # ADDITIONAL
+      - libopus-dev
+      - libpulse-dev
+      - ffmpeg
+      - libsndfile1-dev
+      - libsbc-dev
+      - libldacbt-abr-dev
+      - libldacbt-enc-dev
+      - libavcodec-extra
+      - libcamera-ipa
 
 - name: Ensure group "pipewire" exists
   group:
@@ -53,7 +72,7 @@
   git:
     repo: 'https://gitlab.freedesktop.org/pipewire/pipewire.git'
     dest: '{{tmp_dir}}/pipewire'
-    version: '0.3.43'
+    version: '0.3.71'
     depth: 1
 
 - name: clone wireplumber
@@ -61,14 +80,14 @@
   git:
     repo: 'https://gitlab.freedesktop.org/pipewire/wireplumber.git'
     dest: '{{tmp_dir}}/wireplumber'
-    version: '0.4.7'
+    version: '0.4.14'
     depth: 1
 
 # pipewire
 - name: build pipewire (configure)
   become_user: '{{username}}'
   shell:
-    cmd: 'meson setup builddir'
+    cmd: 'meson setup -Dpw-cat=enabled builddir'
     chdir: '{{tmp_dir}}/pipewire'
 
 - name: build pipewire (configure)
@@ -100,23 +119,23 @@
     cmd: 'ninja -C build install'
     chdir: '{{tmp_dir}}/wireplumber'
 
-# patch polkit to allow any user to set rtkit nice level
-- name: patch polkit
-  shell:
-    cmd: >
-      sed -Ei
-      '/Authentication is required to grant an application high priority scheduling/,+3 
-      s/no/yes/'
-      /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
-
-- name: patch polkit
-  shell:
-    cmd: >
-      sed -Ei
-      '/Authentication is required to grant an application realtime scheduling/,+3 
-      s/no/yes/'
-      /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
-
+# # patch polkit to allow any user to set rtkit nice level
+# - name: patch polkit
+#   shell:
+#     cmd: >
+#       sed -Ei
+#       '/Authentication is required to grant an application high priority scheduling/,+3 
+#       s/no/yes/'
+#       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
+#
+# - name: patch polkit
+#   shell:
+#     cmd: >
+#       sed -Ei
+#       '/Authentication is required to grant an application realtime scheduling/,+3 
+#       s/no/yes/'
+#       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
+#
 # https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Performance-tuning#rlimits
 # note this requires a reboot after
 - name: copy 95-pipewire.conf to set rlimits
@@ -124,7 +143,7 @@
     src: ./95-pipewire.conf
     dest: /etc/security/limits.d/95-pipewire.conf
     mode: 0755
- 
+
 # copy config files to etc
 - name: Check pipewire config exists
   stat:
@@ -137,7 +156,6 @@
    - /usr/share/pipewire/jack.conf
    - /usr/share/pipewire/client-rt.conf
    - /usr/share/pipewire/filter-chain
-   - /usr/share/pipewire/media-session.d
   register: stat_pipewire
   failed_when: not stat_pipewire.stat.exists
 
@@ -158,19 +176,27 @@
     cmd: 'cp -r /usr/share/wireplumber /etc'
     creates: /etc/wireplumber/wireplumber.conf
 
-# enable services
-- name: daemon reload
-  ansible.builtin.systemd:
-    daemon_reexec: yes
+# # enable services
+# - name: daemon reload
+#   ansible.builtin.systemd:
+#     daemon_reexec: yes
+#
+# - name: systemd enable pipewire
+#   systemd:
+#     state: enabled
+#     name: pipewire
+#   when: enable_systemd_pipewire
+#
+# - name: systemd enable wireplumber
+#   systemd:
+#     state: enabled
+#     name: wireplumber
+#   when: enable_systemd_wireplumber
 
-- name: systemd enable pipewire
-  systemd:
-    state: enabled
-    name: pipewire
-  when: enable_systemd_pipewire
 
-- name: systemd enable wireplumber
-  systemd:
-    state: enabled
-    name: wireplumber
-  when: enable_systemd_wireplumber
+# sudo useradd -g pipewire -r -s /usr/sbin/nologin pipewire
+# sudo chown pipewire:pipewire /usr/bin/pipewire
+# sudo usermod -aG audio pipewire
+# sudo usermod -aG realtime pipewire
+# sudo usermod -aG seat pipewire
+# sudo usermod -aG video pipewire
