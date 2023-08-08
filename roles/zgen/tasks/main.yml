@@ -1,3 +1,4 @@
+# zgen is a package manager for zshell (zsh) https://github.com/tarjoilija/zgen
 - name: check if zgen directory exists
   stat:
     path: /home/{{username}}/.zgen
