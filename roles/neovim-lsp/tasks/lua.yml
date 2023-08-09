@@ -1,0 +1,34 @@
+- name: install ninja-build
+  apt:
+    update_cache: yes
+    name: ninja-build
+
+- name: clone lua lsp
+  become_user: '{{username}}'
+  git:
+    repo: https://github.com/LuaLS/lua-language-server
+    depth: 1
+    dest: /home/{{username}}/.local/lsp/lua-language-server
+    accept_hostkey: yes
+    key_file: /home/{{username}}/.ssh/id_github # on the remote host
+
+- name: check if lua-language-server bin file exists
+  stat:
+    path: /home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server
+  register: bin_file
+  failed_when: false
+
+- name: run make.sh
+  become_user: '{{username}}'
+  shell:
+    cmd: './make.sh'
+    chdir: '/home/{{username}}/.local/lsp/lua-language-server/'
+  when: not bin_file.stat.exists
+
+- name: symlink for lua-language-server executable
+  become_user: '{{username}}'
+  file:
+    src: /home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server
+    dest: /home/{{username}}/.local/bin/lua-language-server
+    state: link
+  when: bin_file.stat.exists

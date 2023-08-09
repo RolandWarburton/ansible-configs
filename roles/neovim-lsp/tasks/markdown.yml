@@ -1,0 +1,24 @@
+# markdown
+- name: install markdown-cli package
+  become_user: '{{username}}'
+  community.general.npm:
+    name: 'markdownlint-cli'
+    global: yes
+    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
+    state: present
+
+# vale
+- name: copy install vale script
+  template:
+    src: ./install-vale.j2
+    dest: /home/{{username}}/.local/bin/install-vale.zsh
+    owner: '{{username}}'
+    group: '{{username}}'
+    mode: 0755
+
+- name: install vale
+  become_user: '{{username}}'
+  shell:
+    cmd: /home/{{username}}/.local/bin/install-vale.zsh
+    creates: /home/{{username}}/.local/bin/vale
+  register: vale

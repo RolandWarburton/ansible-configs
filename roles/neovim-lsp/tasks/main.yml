@@ -3,105 +3,14 @@
 # https://github.com/RolandWarburton/nvim.conf/blob/master/doc/lsp_install.txt
 # ==================================================================================================
 
-# typescript
-- name: install typescript package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: typescript
-    global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
+- name: typescript lsp
+  import_tasks: typescript.yml
 
-- name: install typescript-language-server package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: typescript-language-server
-    global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
+- name: web lsp
+  import_tasks: web.yml
 
-- name: install eslint package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: eslint
-    global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
+- name: markdown lsp
+  import_tasks: markdown.yml
 
-- name: install prettier package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: 'prettier'
-    global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
-
-# html css and json
-- name: install html, css, and json package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: 'vscode-langservers-extracted'
-    global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
-
-# markdown
-- name: install markdown-cli package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: 'markdownlint-cli'
-    global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
-
-# vale
-- name: copy install vale script
-  template:
-    src: ./install-vale.j2
-    dest: /home/{{username}}/.local/bin/install-vale.zsh
-    owner: '{{username}}'
-    group: '{{username}}'
-    mode: 0755
-
-- name: install vale
-  become_user: '{{username}}'
-  shell:
-    cmd: /home/{{username}}/.local/bin/install-vale.zsh
-    creates: /home/{{username}}/.local/bin/vale
-  register: vale
-
-# lua
-- name: install ninja-build
-  apt:
-    update_cache: yes
-    name: ninja-build
-
-- name: clone lua lsp
-  become_user: '{{username}}'
-  git:
-    repo: https://github.com/LuaLS/lua-language-server
-    depth: 1
-    dest: /home/{{username}}/.local/lsp/lua-language-server
-    accept_hostkey: yes
-    key_file: /home/{{username}}/.ssh/id_github # on the remote host
-
-- name: check if lua-language-server bin file exists
-  stat:
-    path: /home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server
-  register: bin_file
-  failed_when: false
-
-- name: run make.sh
-  become_user: '{{username}}'
-  shell:
-    cmd: './make.sh'
-    chdir: '/home/{{username}}/.local/lsp/lua-language-server/'
-  when: not bin_file.stat.exists
-
-- name: symlink for lua-language-server executable
-  become_user: '{{username}}'
-  file:
-    src: /home/{{username}}/.local/lsp/lua-language-server/bin/lua-language-server
-    dest: /home/{{username}}/.local/bin/lua-language-server
-    state: link
-  when: bin_file.stat.exists
+- name: lua lsp
+  import_tasks: lua.yml
