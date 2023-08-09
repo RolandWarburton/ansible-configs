@@ -5,12 +5,16 @@
 
 - name: typescript lsp
   import_tasks: typescript.yml
+  when: install_typescript
 
 - name: web lsp
   import_tasks: web.yml
+  when: install_web
 
 - name: markdown lsp
   import_tasks: markdown.yml
+  when: install_markdown
 
 - name: lua lsp
   import_tasks: lua.yml
+  when: install_lua
