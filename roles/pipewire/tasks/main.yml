@@ -2,37 +2,11 @@
   apt: 
     update_cache: yes
     pkg:
-      - libasound2
       - alsa-utils
-      - alsa-oss
-      - alsa-tools
-      - libdbus-1-dev
+      - pulseaudio
+      - pulseaudio-utils
       - libasound2-dev
-      - rtkit
-      - libcamera-dev
-      - python3-lxml
-      - libusb-dev 
-      - libusb-1.0-0-dev
-      # BLUETOOTH STUFF
-      - bluez
-      - bluez-firmware
-      - bluez-tools
-      - libspa-0.2-bluetooth
-      - pulseaudio-module-bluetooth
-      - bluez-source
-      - libbluetooth-dev
-      - libasound2-plugin-bluez
-      - bluemon
-      # ADDITIONAL
-      - libopus-dev
-      - libpulse-dev
-      - ffmpeg
-      - libsndfile1-dev
-      - libsbc-dev
-      - libldacbt-abr-dev
-      - libldacbt-enc-dev
-      - libavcodec-extra
-      - libcamera-ipa
+      - libdbus-1-dev
 
 - name: Ensure group "pipewire" exists
   group:
@@ -66,137 +40,95 @@
     owner: '{{username}}'
     group: '{{username}}'
 
-# get repos
-- name: clone pipewire
-  become_user: '{{username}}'
-  git:
-    repo: 'https://gitlab.freedesktop.org/pipewire/pipewire.git'
-    dest: '{{tmp_dir}}/pipewire'
-    version: '0.3.71'
-    depth: 1
 
-- name: clone wireplumber
-  become_user: '{{username}}'
-  git:
-    repo: 'https://gitlab.freedesktop.org/pipewire/wireplumber.git'
-    dest: '{{tmp_dir}}/wireplumber'
-    version: '0.4.14'
-    depth: 1
+# pipewire download & extract
+- name: Check if Pipewire source exists
+  stat:
+    path: "{{ tmp_dir }}/pipewire-0.3.80.zip"
+  register: pipewire_src
 
-# pipewire
-- name: build pipewire (configure)
-  become_user: '{{username}}'
+- name: download Pipewire Zip File
+  get_url:
+    url: "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/0.3.80/pipewire-0.3.80.zip"
+    dest: "{{ tmp_dir }}/pipewire-0.3.80.zip"
+  when: not pipewire_src.stat.exists
+
+- name: Extract Pipewire Zip File
+  unarchive:
+    src: "{{ tmp_dir }}/pipewire-0.3.80.zip"
+    dest: "{{ tmp_dir }}"
+    owner: '{{username}}'
+    group: '{{username}}'
+    remote_src: yes
+
+# wireplumber download & extract
+- name: Check if wireplumber source exists
+  stat:
+    path: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
+  register: wireplumber_src
+
+- name: download Pipewire Zip File
+  get_url:
+    url: "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/0.4.14/wireplumber-0.4.14.zip"
+    dest: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
+  when: not wireplumber_src.stat.exists
+
+- name: Extract wireplumber Zip File
+  unarchive:
+    src: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
+    dest: "{{ tmp_dir }}"
+    owner: '{{username}}'
+    group: '{{username}}'
+    remote_src: yes
+
+# pipewire build
+- name: Check if wireplumber source exists
+  stat:
+    path: "/usr/bin/pipewire"
+  register: pipewire_bin
+
+- name: Build Pipewire (configure)
+  become_user: '{{ username }}'
   shell:
-    cmd: 'meson setup -Dpw-cat=enabled builddir'
-    chdir: '{{tmp_dir}}/pipewire'
+    cmd: 'meson setup builddir'
+    chdir: '{{ tmp_dir }}/pipewire-0.3.80'
+  when: not pipewire_bin.stat.exists
 
-- name: build pipewire (configure)
-  become_user: '{{username}}'
+- name: Build Pipewire (configure)
+  become_user: '{{ username }}'
   shell:
     cmd: 'meson configure builddir -Dprefix=/usr'
-    chdir: '{{tmp_dir}}/pipewire'
+    chdir: '{{ tmp_dir }}/pipewire-0.3.80'
+  when: not pipewire_bin.stat.exists
 
-- name: build pipewire (install)
+- name: Build Pipewire (install)
   shell:
     cmd: 'meson install -C builddir'
-    chdir: '{{tmp_dir}}/pipewire'
+    chdir: '{{ tmp_dir }}/pipewire-0.3.80'
+  when: not pipewire_bin.stat.exists
 
-# wireplumber
+# wireplumber build
+- name: Check if wireplumber source exists
+  stat:
+    path: "/usr/bin/wireplumber"
+  register: wireplumber_bin
+
 - name: build wireplumber (configure)
   become_user: '{{username}}'
   shell:
     cmd: 'meson setup --prefix=/usr build'
-    chdir: '{{tmp_dir}}/wireplumber'
+    chdir: '{{tmp_dir}}/wireplumber-0.4.14'
+  register: wireplumber_bin
 
 - name: build wireplumber (configure)
   become_user: '{{username}}'
   shell:
     cmd: 'meson compile -C build'
-    chdir: '{{tmp_dir}}/wireplumber'
+    chdir: '{{tmp_dir}}/wireplumber-0.4.14'
+  register: wireplumber_bin
 
 - name: build wireplumber (install)
   shell:
     cmd: 'ninja -C build install'
-    chdir: '{{tmp_dir}}/wireplumber'
-
-# # patch polkit to allow any user to set rtkit nice level
-# - name: patch polkit
-#   shell:
-#     cmd: >
-#       sed -Ei
-#       '/Authentication is required to grant an application high priority scheduling/,+3 
-#       s/no/yes/'
-#       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
-#
-# - name: patch polkit
-#   shell:
-#     cmd: >
-#       sed -Ei
-#       '/Authentication is required to grant an application realtime scheduling/,+3 
-#       s/no/yes/'
-#       /usr/share/polkit-1/actions/org.freedesktop.RealtimeKit1.policy
-#
-# https://gitlab.freedesktop.org/pipewire/pipewire/-/wikis/Performance-tuning#rlimits
-# note this requires a reboot after
-- name: copy 95-pipewire.conf to set rlimits
-  copy:
-    src: ./95-pipewire.conf
-    dest: /etc/security/limits.d/95-pipewire.conf
-    mode: 0755
-
-# copy config files to etc
-- name: Check pipewire config exists
-  stat:
-    path: '{{item}}'
-  loop:
-   - /usr/share/pipewire
-   - /usr/share/pipewire/pipewire.conf
-   - /usr/share/pipewire/client.conf
-   - /usr/share/pipewire/pipewire-pulse.conf
-   - /usr/share/pipewire/jack.conf
-   - /usr/share/pipewire/client-rt.conf
-   - /usr/share/pipewire/filter-chain
-  register: stat_pipewire
-  failed_when: not stat_pipewire.stat.exists
-
-- name: copy pipewire configs to etc
-  shell:
-    cmd: 'cp -r /usr/share/pipewire /etc'
-    creates: /etc/pipewire/pipewire.conf
-
-# copy wireplumber configs
-- name: Check wireplumber config exists
-  stat:
-    path: /usr/share/wireplumber
-  register: stat_wireplumber
-  failed_when: not stat_wireplumber.stat.exists
-
-- name: copy wireplumber configs to etc
-  shell:
-    cmd: 'cp -r /usr/share/wireplumber /etc'
-    creates: /etc/wireplumber/wireplumber.conf
-
-# # enable services
-# - name: daemon reload
-#   ansible.builtin.systemd:
-#     daemon_reexec: yes
-#
-# - name: systemd enable pipewire
-#   systemd:
-#     state: enabled
-#     name: pipewire
-#   when: enable_systemd_pipewire
-#
-# - name: systemd enable wireplumber
-#   systemd:
-#     state: enabled
-#     name: wireplumber
-#   when: enable_systemd_wireplumber
-
-
-# sudo useradd -g pipewire -r -s /usr/sbin/nologin pipewire
-# sudo chown pipewire:pipewire /usr/bin/pipewire
-# sudo usermod -aG audio pipewire
-# sudo usermod -aG realtime pipewire
-# sudo usermod -aG seat pipewire
-# sudo usermod -aG video pipewire
+    chdir: '{{tmp_dir}}/wireplumber-0.4.14'
+  register: wireplumber_bin
