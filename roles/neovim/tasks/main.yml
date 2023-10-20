@@ -15,7 +15,7 @@
 
 - name: download neovim
   get_url:
-    url: https://github.com/neovim/neovim/releases/download/v0.9.1/nvim-linux64.tar.gz
+    url: https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-linux64.tar.gz
     dest: /tmp/nvim-linux64.tar.gz
     mode: '0755'
     group: '{{username}}'
