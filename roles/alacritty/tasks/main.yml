@@ -71,3 +71,27 @@
   become_user: '{{username}}'
   shell:
     cmd: 'fc-cache -fv'
+
+- name: stat check /usr/share/applications exists
+  stat:
+    path: '/usr/share/applications'
+  register: desktop_folder
+
+- name: copt alacritty.desktop to /usr/share/applications
+  command: cp {{alacritty_install_dir}}/alacritty/extra/linux/Alacritty.desktop /usr/share/applications
+  when: alacritty_stat.stat.exists == true and desktop_folder.stat.exists == true
+
+- name: stat check /usr/share/icons exists
+  stat:
+    path: '/usr/share/icons'
+  register: icons_folder
+
+- name: copy alacritty-term.png to /usr/share/icons
+  command: cp {{alacritty_install_dir}}/alacritty/extra/logo/compat/alacritty-term.png /usr/share/icons
+  when: alacritty_stat.stat.exists == true and icons_folder.stat.exists == true
+
+- name: Replace Icon value in the desktop file
+  lineinfile:
+    path: /usr/share/applications/Alacritty.desktop
+    regexp: '^Icon='
+    line: 'Icon=/usr/share/icons/alacritty-term.png'
