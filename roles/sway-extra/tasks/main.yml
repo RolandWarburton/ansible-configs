@@ -31,7 +31,7 @@
 - name: clone swww
   become_user: '{{username}}'
   git:
-    repo: 'https://github.com/Horus645/swww.git'
+    repo: 'https://github.com/LGFae/swww.git'
     dest: '{{build_dir}}/swww'
 
 - name: build swww (compile)
