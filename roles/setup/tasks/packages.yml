@@ -45,7 +45,13 @@
   shell:
     cmd: 'dmidecode | grep Version'
   changed_when: false
+  ignore_errors: true
   register: dmidecode_version
+
+- name: assume device is a laptop if dmidecode fails
+  set_fact:
+    is_laptop: true
+  when: dmidecode_version.rc != 0
 
 - name: install laptop specific packages
   apt:
@@ -56,4 +62,5 @@
       - network-manager
       - acpi
   when: >
-    (dmidecode_version.stdout is search('ThinkPad'))
+    (dmidecode_version.stdout is search('ThinkPad')) or
+    (is_laptop is defined and is_laptop)
