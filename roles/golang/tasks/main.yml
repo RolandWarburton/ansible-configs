@@ -15,7 +15,7 @@
 - name: download and untar go binary
   become_user: '{{username}}'
   unarchive:
-    src: https://go.dev/dl/go1.21.4.linux-amd64.tar.gz
+    src: https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
     dest: /home/{{username}}/.local
     remote_src: yes
     creates: /home/{{username}}/.local/go/bin/go
