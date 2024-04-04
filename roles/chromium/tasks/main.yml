@@ -1,0 +1,12 @@
+- name: Check if chromium.desktop exists
+  stat:
+    path: /usr/share/applications/chromium.desktop
+  register: chromium_desktop_stat
+
+- name: Update Exec line if chromium.desktop exists
+  become: yes
+  lineinfile:
+    path: /usr/share/applications/chromium.desktop
+    regexp: '^Exec='
+    line: 'Exec=/usr/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland %U'
+  when: chromium_desktop_stat.stat.exists
