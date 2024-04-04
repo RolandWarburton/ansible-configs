@@ -18,6 +18,14 @@
     force: yes
 
 
+# this fixes some random bug i got on a rpi zero
+# cannot hurt to install it on all machines
+- name: install acl
+  apt: 
+    update_cache: yes
+    pkg:
+      - acl
+
 - name: install packages
   apt: 
     update_cache: yes
@@ -60,7 +68,11 @@
       - firmware-iwlwifi
       - firmware-realtek
       - network-manager
-      - acpi
   when: >
     (dmidecode_version.stdout is search('ThinkPad')) or
     (is_laptop is defined and is_laptop)
+
+- name: Install acpi for x86_64
+  apt:
+    name: acpi
+  when: ansible_architecture == 'x86_64'
