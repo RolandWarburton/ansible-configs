@@ -1,0 +1,27 @@
+- name: Create temporary directory
+  file:
+    path: "{{ tmp_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Check if lf tar already exists
+  ansible.builtin.stat:
+    path: '{{ tmp_dir }}/lf.tar.gz'
+  register: lf_tar_stat
+
+- name: download lf tar
+  get_url:
+    url: 'https://github.com/gokcehan/lf/releases/download/r32/lf-linux-amd64.tar.gz'
+    dest: '{{ tmp_dir }}/lf.tar.gz'
+  when: not lf_tar_stat.stat.exists
+
+- name: extract lf tarball
+  command: 'tar -zxvf {{ tmp_dir }}/lf.tar.gz -C /home/{{ username }}/.local/bin'
+  args:
+    creates: '/home/{{ username }}/dotfiles/.local/bin'
+
+- name: Run build-ripdrag-wrapper.sh script
+  become_user: '{{username}}'
+  shell: ./build-ripdrag-wrapper.sh
+  args:
+    chdir: /home/roland/dotfiles/software
