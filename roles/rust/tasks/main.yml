@@ -21,3 +21,35 @@
   shell: zsh -c '/tmp/sh.rustup.rs -y'
   when: cargo_exists.rc != 0
   register: cargo_install
+
+- name: Run rustup self update command
+  become_user: '{{username}}'
+  command: '/home/{{username}}/.cargo/bin/rustup self update'
+  register: rustup_update_output
+  ignore_errors: true
+
+- name: Print Rustup update status
+  debug:
+    msg: '{{ rustup_update_output.stdout }}'
+  when: rustup_update_output.rc == 0
+
+- name: Print error message if rustup self update command fails
+  debug:
+    msg: 'Failed to upgrade Rustup. Please make sure Rustup is installed.'
+  when: rustup_update_output.rc != 0
+
+- name: Run rustup update command
+  become_user: '{{username}}'
+  command: "/home/roland/.cargo/bin/rustup update"
+  register: rust_update_output
+  ignore_errors: true
+
+- name: Print Rust update status
+  debug:
+    msg: "{{ rust_update_output.stdout }}"
+  when: rust_update_output.rc == 0
+
+- name: Print error message if rustup update command fails
+  debug:
+    msg: "Failed to upgrade Rust components."
+  when: rust_update_output.rc != 0
