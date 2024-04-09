@@ -1,0 +1,67 @@
+- name: install packages
+  apt: 
+    update_cache: yes
+    pkg:
+      - libevent-dev
+      - ncurses-dev
+      - build-essential
+      - bison
+      - pkg-config
+
+- name: Create temporary directory
+  become_user: '{{username}}'
+  file:
+    path: "{{ tmp_dir }}"
+    state: directory
+    mode: '0755'
+
+- name: Check if tmux tar already exists
+  become_user: '{{username}}'
+  ansible.builtin.stat:
+    path: '{{ tmp_dir }}/tmux.tar.gz'
+  register: tmux_tar_stat
+
+- name: download tmux tar
+  become_user: '{{username}}'
+  get_url:
+    url: 'https://github.com/tmux/tmux/releases/download/3.4/tmux-3.4.tar.gz'
+    dest: '{{ tmp_dir }}/tmux.tar.gz'
+  when: not tmux_tar_stat.stat.exists
+
+- name: extract tmux tarball
+  become_user: '{{username}}'
+  command: 'tar -zxvf {{ tmp_dir }}/tmux.tar.gz -C {{ tmp_dir }}/'
+  args:
+    creates: '{{ tmp_dir }}/tmux-3.4'
+
+- name: Run tmux configure
+  become_user: '{{username}}'
+  shell: './configure'
+  args:
+    chdir: '{{ tmp_dir }}/tmux-3.4'
+
+- name: Check if tmux was built
+  stat:
+    path: '{{ tmp_dir }}/tmux-3.4/tmux'
+  register: tmux_bin
+
+- name: Run tmux make
+  become_user: '{{username}}'
+  shell: 'make'
+  args:
+    chdir: '{{ tmp_dir }}/tmux-3.4'
+  when: not tmux_bin.stat.exists
+
+- name: Check if tmux was built
+  stat:
+    path: '{{ tmp_dir }}/tmux-3.4/tmux'
+  register: tmux_bin
+
+- name: Fail when tmux binary does not exist
+  fail:
+    msg: "tmux binary does was not built"
+  when: not tmux_bin.stat.exists
+
+- name: Move tmux to /usr/bin
+  command: mv {{ tmp_dir }}/tmux-3.4/tmux /usr/bin/tmux-3.4
+  when: tmux_bin.stat.exists
