@@ -32,4 +32,10 @@
         path: '/home/{{ username }}/.local/lsp/lua-language-server/bin/lua-language-server'
         mode: '0755'
 
+    - name: Copy lua-language-server wrapper script to .local/bin
+      ansible.builtin.copy:
+        src: ./lua-language-server
+        dest: /home/{{ username }}/.local/bin/
+        mode: '0755'
+
   when: not lua_binary_stat.stat.exists
