@@ -69,5 +69,5 @@
   community.general.npm:
     name: 'vscode-langservers-extracted'
     global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
+    executable: /home/{{username}}/.config/nvm/versions/node/v{{node_version}}/bin/npm
     state: present
