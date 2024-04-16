@@ -1,4 +1,2 @@
 dependencies:
   - role: nvmrc_check
-  - role: neovim
-  - role: node

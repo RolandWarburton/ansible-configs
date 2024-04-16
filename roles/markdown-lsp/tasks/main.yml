@@ -1,27 +1,3 @@
-# get node version
-- name: Check if .nvmrc exists
-  stat:
-    path: '/home/{{username}}/.nvmrc'
-  register: nvmrc_stat
-
-- name: Fail if .nvmrc not found
-  fail:
-    msg: '.nvmrc file not found in /home/{{username}}/.nvmrc'
-  when: not nvmrc_stat.stat.exists
-
-- name: Read .nvmrc contents
-  slurp:
-    src: '/home/{{username}}/.nvmrc'
-  register: nvmrc_contents
-
-- name: Set node_version variable
-  set_fact:
-    node_version: '{{ nvmrc_contents.content | b64decode | trim }}'
-
-- name: Print node version
-  debug:
-    msg: 'Node version to install: {{ node_version }}'
-
 # check if npm markdown lint cli is installed
 - name: check if markdownlint-cli is installed
   shell:
