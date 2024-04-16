@@ -1,7 +1,7 @@
 - name: check nvm is installed
   become_user: '{{username}}'
   shell: 'zsh -c "source ~/.zshrc; command -v nvm"'
-  register: nvim_command_check
+  register: nvm_command_check
   changed_when: false
   failed_when: false
 
@@ -25,7 +25,7 @@
     curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{nvm_version}}/install.sh | bash
   args:
     creates: "/home/{{username}}/.nvm/nvm.sh" # When this exists, this step will not be run
-  when: nvim_command_check.rc != 0
+  when: nvm_command_check.rc != 0
 
 - name: check node is installed
   become_user: '{{username}}'
