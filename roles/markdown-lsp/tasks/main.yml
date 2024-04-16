@@ -1,0 +1,68 @@
+# get node version
+- name: Check if .nvmrc exists
+  stat:
+    path: '/home/{{username}}/.nvmrc'
+  register: nvmrc_stat
+
+- name: Fail if .nvmrc not found
+  fail:
+    msg: '.nvmrc file not found in /home/{{username}}/.nvmrc'
+  when: not nvmrc_stat.stat.exists
+
+- name: Read .nvmrc contents
+  slurp:
+    src: '/home/{{username}}/.nvmrc'
+  register: nvmrc_contents
+
+- name: Set node_version variable
+  set_fact:
+    node_version: "{{ nvmrc_contents.content | b64decode | trim }}"
+
+- name: Print node version
+  debug:
+    msg: "Node version to install: {{ node_version }}"
+
+# markdown
+- name: install markdown-cli package
+  become_user: '{{username}}'
+  community.general.npm:
+    name: 'markdownlint-cli'
+    global: yes
+    executable: /home/{{username}}/.config/nvm/versions/node/v{{node_version}}/bin/npm
+    state: present
+
+# vale
+- name: copy install vale script
+  template:
+    src: ./install-vale.j2
+    dest: /home/{{username}}/.local/bin/install-vale.zsh
+    owner: '{{username}}'
+    group: '{{username}}'
+    mode: 0755
+
+- name: install vale
+  become_user: '{{username}}'
+  shell:
+    cmd: /home/{{username}}/.local/bin/install-vale.zsh
+    creates: /home/{{username}}/.local/bin/vale
+  register: vale
+
+- name: check vale is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; vale --version"'
+  register: vale_version
+  failed_when: vale_version.rc != 0
+  changed_when: false
+
+- name: print vale version
+  debug:
+    msg: "{{ vale_version.stdout }}"
+  when: vale_version.rc == 0
+
+- name: Run vale sync
+  become_user: '{{ username }}'
+  shell: >
+    /home/{{ username }}/.local/bin/vale sync
+    --config $HOME/.config/nvim/conf/vale.ini
+  register: vale_sync
+  failed_when: vale_sync.rc != 0
