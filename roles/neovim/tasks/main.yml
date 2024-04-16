@@ -1,105 +1,115 @@
+- name: Check if Neovim package is installed
+  ansible.builtin.command: nvim --version
+  register: neovim_output
+  ignore_errors: yes
 
-- name: install packages for building neovim
-  apt: 
-    update_cache: yes
-    pkg:
-      - luarocks
-      - build-essential
-      - cmake
-      - fzf
+- name: Set fact indicating Neovim installation status
+  ansible.builtin.set_fact:
+    neovim_installed: "{{ neovim_output.rc == 0 }}"
 
-- name: check if nvim deb is downloaded
-  stat:
-    path: /tmp/nvim-linux64.deb
-  register: nvim_deb_stat
+- block:
+  - name: install packages for building neovim
+    apt: 
+      update_cache: yes
+      pkg:
+        - luarocks
+        - build-essential
+        - cmake
+        - fzf
 
-- name: download neovim
-  get_url:
-    url: https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-linux64.tar.gz
-    dest: /tmp/nvim-linux64.tar.gz
-    mode: '0755'
-    group: '{{username}}'
-    owner: '{{username}}'
-  register: nvim_downloaded
-  when: nvim_deb_stat.stat.islnk is not defined # the file does not exist
+  - name: check if nvim deb is downloaded
+    stat:
+      path: /tmp/nvim-linux64.deb
+    register: nvim_deb_stat
 
-- name: Unzip Neovim tar gz
-  ansible.builtin.unarchive:
-    src: /tmp/nvim-linux64.tar.gz
-    dest: /tmp
-    remote_src: true
+  - name: download neovim
+    get_url:
+      url: https://github.com/neovim/neovim/releases/download/v0.9.4/nvim-linux64.tar.gz
+      dest: /tmp/nvim-linux64.tar.gz
+      mode: '0755'
+      group: '{{username}}'
+      owner: '{{username}}'
+    register: nvim_downloaded
+    when: nvim_deb_stat.stat.islnk is not defined # the file does not exist
 
-- name: Copy nvim to /usr/bin/nvim
-  ansible.builtin.copy:
-    src: /tmp/nvim-linux64
-    dest: /usr/bin
-    remote_src: true
-    mode: '0755'
-    group: '{{username}}'
-    owner: '{{username}}'
+  - name: Unzip Neovim tar gz
+    ansible.builtin.unarchive:
+      src: /tmp/nvim-linux64.tar.gz
+      dest: /tmp
+      remote_src: true
 
-- name: Create symbolic link for nvim binary
-  ansible.builtin.file:
-    src: /usr/bin/nvim-linux64/bin/nvim
-    dest: /usr/bin/nvim
-    state: link
-    force: yes
+  - name: Copy nvim to /usr/bin/nvim
+    ansible.builtin.copy:
+      src: /tmp/nvim-linux64
+      dest: /usr/bin
+      remote_src: true
+      mode: '0755'
+      group: '{{username}}'
+      owner: '{{username}}'
 
-- name: clone neovim config
-  become_user: '{{username}}'
-  git:
-    repo: git@github.com:rolandwarburton/nvim.conf.git
-    dest: /home/{{username}}/.config/nvim
-    accept_hostkey: yes
-    track_submodules: yes
-    recursive: yes
-    version: master
-    force: yes
-    key_file: /home/{{username}}/.ssh/id_github # on the remote host
+  - name: Create symbolic link for nvim binary
+    ansible.builtin.file:
+      src: /usr/bin/nvim-linux64/bin/nvim
+      dest: /usr/bin/nvim
+      state: link
+      force: yes
 
-- name: check if inifile is installed
-  shell:
-    cmd: luarocks show inifile
-  register: inifile_show_installed
-  changed_when: false
-  failed_when: false
+  - name: clone neovim config
+    become_user: '{{username}}'
+    git:
+      repo: git@github.com:rolandwarburton/nvim.conf.git
+      dest: /home/{{username}}/.config/nvim
+      accept_hostkey: yes
+      track_submodules: yes
+      recursive: yes
+      version: master
+      force: yes
+      key_file: /home/{{username}}/.ssh/id_github # on the remote host
 
-- name: install luarock inifile
-  shell:
-    cmd: luarocks install inifile
-  register: inifile_install
-  failed_when: not inifile_install.stdout is search('inifile.*is now installed in')
-  changed_when: not inifile_install.stdout is search('inifile.*is now installed in')
-  when: inifile_show_installed.stderr is search('cannot find package inifile')
+  - name: check if inifile is installed
+    shell:
+      cmd: luarocks show inifile
+    register: inifile_show_installed
+    changed_when: false
+    failed_when: false
 
-- name: install neovim packages
-  become_user: '{{username}}'
-  shell:
-    cmd: zsh -c 'source /home/{{username}}/.zshrc && ~/.config/nvim/install-nvim-headless.sh'
-  changed_when: false # cant find a good way of doing this
+  - name: install luarock inifile
+    shell:
+      cmd: luarocks install inifile
+    register: inifile_install
+    failed_when: not inifile_install.stdout is search('inifile.*is now installed in')
+    changed_when: not inifile_install.stdout is search('inifile.*is now installed in')
+    when: inifile_show_installed.stderr is search('cannot find package inifile')
 
-# this is not tested but should work
-- name: Check root .config/ exists
-  stat:
-    path: /root/.config
-  register: root_config_exists
+  - name: install neovim packages
+    become_user: '{{username}}'
+    shell:
+      cmd: zsh -c 'source /home/{{username}}/.zshrc && ~/.config/nvim/install-nvim-headless.sh'
+    changed_when: false # cant find a good way of doing this
 
-- name: Create root .config/ if it does not exist
-  file:
-    path: /root/.config
-    state: directory
-  when: root_config_exists.stat.exists == False
+  # this is not tested but should work
+  - name: Check root .config/ exists
+    stat:
+      path: /root/.config
+    register: root_config_exists
 
-- name: Check root .config/nvim exists
-  stat:
-    path: /root/.config/nvim
-  register: root_config_nvim_exists
+  - name: Create root .config/ if it does not exist
+    file:
+      path: /root/.config
+      state: directory
+    when: root_config_exists.stat.exists == False
 
-- name: symlink nvim configs to root if it does not exist
-  file:
-    src: /home/{{username}}/.config/nvim
-    dest: /root/.config/nvim
-    owner: root
-    group: root
-    state: link
-  when: root_config_nvim_exists.stat.exists == False
+  - name: Check root .config/nvim exists
+    stat:
+      path: /root/.config/nvim
+    register: root_config_nvim_exists
+
+  - name: symlink nvim configs to root if it does not exist
+    file:
+      src: /home/{{username}}/.config/nvim
+      dest: /root/.config/nvim
+      owner: root
+      group: root
+      state: link
+    when: root_config_nvim_exists.stat.exists == False
+  when: not neovim_installed
