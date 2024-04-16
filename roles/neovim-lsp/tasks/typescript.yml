@@ -30,3 +30,11 @@
     global: yes
     executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
     state: present
+
+- name: install prettierd package
+  become_user: '{{username}}'
+  community.general.npm:
+    name: '@fsouza/prettierd'
+    global: yes
+    executable: /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/npm
+    state: present
