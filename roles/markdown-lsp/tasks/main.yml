@@ -26,7 +26,7 @@
 
 - name: print vale version
   debug:
-    msg: 'vale appears already installed '
+    msg: 'vale appears already installed in {{vale_command.stdout}}'
   when: vale_installed
 
 # install markdown
