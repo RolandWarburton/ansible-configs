@@ -1,4 +1,0 @@
-dependencies:
-  - role: neovim
-  - role: node
-  - role: golang

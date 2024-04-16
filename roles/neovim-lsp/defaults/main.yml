@@ -1,6 +1,0 @@
-node_version: 20.11.0
-vale_download_url: https://github.com/errata-ai/vale/releases/download/v2.18.0/vale_2.18.0_Linux_64-bit.tar.gz
-install_markdown: true
-install_web: true
-install_typescript: true
-install_lua: true
