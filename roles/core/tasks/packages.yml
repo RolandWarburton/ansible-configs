@@ -1,0 +1,113 @@
+# WIP
+# WIP
+# WIP
+# this fixes some random bug i got on a rpi zero
+# cannot hurt to install it on all machines
+# - name: install acl
+#   apt:
+#     update_cache: yes
+#     pkg:
+#       - acl
+
+- name: Check if packages are installed
+  shell: |
+    r=$(dpkg-query -W -f='${Status}' "$item" 2>/dev/null)
+
+    if [ $? -ne 0 ]; then
+        echo "$item"
+    fi
+  register: package_check
+  failed_when: package_check.rc > 1
+  changed_when: package_check.stdout == "install ok installed%"
+  loop: '{{ packages }}'
+  # loop_control:
+  #   label: '{{ item }}'
+
+- name: Print packages that need to be installed
+  debug:
+    msg: "Packages to be installed: {{ package_check.results | selectattr('stdout', 'defined') | map(attribute='item') | join(', ') }}"
+  when: package_check.results | selectattr('stdout', 'defined') | list | length > 0
+
+# - name: Install required packages
+#   apt:
+#     name: "{{ item.item }}"
+#     state: present
+#     update_cache: yes
+#   loop: '{{ package_check.results }}'
+#   when: item.stdout != "install ok installed"
+#   register: result
+
+# - name: Check if packages are installed
+#   command: dpkg-query -W -f='${Status}' "{{ item }}"
+#   register: package_check
+#   failed_when: package_check.rc > 1
+#   changed_when: package_check.stdout == "install ok installed%"
+#   loop: '{{ packages }}'
+#
+# - name: Install required packages
+#   apt:
+#     name: "{{ item.item }}"
+#     state: present
+#     update_cache: yes
+#   loop: '{{ package_check.results }}'
+#   when: item.stdout != "install ok installed"
+#   register: result
+
+# apt:
+#   name: "{{ item.item }}"
+#   state: present
+#   update_cache: yes
+# - name: debug
+#   debug:
+#     msg: '{{result.stdout}}'
+
+# - name: install packages
+#   apt:
+#     update_cache: yes
+#     pkg:
+#       - git
+#       - ssh
+#       - sudo
+#       - curl
+#       - wget
+#       - python3
+#       - python3-pip
+#       - zsh
+#       - luarocks
+#       - build-essential
+#       - cmake
+#       - ripgrep
+#       - fd-find
+#       - htop
+#       - psmisc
+#       - fuse
+#       - pinentry-curses
+#       - pinentry-tty
+
+# - name: check if device is laptop
+#   shell:
+#     cmd: 'dmidecode | grep Version'
+#   changed_when: false
+#   ignore_errors: true
+#   register: dmidecode_version
+#
+# - name: assume device is a laptop if dmidecode fails
+#   set_fact:
+#     is_laptop: true
+#   when: dmidecode_version.rc != 0
+#
+# - name: install laptop specific packages
+#   apt:
+#     update_cache: no
+#     pkg:
+#       - firmware-iwlwifi
+#       - firmware-realtek
+#       - network-manager
+#   when: >
+#     (dmidecode_version.stdout is search('ThinkPad')) or
+#     (is_laptop is defined and is_laptop)
+#
+# - name: Install acpi for x86_64
+#   apt:
+#     name: acpi
+#   when: ansible_architecture == 'x86_64'
