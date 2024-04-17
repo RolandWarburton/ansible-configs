@@ -1,0 +1,56 @@
+# clone dotfiles
+- name: check if dotfiles directory exists
+  stat:
+    path: /home/{{username}}/dotfiles
+  register: dotfiles_stat
+
+- name: get dotfiles
+  become_user: '{{username}}'
+  git:
+    repo: git@github.com:rolandwarburton/dotfiles.git
+    dest: /home/{{username}}/dotfiles
+    accept_hostkey: yes
+    key_file: /home/{{username}}/.ssh/id_github # on the remote host
+    version: 'wayland'
+  when: not dotfiles_stat.stat.exists
+
+# download casa
+- name: check if casa is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v casa"'
+  register: casa_command
+  changed_when: false
+  failed_when: false
+
+- block:
+    - name: ensure .local/bin directory exists
+      file:
+        path: /home/{{username}}/.local/bin
+        state: directory
+        mode: '0755'
+        group: '{{username}}'
+        owner: '{{username}}'
+
+    - name: Check if casa binary exists
+      stat:
+        path: /home/{{username}}/.local/bin/casa
+      register: casa_bin
+
+    - name: download casa file release
+      get_url:
+        url: 'https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa'
+        dest: /home/{{username}}/.local/bin/casa
+        group: '{{username}}'
+        owner: '{{username}}'
+        mode: '0755'
+      when: not casa_bin.stat.exists
+  when: casa_command.rc != 0
+
+- name: run casa
+  become_user: '{{username}}'
+  shell:
+    cmd: /home/{{username}}/.local/bin/casa -c /home/{{username}}/dotfiles/install.conf.yaml
+    chdir: /home/{{username}}/dotfiles
+  register: casa_output
+  failed_when: casa_output.rc != 0
+  changed_when: false
