@@ -3,4 +3,24 @@ dotbot_configure_cli: true
 dotbot_configure_gui: false
 config_system_locale: en_AU.UTF-8
 config_system_language: en_US.UTF-8
-overwrite_apt_sources: false
+# overwrite_apt_sources: false
+packages:
+  - acl
+  - git
+  - ssh
+  - sudo
+  - curl
+  - wget
+  - python3
+  - python3-pip
+  - zsh
+  - luarocks
+  - build-essential
+  - cmake
+  - ripgrep
+  - fd-find
+  - htop
+  - psmisc
+  - fuse
+  - pinentry-curses
+  - pinentry-tty
