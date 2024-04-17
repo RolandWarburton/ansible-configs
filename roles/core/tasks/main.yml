@@ -2,9 +2,26 @@
   import_tasks: locale.yml
 
 # packages
-- name: install packages
-  import_tasks: packages.yml
+- name: Execute Jinja2 script on remote host
+  raw: |
+    {% for package in packages %}
+     dpkg-query -s "{{ package }}" > /dev/null 2>&1
+     if [ $? -ne 0 ]; then
+       apt-get install -y "{{ package }}" > /dev/null 2>&1
+       echo "NEW PACKAGE INSTALLED: {{ package }}"
+     else
+       echo {{ package }} is already installed
+     fi
+    {% endfor %}
+  register: pkg_result
+  changed_when: '"PACKAGE INSTALLED" in pkg_result.stdout'
 
+- name: Debug package results
+  debug:
+    msg: "{{ item }}"
+  loop: "{{ pkg_result.stdout_lines }}"
+
+# zshell
 - name: set zsh to be the default shell
   user:
     name: '{{username}}'
