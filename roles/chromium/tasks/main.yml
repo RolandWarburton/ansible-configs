@@ -3,10 +3,18 @@
     path: /usr/share/applications/chromium.desktop
   register: chromium_desktop_stat
 
+- name: Check if desired Exec line exists in chromium.desktop
+  become: yes
+  shell:
+    cmd: "grep '^Exec=/usr/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland %U$' /usr/share/applications/chromium.desktop"
+  register: chromium_desktop_line_check
+  ignore_errors: true
+  changed_when: false
+
 - name: Update Exec line if chromium.desktop exists
   become: yes
   lineinfile:
     path: /usr/share/applications/chromium.desktop
     regexp: '^Exec='
     line: 'Exec=/usr/bin/chromium --enable-features=UseOzonePlatform --ozone-platform=wayland %U'
-  when: chromium_desktop_stat.stat.exists
+  when: chromium_desktop_stat.stat.exists and chromium_desktop_line_check.rc != 0
