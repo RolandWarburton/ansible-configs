@@ -7,54 +7,48 @@
 
 - name: Check if ~/.nvm exists
   stat:
-    path: "/home/{{username}}/.nvm"
+    path: '/home/{{username}}/.nvm'
   register: nvm_dir
 
 - name: Create ~/.nvm directory
   file:
-    path: "/home/{{username}}/.nvm"
+    path: '/home/{{username}}/.nvm'
     state: directory
     mode: '0755'
-    owner: "{{username}}"
-    group: "{{username}}"
+    owner: '{{username}}'
+    group: '{{username}}'
   when: not nvm_dir.stat.exists
 
 - name: install nvm
   become_user: '{{username}}'
   shell: >
-    curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{nvm_version}}/install.sh | bash
+    PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{nvm_version}}/install.sh | bash
   args:
-    creates: "/home/{{username}}/.nvm/nvm.sh" # When this exists, this step will not be run
+    creates: '/home/{{username}}/.nvm/nvm.sh' # When this exists, this step will not be run
   when: nvm_command_check.rc != 0
 
-- name: check node is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v node"'
-  register: node_command_check
-  changed_when: false
-  failed_when: false
+- block:
+    - name: install node
+      become_user: '{{username}}'
+      shell: 'zsh -c "source ~/.zshrc; nvm install"'
+      args:
+        creates: '{{ ansible_env.HOME }}/.nvm/versions/node/v{{node_version}}/bin/node'
 
-- name: install node
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; nvm install"'
-  args:
-    creates: "{{ ansible_env.HOME }}/.nvm/versions/node/v{{node_version}}/bin/node"
-  when: node_command_check.rc != 0
+    - name: symlink node to bin
+      shell:
+        cmd: >
+          source /home/{{username}}/.zshrc;
+          rm -f /usr/bin/node;
+          ln -s /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/node /usr/bin/node;
+      failed_when: false
+      changed_when: false
 
-- name: symlink node to bin
-  shell:
-    cmd: >
-      source /home/{{username}}/.zshrc;
-      rm -f /usr/bin/node;
-      ln -s /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/node /usr/bin/node;
-  failed_when: false
-  changed_when: false
-
-- name: symlink npm to bin
-  shell:
-    cmd: >
-      source /home/{{username}}/.zshrc;
-      rm -f /usr/bin/npm;
-      ln -s /home/{{username}}/.nvm/versions/npm/v{{node_version}}/bin/npm /usr/bin/npm;
-  failed_when: false
-  changed_when: false
+    - name: symlink npm to bin
+      shell:
+        cmd: >
+          source /home/{{username}}/.zshrc;
+          rm -f /usr/bin/npm;
+          ln -s /home/{{username}}/.nvm/versions/npm/v{{node_version}}/bin/npm /usr/bin/npm;
+      failed_when: false
+      changed_when: false
+  when: node_out_of_date == 1
