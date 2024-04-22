@@ -27,6 +27,7 @@
   command: '/home/{{username}}/.cargo/bin/rustup self update'
   register: rustup_update_output
   ignore_errors: true
+  changed_when: false
 
 - name: Print Rustup update status
   debug:
@@ -43,6 +44,7 @@
   command: "/home/roland/.cargo/bin/rustup update"
   register: rust_update_output
   ignore_errors: true
+  changed_when: false
 
 - name: Print Rust update status
   debug:
