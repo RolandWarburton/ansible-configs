@@ -41,7 +41,7 @@
     cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gopls@latest"'
     creates: /home/{{username}}/.local/go/bin/gopls
   when: gopls_command_check.rc != 0
-  
+
 - name: check gofmt is installed
   become_user: '{{username}}'
   shell: 'zsh -c "source ~/.zshrc; command -v gofmt"'
