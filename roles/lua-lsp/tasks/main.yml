@@ -39,3 +39,20 @@
         mode: '0755'
 
   when: not lua_binary_stat.stat.exists
+
+- name: Check if stylua is already installed
+  become_user: '{{username}}'
+  shell:
+    cmd: 'zsh -c "source ~/.zshrc; command -v stylua >/dev/null 2>&1"'
+  register: stylua_installed
+  ignore_errors: true
+  changed_when: false
+
+- name: Install stylua using cargo
+  become_user: '{{username}}'
+  shell:
+    cmd: 'zsh -c "source ~/.zshrc; cargo install stylua"'
+  args:
+    creates: ~/.cargo/bin/stylua
+  changed_when: False
+  when: stylua_installed.rc != 0
