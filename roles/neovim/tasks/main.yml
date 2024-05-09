@@ -127,26 +127,6 @@
   changed_when: not inifile_install.stdout is search('inifile.*is now installed in')
   when: inifile_show_installed.stderr is search('cannot find package inifile')
 
-# install neovim plugins
-- name: Get number of files in packer/start directory
-  shell:
-    cmd: "find /home/{{ username }}/.local/share/nvim/site/pack/packer/start/ -maxdepth 1 -type d | wc -l"
-  register: packer_file_count
-  changed_when: false
-  ignore_errors: true
-
-- name: print number of plugin folders
-  debug:
-    msg: 'there are {{packer_file_count.stdout}} folders in the plugins directory'
-  when: version_comparison.rc != 0
-
-- name: install neovim packages
-  become_user: '{{username}}'
-  shell:
-    cmd: zsh -c 'source /home/{{username}}/.zshrc && ~/.config/nvim/install-nvim-headless.sh'
-  changed_when: false # cant find a good way of doing this
-  when: 'packer_file_count.stdout | int <= 1'
-
 # symlink user neovim config to root
 # this is not tested but should work
 - name: Check root .config/ exists
