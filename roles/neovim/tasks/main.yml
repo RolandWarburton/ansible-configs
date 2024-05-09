@@ -92,8 +92,8 @@
         force: yes
   when: target_neovim_version_is_greater is defined or not neovim_installed
 
-# dotfiles
-- name: Check if dotfiles exists
+# download nvim config
+- name: Check if nvim config exists
   stat:
     path: /home/{{ username }}/.config/nvim
   register: nvim_config_stat
