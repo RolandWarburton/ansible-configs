@@ -130,7 +130,7 @@
 # install neovim plugins
 - name: Get number of files in packer/start directory
   shell:
-    cmd: "find /home/{{ username }}/.local/share/nvim/site/pack/packer/start/ -maxdepth 1 -type d | wc -l"
+    cmd: 'find /home/{{ username }}/.local/share/nvim/site/pack/packer/start/ -maxdepth 1 -type d | wc -l'
   register: packer_file_count
   changed_when: false
   ignore_errors: true
