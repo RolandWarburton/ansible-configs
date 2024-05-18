@@ -6,7 +6,6 @@
       - libavfilter-dev 
       - libass-dev 
       - ffmpeg
-      - lua5.1
 
 - name: ensure build dir created
   file:
