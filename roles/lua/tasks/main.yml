@@ -3,6 +3,7 @@
     update_cache: yes
     pkg:
       - lua5.1
+      - libyaml-dev
 
 - name: Define Luarocks packages
   set_fact:
