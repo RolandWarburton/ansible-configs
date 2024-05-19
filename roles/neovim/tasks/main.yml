@@ -111,22 +111,6 @@
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
   when: not nvim_config_stat.stat.exists
 
-# install lua rocks ini file package
-- name: check if inifile is installed
-  shell:
-    cmd: luarocks show inifile
-  register: inifile_show_installed
-  changed_when: false
-  failed_when: false
-
-- name: install luarock inifile
-  shell:
-    cmd: luarocks install inifile
-  register: inifile_install
-  failed_when: not inifile_install.stdout is search('inifile.*is now installed in')
-  changed_when: not inifile_install.stdout is search('inifile.*is now installed in')
-  when: inifile_show_installed.stderr is search('cannot find package inifile')
-
 # symlink user neovim config to root
 # this is not tested but should work
 - name: Check root .config/ exists
