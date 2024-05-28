@@ -73,32 +73,19 @@
   loop_control:
     index_var: index
 
+# ! I do not trust this at the moment,
+# ! re-evaluating what this is for and how to make it better
 # golangci-lint
-- name: copy install golangci-lint script
-  copy:
-    src: ./install-golangci-lint.zsh
-    dest: /home/{{username}}/.local/bin
-    owner: '{{username}}'
-    group: '{{username}}'
-    mode: 0755
-
-- name: install golangci-lint
-  become_user: '{{username}}'
-  shell:
-    cmd: /home/{{username}}/.local/bin/install-golangci-lint.zsh
-    creates: /home/{{username}}/.local/go/bin/golangci-lint
-
-# delve
-- name: check delve is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v dlv"'
-  register: delve_command_check
-  changed_when: false
-  failed_when: false
-
-- name: install delve
-  become_user: '{{username}}'
-  shell:
-    cmd: 'zsh -c "source ~/.zshrc; go install github.com/go-delve/delve/cmd/dlv@latest"'
-    creates: /home/{{username}}/.local/go/pkg/bin/dlv
-  when: delve_command_check.rc != 0
+# - name: copy install golangci-lint script
+#   copy:
+#     src: ./install-golangci-lint.zsh
+#     dest: /home/{{username}}/.local/bin
+#     owner: '{{username}}'
+#     group: '{{username}}'
+#     mode: 0755
+#
+# - name: install golangci-lint
+#   become_user: '{{username}}'
+#   shell:
+#     cmd: /home/{{username}}/.local/bin/install-golangci-lint.zsh
+#     creates: /home/{{username}}/.local/go/bin/golangci-lint
