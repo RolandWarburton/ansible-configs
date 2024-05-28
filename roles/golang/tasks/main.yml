@@ -27,35 +27,51 @@
   changed_when: false
   failed_when: go_command_check.rc != 0
 
-# gopls
-- name: check gopls is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v gopls"'
-  register: gopls_command_check
-  changed_when: false
-  failed_when: false
+- name: Define golang packages
+  set_fact:
+    go_packages:
+      - name: golang.org/x/tools/gofmt
+        version: latest
+        test: gofmt
+      - name: golang.org/x/tools/gopls
+        version: latest
+        test: gopls
+      - name: github.com/go-delve/delve/cmd/dlv
+        version: latest
+        test: dlv
 
-- name: install gopls
+- name: 'check if go packages are installed'
   become_user: '{{username}}'
   shell:
-    cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gopls@latest"'
-    creates: /home/{{username}}/.local/go/bin/gopls
-  when: gopls_command_check.rc != 0
-
-- name: check gofmt is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v gofmt"'
-  register: gofmt_command_check
+    cmd: 'zsh -c "source ~/.zshrc; {{item.test}}"'
+  loop: '{{ go_packages }}'
   changed_when: false
   failed_when: false
+  register: package_show_installed
+  loop_control:
+    index_var: index
 
-# gofmt
-- name: install gofmt
+- name: Debug package_show_installed.rc
+  debug:
+    msg: "{{ item.name }} check if installed: {{ 'yes' if package_show_installed.results[index].rc == 0 else 'no' }}"
+  loop: '{{ go_packages }}'
+  loop_control:
+    index_var: index
+
+- name: Install golang packages
   become_user: '{{username}}'
-  shell:
-    cmd: 'zsh -c "source ~/.zshrc; go install golang.org/x/tools/gofmt@latest"'
-    creates: /home/{{username}}/.local/go/bin/gofmt
-  when: gofmt_command_check.rc != 0
+  shell: >
+    {% if item.version is defined  %}
+    zsh -c "source ~/.zshrc; go install {{item.name}}@{{item.version}}"
+    {% else %}
+    zsh -c "source ~/.zshrc; go install {{item.name}}@latest"
+    {% endif %}
+  register: package_install
+  failed_when: package_install.rc != 0
+  when: package_show_installed.results[index].rc != 0
+  loop: '{{ go_packages }}'
+  loop_control:
+    index_var: index
 
 # golangci-lint
 - name: copy install golangci-lint script
