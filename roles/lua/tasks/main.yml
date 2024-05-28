@@ -2,14 +2,22 @@
   apt:
     update_cache: yes
     pkg:
+      - luarocks
       - lua5.1
       - lua5.4
       - libyaml-dev
 
 - name: Set the default lua interpreter
   shell:
-    cmd: update-alternatives --set lua-interpreter /usr/bin/lua5.4
+    cmd: update-alternatives --set lua-interpreter /usr/bin/lua5.1
   register: package_show_installed
+  changed_when: false
+  failed_when: false
+
+- name: Set the default lua interpreter
+  shell:
+    cmd: sudo update-alternatives --set lua-compiler /usr/bin/luac5.1
+    register: package_show_installed
   changed_when: false
   failed_when: false
 
