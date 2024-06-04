@@ -13,15 +13,14 @@
   ansible.builtin.set_fact:
     neovim_installed: '{{ neovim_output.rc == 0 }}'
 
-- name: Check if a valid Neovim version number was captured
-  fail:
-    msg: 'Failed to extract Neovim version number'
-  when: neovim_version is not defined or neovim_version == ''
-
 - name: print neovim version
   debug:
-    msg: 'neovim version installed appears to be {{neovim_version[0]}}'
-  when: neovim_version is defined
+    msg: "neovim {{ 'is installed' if neovim_version is defined else 'is not isntalled' }}{{ ' (version ' + neovim_version[0]|string + ')' if neovim_version is defined else '' }}"
+
+- name: set neovim_version to 0.0.0 if not installed
+  set_fact:
+    neovim_version: '0.0.0'
+  when: not neovim_version is defined
 
 - name: Check version comparison of target and actual neovim versions
   command: dpkg --compare-versions "{{ neovim_target_version }}" gt "{{ neovim_version[0] }}"
