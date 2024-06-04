@@ -39,6 +39,9 @@
       - name: github.com/go-delve/delve/cmd/dlv
         version: latest
         test: dlv
+      - name: github.com/google/gops
+        test: gopls
+        version: latest
 
 - name: 'check if go packages are installed'
   become_user: '{{username}}'
