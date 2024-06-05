@@ -36,6 +36,9 @@
       - name: penlight
         state: present
         version: 1.14.0-2
+      - name: jsregexp
+        state: present
+        version: latest
 
 - name: Check if {{ item.name }} is installed
   shell:
