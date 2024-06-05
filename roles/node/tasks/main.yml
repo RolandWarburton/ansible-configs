@@ -52,3 +52,19 @@
       failed_when: false
       changed_when: false
   when: node_out_of_date == 1
+
+# install neovim npm package if neovim is installed
+- name: Check if Neovim package is installed
+  ansible.builtin.command: nvim --version
+  register: neovim_output
+  ignore_errors: yes
+  changed_when: false
+
+- name: install neovim npm package
+  become_user: '{{username}}'
+  community.general.npm:
+    name: neovim
+    global: yes
+    executable: /home/{{username}}/.config/nvm/versions/node/v{{node_version}}/bin/npm
+    state: present
+  when: neovim_output.rc == 0
