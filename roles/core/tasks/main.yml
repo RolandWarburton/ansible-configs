@@ -39,22 +39,3 @@
   stat:
     path: '/home/{{username}}/.gnupg'
   register: gnupg_stat
-
-# copy over the gpg config file
-- name: ensure gnupg dir created in home directory
-  file:
-    path: '/home/{{username}}/.gnupg'
-    state: directory
-    mode: '0700'
-    owner: '{{username}}'
-    group: '{{username}}'
-  when: gnupg_stat.stat.exists
-
-- name: copy gpg-agent.conf to gnupg directory
-  copy:
-    src: ./gpg-agent.conf
-    dest: '/home/{{username}}/.gnupg/gpg-agent.conf'
-    owner: 'root'
-    group: 'root'
-    mode: 0644
-    force: yes
