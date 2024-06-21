@@ -19,9 +19,3 @@
   command: 'tar -zxvf {{ tmp_dir }}/lf.tar.gz -C /home/{{ username }}/.local/bin'
   args:
     creates: '/home/{{ username }}/dotfiles/.local/bin'
-
-- name: Run build-ripdrag-wrapper.sh script
-  become_user: '{{username}}'
-  shell: ./build-ripdrag-wrapper.sh
-  args:
-    chdir: /home/roland/dotfiles/software
