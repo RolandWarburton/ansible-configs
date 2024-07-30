@@ -3,6 +3,12 @@
     update_cache: yes
     pkg:
       - libgdk-pixbuf2.0-dev
+      - meson
+      - libcairo2-dev
+      - libpango1.0-dev
+      - wayland-protocols
+      - librust-wayland-client-dev
+      - flex
 
 - name: ensure build dir created
   file:
