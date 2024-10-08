@@ -1,3 +1,4 @@
 dependencies:
   - role: lua
   - role: neovim
+  - role: rust
