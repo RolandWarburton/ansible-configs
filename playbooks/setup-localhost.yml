@@ -2,6 +2,9 @@
   connection: local
   become: true
   roles:
-    - ./roles/setup
+    - ./roles/core
     - ./roles/neovim
     - ./roles/zgen
+    - ./roles/starship
+    - ./roles/lua
+    - ./roles/lua-lsp
