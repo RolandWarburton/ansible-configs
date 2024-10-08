@@ -4,7 +4,7 @@
 
 - name: Check LANGUAGE environment variable
   set_fact:
-    language_is_en_us: '{{ ansible_env.LANGUAGE == config_system_language }}'
+    language_is_en_us: '{{ (ansible_env.LANGUAGE | default("en_US.UTF-8")) == config_system_language }}'
 
 - block:
     - name: Ensure localisation files for '{{ config_system_locale }}' are available
