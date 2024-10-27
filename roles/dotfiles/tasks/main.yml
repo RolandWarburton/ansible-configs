@@ -32,24 +32,26 @@
         owner: '{{username}}'
 
     - name: Check if casa binary exists
-      stat:
-        path: /home/{{username}}/.local/bin/casa
+      become_user: '{{username}}'
+      shell: 'zsh -c "source ~/.zshrc; command -v casa"'
       register: casa_bin
+      changed_when: false
+      failed_when: false
 
     - name: download casa file release
       get_url:
         url: 'https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa'
-        dest: /home/{{username}}/.local/bin/casa
-        group: '{{username}}'
-        owner: '{{username}}'
+        dest: /usr/local/bin/casa
+        group: 'root'
+        owner: 'root'
         mode: '0755'
-      when: not casa_bin.stat.exists
+      when: casa_bin.rc != 0
   when: casa_command.rc != 0
 
 - name: run casa
   become_user: '{{username}}'
   shell:
-    cmd: /home/{{username}}/.local/bin/casa -c /home/{{username}}/dotfiles/install.conf.yaml
+    cmd: casa -c /home/{{username}}/dotfiles/install.conf.yaml
     chdir: /home/{{username}}/dotfiles
   register: casa_output
   failed_when: casa_output.rc != 0
