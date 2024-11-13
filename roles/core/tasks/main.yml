@@ -2,7 +2,7 @@
   import_tasks: locale.yml
 
 # packages
-- name: Execute Jinja2 script on remote host
+- name: Install core packages
   raw: |
     {% for package in packages %}
      dpkg-query -s "{{ package }}" > /dev/null 2>&1
@@ -18,14 +18,20 @@
 
 - name: Debug package results
   debug:
-    msg: "{{ item }}"
-  loop: "{{ pkg_result.stdout_lines }}"
+    msg: '{{ item }}'
+  loop: '{{ pkg_result.stdout_lines }}'
 
 # zshell
+- name: Check if zsh is installed
+  stat:
+    path: /usr/bin/zsh
+  register: zsh_binary_stat
+
 - name: set zsh to be the default shell
   user:
     name: '{{username}}'
     shell: /usr/bin/zsh
+  when: zsh_binary_stat.stat.exists
 
 # enable pcspkr device for roland
 # allows access to /dev/input/by-path/platform-pcspkr-event-spkr
@@ -34,8 +40,3 @@
     name: '{{username}}'
     groups: input
     append: yes
-
-- name: check if dotfiles directory exists
-  stat:
-    path: '/home/{{username}}/.gnupg'
-  register: gnupg_stat

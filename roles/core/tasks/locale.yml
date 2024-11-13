@@ -1,10 +1,10 @@
 - name: Check LANG environment variable
   set_fact:
-    locale_is_en_au: '{{ ansible_env.LANG == config_system_locale }}'
+    lang_is_set: "{{ ansible_env.LANG is defined and ansible_env.LANG != '' }}"
 
 - name: Check LANGUAGE environment variable
   set_fact:
-    language_is_en_us: '{{ (ansible_env.LANGUAGE | default("en_US.UTF-8")) == config_system_language }}'
+    language_is_set: "{{ ansible_env.LANGUAGE is defined and ansible_env.LANGUAGE != '' }}"
 
 - block:
     - name: Ensure localisation files for '{{ config_system_locale }}' are available
@@ -16,22 +16,4 @@
       locale_gen:
         name: '{{ config_system_language }}'
         state: present
-
-    - name: Get current locale and language configuration
-      command: localectl status
-      register: locale_status
-      changed_when: false
-
-    - name: Parse 'LANG' from current locale and language configuration
-      set_fact:
-        locale_lang: "{{ locale_status.stdout | regex_search('LANG=([^\n]+)', '\\1') | first }}"
-
-    - name: Parse 'LANGUAGE' from current locale and language configuration
-      set_fact:
-        locale_language: "{{ locale_status.stdout | regex_search('LANGUAGE=([^\n]+)', '\\1') | default([locale_lang], true) | first }}"
-
-    - name: Configure locale to '{{ config_system_locale }}' and language to '{{ config_system_language }}'
-      become: yes
-      command: localectl set-locale LANG={{ config_system_locale }} LANGUAGE={{ config_system_language }}
-      changed_when: locale_lang != config_system_locale or locale_language != config_system_language
-  when: not locale_is_en_au or not language_is_en_us
+  when: not lang_is_set or not language_is_set
