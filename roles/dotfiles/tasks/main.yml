@@ -23,14 +23,6 @@
   failed_when: false
 
 - block:
-    - name: ensure .local/bin directory exists
-      file:
-        path: /home/{{username}}/.local/bin
-        state: directory
-        mode: '0755'
-        group: '{{username}}'
-        owner: '{{username}}'
-
     - name: Check if casa binary exists
       become_user: '{{username}}'
       shell: 'zsh -c "source ~/.zshrc; command -v casa"'
