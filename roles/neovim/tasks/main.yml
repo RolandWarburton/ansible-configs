@@ -1,17 +1,21 @@
 - name: Check if Neovim package is installed
-  ansible.builtin.command: nvim --version
+  command: nvim --version | head -n 1 | grep -Po '\d+\.\d+\.\d+'
   register: neovim_output
   ignore_errors: yes
   changed_when: false
 
+- name: debug
+  debug:
+    msg: '{{neovim_output.stdout}}'
+
 - name: Extract Neovim version number
   set_fact:
-    neovim_version: "{{ neovim_output.stdout | regex_search('NVIM v(\\d+\\.\\d+\\.\\d+)', '\\1') }}"
+    neovim_version: '{{ neovim_output.stdout }}'
   when: neovim_output.rc == 0
 
 - name: Set fact indicating Neovim installation status
-  ansible.builtin.set_fact:
-    neovim_installed: '{{ neovim_output.rc == 0 }}'
+  set_fact:
+    neovim_installed: '{{ true if neovim_output.rc == 0 else false }}'
 
 - name: print neovim version
   debug:
@@ -20,7 +24,7 @@
 - name: set neovim_version to 0.0.0 if not installed
   set_fact:
     neovim_version: '0.0.0'
-  when: not neovim_version is defined
+  when: not neovim_installed
 
 - name: Check version comparison of target and actual neovim versions
   command: dpkg --compare-versions "{{ neovim_target_version }}" gt "{{ neovim_version[0] }}"
