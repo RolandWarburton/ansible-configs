@@ -14,6 +14,23 @@
     version: 'wayland'
   when: not dotfiles_stat.stat.exists
 
+- name: Update git submodules
+  become_user: '{{ username }}'
+  command: git submodule update --init --recursive
+  args:
+    chdir: '/home/{{ username }}/dotfiles'
+  environment:
+    GIT_SSH_COMMAND: "ssh -i /home/{{ username }}/.ssh/id_github -o StrictHostKeyChecking=no"
+  register: submodule_update_result
+  changed_when: >
+    'updating' in submodule_update_result.stdout or
+    'Cloning into' in submodule_update_result.stdout
+
+- name: Debug output of submodule update
+  debug:
+    msg: "Submodules updated successfully"
+  when: submodule_update_result.rc == 0
+
 # download casa
 - name: check if casa is installed
   become_user: '{{username}}'
