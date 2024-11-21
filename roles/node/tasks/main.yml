@@ -1,45 +1,16 @@
-- name: check nvm is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v nvm"'
-  register: nvm_command_check
-  changed_when: false
-  failed_when: false
-
-- name: Check if ~/.nvm exists
-  stat:
-    path: '/home/{{username}}/.nvm'
-  register: nvm_dir
-
-- name: Create ~/.nvm directory
-  file:
-    path: '/home/{{username}}/.nvm'
-    state: directory
-    mode: '0755'
-    owner: '{{username}}'
-    group: '{{username}}'
-  when: not nvm_dir.stat.exists
-
-- name: install nvm
-  become_user: '{{username}}'
-  shell: >
-    PROFILE=/dev/null curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v{{nvm_version}}/install.sh | bash
-  args:
-    creates: '/home/{{username}}/.nvm/nvm.sh' # When this exists, this step will not be run
-  when: nvm_command_check.rc != 0
-
 - block:
     - name: install node
       become_user: '{{username}}'
       shell: 'zsh -c "source ~/.zshrc; nvm install"'
       args:
-        creates: '{{ ansible_env.HOME }}/.nvm/versions/node/v{{node_version}}/bin/node'
+        creates: '{{ ansible_env.HOME }}/.nvm/versions/node/v{{target_node_version}}/bin/node'
 
     - name: symlink node to bin
       shell:
         cmd: >
           source /home/{{username}}/.zshrc;
           rm -f /usr/bin/node;
-          ln -s /home/{{username}}/.nvm/versions/node/v{{node_version}}/bin/node /usr/bin/node;
+          ln -s /home/{{username}}/.nvm/versions/node/v{{target_node_version}}/bin/node /usr/bin/node;
       failed_when: false
       changed_when: false
 
@@ -48,10 +19,10 @@
         cmd: >
           source /home/{{username}}/.zshrc;
           rm -f /usr/bin/npm;
-          ln -s /home/{{username}}/.nvm/versions/npm/v{{node_version}}/bin/npm /usr/bin/npm;
+          ln -s /home/{{username}}/.nvm/versions/npm/v{{target_node_version}}/bin/npm /usr/bin/npm;
       failed_when: false
       changed_when: false
-  when: node_out_of_date == 1
+  when: node_out_of_date
 
 # install neovim npm package if neovim is installed
 - name: Check if Neovim package is installed
@@ -65,6 +36,6 @@
   community.general.npm:
     name: neovim
     global: yes
-    executable: /home/{{username}}/.config/nvm/versions/node/v{{node_version}}/bin/npm
+    executable: /home/{{username}}/.nvm/versions/node/v{{target_node_version}}/bin/npm
     state: present
   when: neovim_output.rc == 0
