@@ -1,16 +1,15 @@
 # check if npm markdown lint cli is installed
-- name: check if markdownlint-cli is installed
-  shell:
-    cmd: >
-      source /home/{{username}}/.zshrc;
-      zsh -c "source ~/.zshrc; npm list -g markdownlint-cli";
-  failed_when: false
-  changed_when: false
-  register: markdownlint_cli_list
-
-- name: set markdownlint_cli_installed
+- name: set npm executable
   set_fact:
-    markdownlint_cli_installed: '{{ markdownlint_cli_list.rc == 0 }}'
+    npm_executable: /home/{{username}}/.nvm/versions/node/v{{target_node_version}}/bin/npm
+
+- name: install markdownlint-cli
+  become_user: '{{username}}'
+  community.general.npm:
+    name: markdownlint-cli
+    global: yes
+    executable: '{{npm_executable}}'
+    state: present
 
 # check if vale is installed
 - name: check if vale is installed
@@ -29,16 +28,6 @@
     msg: 'vale appears already installed in {{vale_command.stdout}}'
   when: vale_installed
 
-# install markdown
-- name: install markdown-cli package
-  become_user: '{{username}}'
-  community.general.npm:
-    name: 'markdownlint-cli'
-    global: yes
-    executable: /home/{{username}}/.config/nvm/versions/node/v{{node_version}}/bin/npm
-    state: present
-  when: not markdownlint_cli_installed
-
 # install vale
 - block:
   - name: copy install vale script
@@ -50,29 +39,29 @@
       mode: 0755
 
   - name: install vale
-    become_user: '{{username}}'
     shell:
       cmd: /home/{{username}}/.local/bin/install-vale.zsh
-      creates: /home/{{username}}/.local/bin/vale
+      creates: /usr/local/bin/vale
     register: vale
-
-  - name: check vale is installed
-    become_user: '{{username}}'
-    shell: 'zsh -c "source ~/.zshrc; vale --version"'
-    register: vale_version
-    failed_when: vale_version.rc != 0
-    changed_when: false
-
-  - name: print vale version
-    debug:
-      msg: '{{ vale_version.stdout }}'
-    when: vale_version.rc == 0
-
-  - name: Run vale sync
-    become_user: '{{ username }}'
-    shell: >
-      /home/{{ username }}/.local/bin/vale sync
-      --config $HOME/.config/nvim/conf/vale.ini
-    register: vale_sync
-    failed_when: vale_sync.rc != 0
   when: not vale_installed
+
+- name: check vale is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; vale --version"'
+  register: vale_version
+  failed_when: vale_version.rc != 0
+  changed_when: false
+
+- name: print vale version
+  debug:
+    msg: '{{ vale_version.stdout }}'
+  when: vale_version.rc == 0
+
+- name: Run vale sync
+  become_user: '{{ username }}'
+  shell: >
+    /usr/local/bin/vale sync
+    --config $HOME/.config/vale/vale.ini
+  register: vale_sync
+  failed_when: vale_sync.rc != 0
+  changed_when: false

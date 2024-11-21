@@ -3,22 +3,32 @@
 
 source /home/{{username}}/.zshrc
 
-export L="/home/{{username}}/.local/bin";
+# export L="/home/{{username}}/.local/bin";
+export BIN_DIRECTORY="/usr/local/bin"
+export VALE_DIRECTORY="$BIN_DIRECTORY/vale-temp"
 export S="{{vale_download_url}}"
 
-# download vale
-mkdir -p $L;
-wget -P $L $S;
-tar xf $L/vale_2.18.0_Linux_64-bit.tar.gz -C $L;
-rm $L/vale_2.18.0_Linux_64-bit.tar.gz;
-
-# ensure value config exists
-if [ ! -f $HOME/.config/nvim/conf/vale.ini ]; then
-  echo "Vale config not found" >&2
+if [ ! -d $BIN_DIRECTORY ]; then
+  echo "$BIN_DIRECTORY does not exist" >&2
   exit 1
 fi
 
-# remove unwanted files from bin
-export BIN="/home/{{username}}/.local/bin"
-rm -f $BIN/README.md
-rm -f $BIN/LICENSE
+
+# download vale
+mkdir -p "$VALE_DIRECTORY";
+wget -P "$VALE_DIRECTORY" $S;
+
+# get a path to the 
+VALE_TAR=$(fdfind "vale_.*_Linux_64-bit.tar.gz" --max-depth 1 --max-results 1 --absolute-path "$VALE_DIRECTORY")
+
+tar xf "$VALE_TAR" -C "$VALE_DIRECTORY";
+rm "$VALE_TAR";
+
+# symlink vale binary to BIN_DIRECTORY
+ln -s "$VALE_DIRECTORY/vale" "$BIN_DIRECTORY/vale"
+#
+# # ensure value config exists
+# if [ ! -f $HOME/.config/vale/vale.ini ]; then
+#   echo "Vale config not found" >&2
+#   exit 1
+# fi
