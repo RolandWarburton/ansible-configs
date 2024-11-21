@@ -40,7 +40,7 @@
         state: present
         version: latest
 
-- name: Check if {{ item.name }} is installed
+- name: Check if lua packages are installed
   shell:
     cmd: luarocks show {{ item.name }}
   register: package_show_installed
