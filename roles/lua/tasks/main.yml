@@ -14,7 +14,7 @@
   changed_when: false
   failed_when: false
 
-- name: Set the default lua interpreter
+- name: Set the default lua compiler
   shell:
     cmd: sudo update-alternatives --set lua-compiler /usr/bin/luac5.1
     register: package_show_installed
