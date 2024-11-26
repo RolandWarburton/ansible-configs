@@ -9,9 +9,24 @@
     state: directory
     mode: '0755'
 
-- name: install starship
+- name: Define Starship download URLs
+  set_fact:
+    starship_urls:
+      x86_64: "https://github.com/starship/starship/releases/download/v1.11.0/starship-x86_64-unknown-linux-gnu.tar.gz"
+      aarch64: "https://github.com/starship/starship/releases/download/v1.21.1/starship-arm-unknown-linux-musleabihf.tar.gz"
+
+- name: Set Starship URL
+  set_fact:
+    starship_url: "{{ starship_urls.get(ansible_architecture, '') }}"
+
+- name: Fail if architecture is unsupported
+  fail:
+    msg: "Unsupported architecture: {{ ansible_architecture }}"
+  when: starship_url == ''
+
+- name: Install Starship
   unarchive:
-    src: https://github.com/starship/starship/releases/download/v1.11.0/starship-x86_64-unknown-linux-gnu.tar.gz
+    src: "{{ starship_url }}"
     dest: /usr/local/bin
     remote_src: yes
   when: not test_starship_binary.stat.exists
