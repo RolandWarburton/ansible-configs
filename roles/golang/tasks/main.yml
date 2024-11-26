@@ -12,10 +12,29 @@
     state: absent
   when: go_command_check.rc != 0
 
+- name: debug current architecture
+  debug:
+    msg: "{{ansible_architecture}}"
+
+- name: Define golang download URLs
+  set_fact:
+    golang_urls:
+      x86_64: "https://go.dev/dl/go1.22.0.linux-amd64.tar.gz"
+      aarch64: "https://go.dev/dl/go1.23.3.linux-arm64.tar.gz"
+
+- name: Set golang URL
+  set_fact:
+    golang_url: "{{ golang_urls.get(ansible_architecture, '') }}"
+
+- name: Fail if architecture is unsupported
+  fail:
+    msg: "Unsupported architecture: {{ ansible_architecture }}"
+  when: golang_url == ''
+
 - name: download and untar go binary
   become_user: '{{username}}'
   unarchive:
-    src: https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
+    src: "{{golang_url}}"
     dest: /home/{{username}}/.local
     remote_src: yes
     creates: /home/{{username}}/.local/go/bin/go
