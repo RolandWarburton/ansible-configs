@@ -1,0 +1,34 @@
+# golangci-lint
+- name: copy install golang install packages script
+  copy:
+    src: ./install-golang-packages.lua
+    dest: /home/{{username}}/.local/bin
+    owner: '{{username}}'
+    group: '{{username}}'
+    mode: 0755
+    creates: /home/{{username}}/.local/bin/install-golang-packages.lua
+
+- name: run install-golang-packages.lua
+  become_user: '{{username}}'
+  shell:
+    cmd: /usr/bin/lua /home/{{username}}/.local/bin/install-golang-packages.lua
+  register: package_script
+  failed_when: package_script.rc > 0 and package_script.rc < 98
+  changed_when: package_script.rc == 98
+
+# # ! I do not trust this at the moment,
+# # ! re-evaluating what this is for and how to make it better
+# # golangci-lint
+# # - name: copy install golangci-lint script
+# #   copy:
+# #     src: ./install-golangci-lint.zsh
+# #     dest: /home/{{username}}/.local/bin
+# #     owner: '{{username}}'
+# #     group: '{{username}}'
+# #     mode: 0755
+# #
+# # - name: install golangci-lint
+# #   become_user: '{{username}}'
+# #   shell:
+# #     cmd: /home/{{username}}/.local/bin/install-golangci-lint.zsh
+# #     creates: /home/{{username}}/.local/go/bin/golangci-lint
