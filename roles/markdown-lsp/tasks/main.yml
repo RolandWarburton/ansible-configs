@@ -33,14 +33,12 @@
   - name: copy install vale script
     template:
       src: ./install-vale.j2
-      dest: /home/{{username}}/.local/bin/install-vale.zsh
-      owner: '{{username}}'
-      group: '{{username}}'
+      dest: /usr/local/bin/install-vale.zsh
       mode: 0755
 
   - name: install vale
     shell:
-      cmd: /home/{{username}}/.local/bin/install-vale.zsh
+      cmd: /usr/local/bin/install-vale.zsh
       creates: /usr/local/bin/vale
     register: vale
   when: not vale_installed
