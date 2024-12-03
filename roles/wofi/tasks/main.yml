@@ -1,0 +1,14 @@
+- name: check rofi is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v wofi"'
+  register: wofi_command_check
+  changed_when: false
+  failed_when: false
+
+- block:
+  - name: install wofi
+    apt:
+      update_cache: yes
+      pkg:
+        - wofi
+  when: wofi_command_check.rc != 0
