@@ -19,6 +19,10 @@
     group: '{{username}}'
   when: not nvm_dir.stat.exists
 
+- name: debug nvm return code
+  debug:
+    msg: "nvm return code: {{nvm_command_check.rc}}"
+
 - name: install nvm
   become_user: '{{username}}'
   shell: >
@@ -26,3 +30,24 @@
   args:
     creates: '/home/{{username}}/.nvm/nvm.sh' # When this exists, this step will not be run
   when: nvm_command_check.rc != 0
+
+- name: Verify nvm is in PATH
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v nvm"'
+  register: nvm_path_check
+  changed_when: false
+  failed_when: nvm_path_check.rc != 0
+  tags: validation
+
+- name: Verify nvm can list versions
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; nvm --version"'
+  register: nvm_version_check
+  changed_when: false
+  failed_when: nvm_version_check.rc != 0 or nvm_version_check.stdout is not search("^\\d+\\.\\d+\\.\\d+")
+  tags: validation
+
+- name: Output nvm version
+  debug:
+    msg: "NVM successfully installed, version: {{ nvm_version_check.stdout }}"
+  when: nvm_version_check.rc == 0
