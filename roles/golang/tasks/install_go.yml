@@ -1,0 +1,21 @@
+- name: remove old go install
+  become_user: '{{username}}'
+  file:
+    path: /home/{{username}}/.local/go
+    state: absent
+  when: go_command_check.rc != 0
+
+- name: download and untar go binary
+  become_user: '{{username}}'
+  unarchive:
+    src: https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
+    dest: /home/{{username}}/.local
+    remote_src: yes
+    creates: /home/{{username}}/.local/go/bin/go
+
+- name: check go is installed
+  become_user: '{{username}}'
+  shell: 'zsh -c "source ~/.zshrc; command -v go"'
+  register: go_command_check
+  changed_when: false
+  failed_when: go_command_check.rc != 0

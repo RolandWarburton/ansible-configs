@@ -5,76 +5,13 @@
   changed_when: false
   failed_when: false
 
-- name: remove old go install
-  become_user: '{{username}}'
-  file:
-    path: /home/{{username}}/.local/go
-    state: absent
+- block:
+  - name: install go if not installed
+    import_tasks: install_go.yml
+
+  # - name: install go packages
+  #   import_tasks: install_go_packages.yml
   when: go_command_check.rc != 0
-
-- name: download and untar go binary
-  become_user: '{{username}}'
-  unarchive:
-    src: https://go.dev/dl/go1.22.0.linux-amd64.tar.gz
-    dest: /home/{{username}}/.local
-    remote_src: yes
-    creates: /home/{{username}}/.local/go/bin/go
-
-- name: check go is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v go"'
-  register: go_command_check
-  changed_when: false
-  failed_when: go_command_check.rc != 0
-
-- name: Define golang packages
-  set_fact:
-    go_packages:
-      - name: golang.org/x/tools/gofmt
-        version: latest
-        test: gofmt
-      - name: golang.org/x/tools/gopls
-        version: latest
-        test: gopls
-      - name: github.com/go-delve/delve/cmd/dlv
-        version: latest
-        test: dlv
-      - name: github.com/google/gops
-        test: gopls
-        version: latest
-
-- name: 'check if go packages are installed'
-  become_user: '{{username}}'
-  shell:
-    cmd: 'zsh -c "source ~/.zshrc; {{item.test}}"'
-  loop: '{{ go_packages }}'
-  changed_when: false
-  failed_when: false
-  register: package_show_installed
-  loop_control:
-    index_var: index
-
-- name: Debug package_show_installed.rc
-  debug:
-    msg: "{{ item.name }} check if installed: {{ 'yes' if package_show_installed.results[index].rc == 0 else 'no' }}"
-  loop: '{{ go_packages }}'
-  loop_control:
-    index_var: index
-
-- name: Install golang packages
-  become_user: '{{username}}'
-  shell: >
-    {% if item.version is defined  %}
-    zsh -c "source ~/.zshrc; go install {{item.name}}@{{item.version}}"
-    {% else %}
-    zsh -c "source ~/.zshrc; go install {{item.name}}@latest"
-    {% endif %}
-  register: package_install
-  failed_when: package_install.rc != 0
-  when: package_show_installed.results[index].rc != 0
-  loop: '{{ go_packages }}'
-  loop_control:
-    index_var: index
 
 # ! I do not trust this at the moment,
 # ! re-evaluating what this is for and how to make it better
