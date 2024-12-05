@@ -47,9 +47,24 @@
       changed_when: false
       failed_when: false
 
+    - name: Define casa download URLs
+      set_fact:
+        casa_urls:
+          x86_64: "https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa"
+          aarch64: "https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa-arm"
+
+    - name: Set casa URL
+      set_fact:
+        casa_url: "{{ casa_urls.get(ansible_architecture, '') }}"
+
+    - name: Fail if architecture is unsupported
+      fail:
+        msg: "Unsupported architecture: {{ ansible_architecture }}"
+      when: casa_url == ''
+
     - name: download casa file release
       get_url:
-        url: 'https://github.com/RolandWarburton/casa/releases/download/v0.0.1/casa'
+        url: '{{casa_url}}'
         dest: /usr/local/bin/casa
         group: 'root'
         owner: 'root'
