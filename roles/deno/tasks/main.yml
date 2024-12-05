@@ -1,0 +1,21 @@
+- name: Check if Deno is already installed
+  stat:
+    path: '/home/{{username}}/.deno'
+  register: deno_directory
+
+- block:
+    - name: Download Deno installation script
+      get_url:
+        url: https://deno.land/install.sh
+        dest: '{{ deno_install_script_location }}'
+        mode: '0755'
+        owner: '{{ username }}'
+        group: '{{ username }}'
+
+    - name: Run Deno installation script
+      become: yes
+      become_user: '{{ username }}'
+      command:
+        cmd: '{{ deno_install_script_location }} --no-modify-path --yes'
+        creates: '/home/{{username}}/.deno'
+  when: not deno_directory.stat.exists
