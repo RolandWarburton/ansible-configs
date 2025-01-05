@@ -30,7 +30,7 @@ end
 
 -- Function to install a Go package
 local function install_package(name, version)
-  local end_vars = getenv()
+  local env_vars = getenv()
   local cmd = string.format("%s go install %s@%s", env_vars, name, version)
   print(string.format("Installing %s@%s...", name, version))
   local result = os.execute(cmd)
