@@ -1,12 +1,16 @@
-# golangci-lint
-- name: copy install golang install packages script
+- name: Check if the Golang install packages script already exists
+  stat:
+    path: /home/{{ username }}/.local/bin/install-golang-packages.lua
+  register: file_stat
+
+- name: Copy the Golang install packages script
   copy:
     src: ./install-golang-packages.lua
-    dest: /home/{{username}}/.local/bin
-    owner: '{{username}}'
-    group: '{{username}}'
-    mode: 0755
-    creates: /home/{{username}}/.local/bin/install-golang-packages.lua
+    dest: /home/{{ username }}/.local/bin/install-golang-packages.lua
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: '0755'
+  when: not file_stat.stat.exists
 
 - name: run install-golang-packages.lua
   become_user: '{{username}}'
