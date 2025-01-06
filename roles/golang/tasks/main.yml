@@ -13,6 +13,9 @@
   #   import_tasks: install_go_packages.yml
   when: go_command_check.rc != 0
 
+- name: install packages
+  import_tasks: packages.yml
+
 # ! I do not trust this at the moment,
 # ! re-evaluating what this is for and how to make it better
 # golangci-lint
