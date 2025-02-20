@@ -6,7 +6,7 @@
 
 - name: debug
   debug:
-    msg: '{{neovim_output.stdout}}'
+    msg: "{{ neovim_output.stdout | default('neovim version not found') }}"
 
 - name: Extract Neovim version number
   set_fact:
