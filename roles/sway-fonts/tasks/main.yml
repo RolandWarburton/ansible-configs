@@ -28,10 +28,22 @@
 - name: create hack font directory
   file:
     path: '/usr/share/fonts/truetype/hack'
-    mode: 0775
+    mode: 0755
     state: directory
 
-- name: copy fonts to font directory
-  shell:
-    cmd: 'fdfind --max-depth=1 "ttf$" --exec cp {} /usr/share/fonts/truetype/hack/{} '
-    chdir: '/tmp/ttf-hack-patched'
+- name: Find ttf font files in source directory
+  find:
+    paths: /tmp/ttf-hack-patched
+    patterns: '*.ttf'
+    file_type: file
+    recurse: no
+  register: found_fonts
+
+- name: Copy ttf fonts to font directory
+  copy:
+    src: "{{ item }}"
+    dest: /usr/share/fonts/truetype/hack/
+    owner: root
+    group: root
+    mode: '0644'
+  loop: "{{ found_fonts.files | map(attribute='path') | list }}"
