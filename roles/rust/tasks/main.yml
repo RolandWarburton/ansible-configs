@@ -1,3 +1,9 @@
+- name: install packages
+  apt:
+    update_cache: yes
+    pkg:
+      - liblz4-dev
+
 - name: check if cargo is installed
   become_user: '{{username}}'
   shell: command -v cargo

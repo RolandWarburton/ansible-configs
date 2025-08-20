@@ -36,7 +36,7 @@
 
 - name: Copy 'swww-daemon' binary to '/usr/bin' directory
   copy:
-    src: '{{build_dir}}/swww/target/release/swww-daemon'
+    src: '{{build_dir}}/swww/target/release/swww'
     dest: /usr/bin
     owner: root
     group: root
