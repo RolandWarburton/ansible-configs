@@ -24,8 +24,8 @@
 
 - name: copy configure laptop display script to sway configuration directory
   copy:
-    src: configure-laptop-display.sh
-    dest: /usr/local/etc/sway
+    src: sway-laptop-display.sh
+    dest: /usr/local/bin/sway-laptop-display.sh
     mode: 0755
 
 # udev rule to configure screens and desktop background when HDMI plug in or out

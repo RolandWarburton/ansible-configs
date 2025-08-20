@@ -12,6 +12,16 @@
     group: '{{username}}'
   when: build_dir_exists.stat.exists == False
 
+- name: Check if Wayland protocols directory exists
+  stat:
+    path: /usr/share/wayland-protocols/stable
+  register: wayland_protocols_dir
+
+- name: Fail if Wayland protocols directory does not exist
+  fail:
+    msg: "Wayland protocols directory /usr/share/wayland-protocols/stable does not exist! Install the wayland-protocols package."
+  when: not wayland_protocols_dir.stat.exists
+
 - name: clone swww
   become_user: '{{username}}'
   git:
@@ -24,6 +34,8 @@
     cmd: 'cargo build --release'
     chdir: '{{build_dir}}/swww'
     creates: '{{build_dir}}/swww/target/release/swww'
+  environment:
+    WAYLAND_PROTOCOLS_DIR: /usr/share/wayland-protocols/stable
 
 - name: Copy 'swww' binary to '/usr/bin' directory
   copy:
@@ -36,7 +48,7 @@
 
 - name: Copy 'swww-daemon' binary to '/usr/bin' directory
   copy:
-    src: '{{build_dir}}/swww/target/release/swww'
+    src: '{{build_dir}}/swww/target/release/swww-daemon'
     dest: /usr/bin
     owner: root
     group: root
