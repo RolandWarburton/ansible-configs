@@ -95,8 +95,8 @@
     - block:
         - name: download neovim
           get_url:
-            url: https://github.com/neovim/neovim/releases/download/v{{neovim_target_version}}/nvim-linux64.tar.gz
-            dest: /tmp/nvim-linux64.tar.gz
+            url: https://github.com/neovim/neovim/releases/download/v{{neovim_target_version}}/nvim-linux-x86_64.tar.gz
+            dest: /tmp/nvim-linux-x86_64.tar.gz
             mode: '0755'
             group: '{{username}}'
             owner: '{{username}}'
@@ -105,13 +105,13 @@
 
         - name: Unzip Neovim tar gz
           ansible.builtin.unarchive:
-            src: /tmp/nvim-linux64.tar.gz
+            src: /tmp/nvim-linux-x86_64.tar.gz
             dest: /tmp
             remote_src: true
 
         - name: Copy nvim to /usr/bin/nvim
           ansible.builtin.copy:
-            src: /tmp/nvim-linux64
+            src: /tmp/nvim-linux-x86_64
             dest: /usr/bin
             remote_src: true
             mode: '0755'
@@ -120,7 +120,7 @@
 
         - name: Create symbolic link for nvim binary
           ansible.builtin.file:
-            src: /usr/bin/nvim-linux64/bin/nvim
+            src: /usr/bin/nvim-linux-x86_64/bin/nvim
             dest: /usr/bin/nvim
             state: link
             force: yes
