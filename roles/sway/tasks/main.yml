@@ -12,6 +12,7 @@
       - xdg-desktop-portal-wlr
       - xwayland
       - wayland-protocols
+      - libwayland-dev
 
 - name: install extras
   apt:
