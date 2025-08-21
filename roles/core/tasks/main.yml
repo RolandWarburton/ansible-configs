@@ -1,25 +1,20 @@
-- name: ensure locale is set to {{ config_system_locale }}
-  import_tasks: locale.yml
-
-# packages
-- name: Install core packages
-  raw: |
-    {% for package in packages %}
-     dpkg-query -s "{{ package }}" > /dev/null 2>&1
-     if [ $? -ne 0 ]; then
-       apt-get install -y "{{ package }}" > /dev/null 2>&1
-       echo "NEW PACKAGE INSTALLED: {{ package }}"
-     else
-       echo {{ package }} is already installed
-     fi
-    {% endfor %}
-  register: pkg_result
-  changed_when: '"PACKAGE INSTALLED" in pkg_result.stdout'
-
-- name: Debug package results
-  debug:
-    msg: '{{ item }}'
-  loop: '{{ pkg_result.stdout_lines }}'
+- name: Install essential packages
+  apt:
+    update_cache: yes
+    pkg:
+      - zsh
+      - git
+      - tmux
+      - ripgrep
+      - fd-find
+      - pinentry-curses
+      - pinentry-tty
+      - network-manager
+      - htop
+      - curl
+      - wget
+      - man
+      - starship
 
 # zshell
 - name: Check if zsh is installed
@@ -27,16 +22,8 @@
     path: /usr/bin/zsh
   register: zsh_binary_stat
 
-- name: set zsh to be the default shell
+- name: Set zsh to be the default shell
   user:
     name: '{{username}}'
     shell: /usr/bin/zsh
   when: zsh_binary_stat.stat.exists
-
-# enable pcspkr device for roland
-# allows access to /dev/input/by-path/platform-pcspkr-event-spkr
-- name: add '{{username}}' to group realtime
-  user:
-    name: '{{username}}'
-    groups: input
-    append: yes
