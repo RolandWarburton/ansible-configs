@@ -2,9 +2,11 @@
   connection: local
   become: true
   roles:
-    - ./roles/core
-    - ./roles/neovim
-    - ./roles/zgen
-    - ./roles/starship
-    - ./roles/lua
-    - ./roles/lua-lsp
+    # - ./roles/core
+    # - ./roles/lua
+    # - ./roles/neovim
+    # - ./roles/dotfiles
+    # - ./roles/sway-fonts
+    # - ./roles/wofi
+    - ./roles/swww
+    #- ./roles/lua-lsp
