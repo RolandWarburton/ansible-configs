@@ -1,10 +1,10 @@
-- name: install packages
+- name: Install packages
   apt:
     update_cache: yes
     pkg:
       - liblz4-dev
 
-- name: check if cargo is installed
+- name: Check if cargo is installed
   become_user: '{{username}}'
   shell: command -v cargo
   register: cargo_exists
@@ -22,7 +22,7 @@
     force: 'yes'
   when: cargo_exists.rc != 0
 
-- name: install rust/cargo
+- name: Install rust/cargo
   become_user: '{{username}}'
   shell: zsh -c '/tmp/sh.rustup.rs -y'
   when: cargo_exists.rc != 0
