@@ -1,34 +1,103 @@
-- name: check go is installed
-  become_user: '{{username}}'
-  shell: 'zsh -c "source ~/.zshrc; command -v go"'
-  register: go_command_check
-  changed_when: false
-  failed_when: false
-
-- block:
-  - name: install go if not installed
-    import_tasks: install_go.yml
-
-  # - name: install go packages
-  #   import_tasks: install_go_packages.yml
-  when: go_command_check.rc != 0
-
-- name: install packages
-  import_tasks: packages.yml
-
-# ! I do not trust this at the moment,
-# ! re-evaluating what this is for and how to make it better
-# golangci-lint
-# - name: copy install golangci-lint script
-#   copy:
-#     src: ./install-golangci-lint.zsh
-#     dest: /home/{{username}}/.local/bin
-#     owner: '{{username}}'
-#     group: '{{username}}'
-#     mode: 0755
 #
-# - name: install golangci-lint
-#   become_user: '{{username}}'
-#   shell:
-#     cmd: /home/{{username}}/.local/bin/install-golangci-lint.zsh
-#     creates: /home/{{username}}/.local/go/bin/golangci-lint
+# based on https://github.com/gantsign/ansible-role-golang
+#
+
+- name: Load source vars
+  with_first_found:
+    - '../vars/architecture/{{ ansible_facts.architecture | lower }}-{{ ansible_facts.userspace_bits }}.yml'
+    - '../vars/architecture/{{ ansible_facts.architecture | lower }}.yml'
+    - ../vars/architecture/default.yml
+  include_vars: '{{ item }}'
+
+- name: debug
+  debug:
+    msg: '{{ ansible_facts.architecture | lower }}'
+
+- name: Create download directory
+  file:
+    state: directory
+    mode: 0700
+    owner: root
+    group: root
+    dest: '{{ golang_download_dir }}'
+
+- name: Download Go language SDK
+  get_url:
+    url: '{{ golang_mirror }}/{{ golang_redis_filename }}'
+    dest: '{{ golang_download_dir }}/{{ golang_redis_filename }}'
+    force: false
+    use_proxy: true
+    validate_certs: true
+    mode: 'u=rw,go=r'
+  when: not ansible_check_mode
+
+- name: Install unarchive dependencies (apt)
+  become: true
+  apt:
+    name:
+      - gzip
+      - tar
+    state: present
+
+- name: 'Make sure {{ golang_install_dir }} exists'
+  become: true
+  file:
+    path: '{{ golang_install_dir }}'
+    state: directory
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'
+
+- name: Install Go language SDK
+  become: true
+  unarchive:
+    src: '{{ golang_download_dir }}/{{ golang_redis_filename }}'
+    remote_src: true
+    extra_opts: '--strip-components=1'
+    dest: '{{ golang_install_dir }}'
+    owner: root
+    group: root
+    creates: '{{ golang_install_dir }}/bin'
+  when: not ansible_check_mode
+
+- name: Make sure /etc/profile.d exists
+  become: true
+  file:
+    path: /etc/profile.d
+    state: directory
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'
+
+- name: Export Go language SDK environment variables
+  become: true
+  template:
+    src: golang.sh.j2
+    dest: /etc/profile.d/golang.sh
+    owner: root
+    group: root
+    mode: 'u=rw,go=r'
+
+    # Set Go language SDK facts
+- name: Create Ansible facts.d directory
+  become: true
+  file:
+    state: directory
+    dest: /etc/ansible/facts.d
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'
+
+- name: Install golang SDK facts
+  become: true
+  template:
+    src: facts.j2
+    dest: /etc/ansible/facts.d/golang.fact
+    owner: root
+    group: root
+    mode: 'u=rw,go=r'
+  when: not ansible_check_mode
+
+- name: Re-read facts
+  setup:
+    filter: ansible_local
