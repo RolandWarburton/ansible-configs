@@ -101,3 +101,34 @@
 - name: Re-read facts
   setup:
     filter: ansible_local
+
+# packages
+- name: Install gopls
+  shell:
+    cmd: '{{golang_install_dir}}/bin/go install golang.org/x/tools/gopls@latest'
+    creates: '{{ golang_gopath }}/bin/gopls'
+  environment:
+    GOPATH: '{{ golang_gopath }}'
+    GOROOT: '{{ golang_install_dir }}'
+    PATH: "{{ golang_install_dir }}/bin:{{ golang_gopath }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
+  register: gopls_install
+
+- name: Install dlv
+  shell:
+    cmd: '{{golang_install_dir}}/bin/go install github.com/go-delve/delve/cmd/dlv@latest'
+    creates: '{{ golang_gopath }}/bin/dlv'
+  environment:
+    GOPATH: '{{ golang_gopath }}'
+    GOROOT: '{{ golang_install_dir }}'
+    PATH: "{{ golang_install_dir }}/bin:{{ golang_gopath }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
+  register: dlv_install
+
+- name: Install gops
+  shell:
+    cmd: '{{golang_install_dir}}/bin/go install github.com/google/gops@latest'
+    creates: '{{ golang_gopath }}/bin/gops'
+  environment:
+    GOPATH: '{{ golang_gopath }}'
+    GOROOT: '{{ golang_install_dir }}'
+    PATH: "{{ golang_install_dir }}/bin:{{ golang_gopath }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
+  register: gops_install

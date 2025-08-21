@@ -1,11 +1,13 @@
 #!/bin/sh
 
+#
+# be sure to source this file in your shell
+#
+
 {{ ansible_managed | comment('plain') }}
 
 export GOROOT='{{ golang_install_dir }}'
 export PATH=$GOROOT/bin:$PATH
 
-{% if golang_gopath not in (None, '') %}
-export GOPATH="{{ golang_gopath }}"
+export GOPATH="$HOME/.go-workspace"
 export PATH=$GOPATH/bin:$PATH
-{% endif %}
