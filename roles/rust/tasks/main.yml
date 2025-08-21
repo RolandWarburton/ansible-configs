@@ -3,61 +3,33 @@
     update_cache: yes
     pkg:
       - liblz4-dev
+      - rustup
 
-- name: Check if cargo is installed
-  become_user: '{{username}}'
-  shell: command -v cargo
-  register: cargo_exists
-  ignore_errors: yes
-  failed_when: false
+- name: Check current rustup toolchain
+  command: rustup show active-toolchain
+  register: rustup_toolchain
   changed_when: false
-
-- name: Download Installer
-  get_url:
-    url: https://sh.rustup.rs
-    dest: /tmp/sh.rustup.rs
-    owner: '{{username}}'
-    group: '{{username}}'
-    mode: '0755'
-    force: 'yes'
-  when: cargo_exists.rc != 0
-
-- name: Install rust/cargo
-  become_user: '{{username}}'
-  shell: zsh -c '/tmp/sh.rustup.rs -y'
-  when: cargo_exists.rc != 0
-  register: cargo_install
-
-- name: Run rustup self update command
-  become_user: '{{username}}'
-  command: '/home/{{username}}/.cargo/bin/rustup self update'
-  register: rustup_update_output
   ignore_errors: true
-  changed_when: false
 
-- name: Print Rustup update status
+- name: Debug current rustup toolchain (for testing)
   debug:
-    msg: '{{ rustup_update_output.stdout }}'
-  when: rustup_update_output.rc == 0
+    msg: "Current Rust toolchain: {{ rustup_toolchain.stdout }}"
 
-- name: Print error message if rustup self update command fails
+- name: Check if toolchain is stable
+  set_fact:
+    is_stable: "{{ 'stable' in rustup_toolchain.stdout }}"
+
+- name: set rust to stable branch
+  shell: rustup default stable
+  when: not is_stable
+  register: rustup_update
+
+- name: Show rustup update status
   debug:
-    msg: 'Failed to upgrade Rustup. Please make sure Rustup is installed.'
-  when: rustup_update_output.rc != 0
+    msg: "Rust toolchain has been updated to stable."
+  when: rustup_update.changed
 
-- name: Run rustup update command
-  become_user: '{{username}}'
-  command: "/home/roland/.cargo/bin/rustup update"
-  register: rust_update_output
-  ignore_errors: true
-  changed_when: false
-
-- name: Print Rust update status
+- name: Print message if already on stable
   debug:
-    msg: "{{ rust_update_output.stdout }}"
-  when: rust_update_output.rc == 0
-
-- name: Print error message if rustup update command fails
-  debug:
-    msg: "Failed to upgrade Rust components."
-  when: rust_update_output.rc != 0
+    msg: "Rust toolchain is already on the stable version."
+  when: is_stable
