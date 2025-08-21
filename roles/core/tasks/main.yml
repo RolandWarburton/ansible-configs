@@ -7,6 +7,7 @@
       - tmux
       - ripgrep
       - fd-find
+      - fzf
       - pinentry-curses
       - pinentry-tty
       - network-manager
