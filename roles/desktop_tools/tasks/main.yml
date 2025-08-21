@@ -1,0 +1,16 @@
+- name: Install desktop extra packages and tools
+  apt:
+    update_cache: yes
+    pkg:
+      - ffmpeg
+      - mpv
+
+- name: Install libgtk-4-dev (ripdrag pre-requisite)
+  apt:
+    update_cache: yes
+    pkg:
+      - libgtk-4-dev
+
+- name: Install cargo packages
+  community.general.cargo:
+    name: ripdrag
