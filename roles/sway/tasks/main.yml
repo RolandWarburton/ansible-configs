@@ -22,6 +22,7 @@
       - wl-clipboard
       - clipman
       - wofi
+      - libspa-0.2-bluetooth
 
 - name: copy configure laptop display script to sway configuration directory
   copy:
