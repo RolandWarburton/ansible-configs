@@ -21,6 +21,7 @@
       - grim
       - wl-clipboard
       - clipman
+      - wofi
 
 - name: copy configure laptop display script to sway configuration directory
   copy:
