@@ -1,7 +1,8 @@
 # Notes:
 #
 # you can find the name of fonts using
-# fc-query HackNerdFont-Regular.ttf
+# fc-list | grep Hack
+# fc-query <path>/HackNerdFont-Regular.ttf
 #
 # roles/alacritty uses this to set the terminal fonts
 #
@@ -12,6 +13,7 @@
     pkg:
       - fontconfig
       - fd-find
+      - fonts-noto-color-emoji
 
 - name: create temp directory
   file:
