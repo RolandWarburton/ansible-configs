@@ -5,12 +5,8 @@
       - ffmpeg
       - mpv
 
-- name: Install libgtk-4-dev (ripdrag pre-requisite)
-  apt:
-    update_cache: yes
-    pkg:
-      - libgtk-4-dev
+# - name: Include ripdrag tasks
+#   import_tasks: ./software/ripdrag.yml
 
-- name: Install cargo packages
-  community.general.cargo:
-    name: ripdrag
+- name: Include lf tasks
+  import_tasks: ./software/lf.yml

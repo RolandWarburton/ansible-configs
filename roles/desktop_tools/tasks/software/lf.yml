@@ -1,0 +1,10 @@
+- name: Install lf
+  become_user: "{{ username }}"
+  shell:
+    cmd: '{{golang_install_dir}}/bin/go install -ldflags="-s -w" github.com/gokcehan/lf@latest'
+    creates: '{{ golang_gopath }}/bin/gopls'
+  environment:
+    GOPATH: '{{ golang_gopath }}'
+    GOROOT: '{{ golang_install_dir }}'
+    PATH: "{{ golang_install_dir }}/bin:{{ golang_gopath }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
+  register: gopls_install
