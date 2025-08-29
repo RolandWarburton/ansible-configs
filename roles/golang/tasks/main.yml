@@ -104,6 +104,7 @@
 
 # packages
 - name: Install gopls
+  become_user: "{{ username }}"
   shell:
     cmd: '{{golang_install_dir}}/bin/go install golang.org/x/tools/gopls@latest'
     creates: '{{ golang_gopath }}/bin/gopls'
@@ -114,6 +115,7 @@
   register: gopls_install
 
 - name: Install dlv
+  become_user: "{{ username }}"
   shell:
     cmd: '{{golang_install_dir}}/bin/go install github.com/go-delve/delve/cmd/dlv@latest'
     creates: '{{ golang_gopath }}/bin/dlv'
@@ -124,6 +126,7 @@
   register: dlv_install
 
 - name: Install gops
+  become_user: "{{ username }}"
   shell:
     cmd: '{{golang_install_dir}}/bin/go install github.com/google/gops@latest'
     creates: '{{ golang_gopath }}/bin/gops'
