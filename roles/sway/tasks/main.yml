@@ -20,6 +20,7 @@
     pkg:
       - grim
       - wl-clipboard
+      - imv
       - clipman
       - wofi
       - libspa-0.2-bluetooth
