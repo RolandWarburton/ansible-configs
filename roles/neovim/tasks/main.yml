@@ -173,3 +173,23 @@
     group: root
     state: link
   when: root_config_nvim_exists.stat.exists == False
+
+# update the debian alternatives/preferences
+# to set neovim as the preferred text editor
+- name: Check if nvim is already registered as an alternative for editor
+  command: update-alternatives --query editor
+  register: editor_alternatives
+  changed_when: false
+  failed_when: false
+
+- name: Register nvim as an alternative for editor
+  command: update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 100
+  when: "'/usr/bin/nvim' not in editor_alternatives.stdout"
+  register: nvim_registered
+
+- name: Set Neovim as the default editor
+  command: >
+    update-alternatives --set editor /usr/bin/nvim
+  when: nvim_registered is changed
+  register: nvim_set
+  changed_when: nvim_set.rc == 0
