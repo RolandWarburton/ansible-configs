@@ -12,6 +12,8 @@
       - pinentry-tty
       - network-manager
       - htop
+      - psmisc
+      - lshw
       - curl
       - wget
       - man
