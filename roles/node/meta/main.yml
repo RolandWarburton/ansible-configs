@@ -1,3 +1,0 @@
-dependencies:
-  - role: nvm
-  - role: node_version

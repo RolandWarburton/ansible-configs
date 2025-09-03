@@ -1,41 +1,20 @@
-- block:
-    - name: install node
-      become_user: '{{username}}'
-      shell: 'zsh -c "source ~/.zshrc; nvm install"'
-      args:
-        creates: '{{ ansible_env.HOME }}/.nvm/versions/node/v{{target_node_version}}/bin/node'
+- name: Download and install n and Node.js LTS
+  shell: |
+    curl -fsSL https://raw.githubusercontent.com/tj/n/master/bin/n | bash -s install lts
+  args:
+    executable: /bin/bash
+    creates: /usr/local/bin/node
 
-    - name: symlink node to bin
-      shell:
-        cmd: >
-          source /home/{{username}}/.zshrc;
-          rm -f /usr/bin/node;
-          ln -s /home/{{username}}/.nvm/versions/node/v{{target_node_version}}/bin/node /usr/bin/node;
-      failed_when: false
-      changed_when: false
-
-    - name: symlink npm to bin
-      shell:
-        cmd: >
-          source /home/{{username}}/.zshrc;
-          rm -f /usr/bin/npm;
-          ln -s /home/{{username}}/.nvm/versions/npm/v{{target_node_version}}/bin/npm /usr/bin/npm;
-      failed_when: false
-      changed_when: false
-  when: node_out_of_date
-
-# install neovim npm package if neovim is installed
-- name: Check if Neovim package is installed
-  ansible.builtin.command: nvim --version
-  register: neovim_output
-  ignore_errors: yes
-  changed_when: false
+- name: Ensure /usr/local/bin is in PATH for all users (if needed)
+  lineinfile:
+    path: /etc/profile.d/n-bin-path.sh
+    line: 'export PATH="/usr/local/bin:$PATH"'
+    create: yes
+    mode: '0755'
 
 - name: install neovim npm package
-  become_user: '{{username}}'
   community.general.npm:
-    name: neovim
+    name: n
     global: yes
-    executable: /home/{{username}}/.nvm/versions/node/v{{target_node_version}}/bin/npm
+    executable: /usr/local/bin/npm
     state: present
-  when: neovim_output.rc == 0

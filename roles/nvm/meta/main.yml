@@ -1,2 +1,0 @@
-dependencies:
-  - role: dotfiles # requires zsh script to know where nvm is
