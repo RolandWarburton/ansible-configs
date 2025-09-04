@@ -8,6 +8,7 @@
       - ripgrep
       - fd-find
       - fzf
+      - bat
       - pinentry-curses
       - pinentry-tty
       - network-manager
