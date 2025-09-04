@@ -1,3 +1,9 @@
+- name: install chromium package
+  apt:
+    update_cache: yes
+    pkg:
+      - chromium
+
 - name: Check if chromium.desktop exists
   stat:
     path: /usr/share/applications/chromium.desktop
