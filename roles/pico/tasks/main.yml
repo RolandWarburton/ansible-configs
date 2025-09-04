@@ -1,0 +1,11 @@
+- name: install c and cpp development packages
+  apt:
+    update_cache: yes
+    pkg:
+      - cmake
+      - gcc-arm-none-eabi
+      - build-essential
+      - pkg-config
+      - libusb-1.0-0-dev
+      - ccls
+      - picotool
