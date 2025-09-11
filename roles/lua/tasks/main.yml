@@ -52,7 +52,7 @@
   loop_control:
     index_var: index
 
-- name: Install Luarocks package {{ item.name }}
+- name: Install Luarocks packages
   shell: >
     {% if item.version is defined and item.version | regex_search('^[0-9]') %}
     luarocks install {{ item.name }} {{ item.version }}
