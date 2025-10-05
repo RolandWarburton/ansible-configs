@@ -147,33 +147,6 @@
     key_file: /home/{{username}}/.ssh/id_github # on the remote host
   when: not nvim_config_stat.stat.exists
 
-# symlink user neovim config to root
-# this is not tested but should work
-- name: Check root .config/ exists
-  stat:
-    path: /root/.config
-  register: root_config_exists
-
-- name: Create root .config/ if it does not exist
-  file:
-    path: /root/.config
-    state: directory
-  when: root_config_exists.stat.exists == False
-
-- name: Check root .config/nvim exists
-  stat:
-    path: /root/.config/nvim
-  register: root_config_nvim_exists
-
-- name: symlink nvim configs to root if it does not exist
-  file:
-    src: /home/{{username}}/.config/nvim
-    dest: /root/.config/nvim
-    owner: root
-    group: root
-    state: link
-  when: root_config_nvim_exists.stat.exists == False
-
 # update the debian alternatives/preferences
 # to set neovim as the preferred text editor
 - name: Check if nvim is already registered as an alternative for editor
