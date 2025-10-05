@@ -1,0 +1,24 @@
+- name: Check if TPM2 is available
+  command: systemd-analyze has-tpm2
+  register: tpm_check
+  changed_when: false
+  failed_when: false
+
+- name: Install TPM2 packages
+  apt:
+    name:
+      - tpm2-tools
+      - tpm2-abrmd
+      - libtss2-esys-3.0.2-0t64
+      - libtss2-mu-4.0.1-0t64
+      - libtss2-rc0t64
+    state: present
+    update_cache: yes
+  when: "'+firmware' in tpm_check.stdout or '+driver' in tpm_check.stdout or '+system' in tpm_check.stdout"
+
+- name: Enable and start TPM2 daemon
+  systemd:
+    name: tpm2-abrmd
+    enabled: yes
+    state: started
+  when: "'+firmware' in tpm_check.stdout or '+driver' in tpm_check.stdout or '+system' in tpm_check.stdout"
