@@ -1,0 +1,11 @@
+repo_url: "https://github.com/negrel/wooz.git"
+build_dir: "/tmp/wooz_build"
+dependencies:
+  - git
+  - meson
+  - ninja-build
+  - gcc
+  - pkg-config
+  - libwayland-dev
+  - wayland-protocols
+  - libxkbcommon-dev
