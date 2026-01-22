@@ -21,6 +21,7 @@
       - curl
       - wget
       - man
+      - foot-terminfo
       - starship
       - systemd-timesyncd
       - build-essential
