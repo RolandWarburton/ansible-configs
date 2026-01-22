@@ -23,7 +23,7 @@
 
 - name: Download Go language SDK
   get_url:
-    url: '{{ golang_mirror }}/{{ golang_redis_filename }}'
+    url: '{{ golang_mirror }}'
     dest: '{{ golang_download_dir }}/{{ golang_redis_filename }}'
     force: false
     use_proxy: true
