@@ -17,6 +17,7 @@
       - pkexec
       - dnsutils
       - lshw
+      - lsd
       - tree
       - curl
       - wget
