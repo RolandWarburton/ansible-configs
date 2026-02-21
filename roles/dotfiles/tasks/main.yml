@@ -63,13 +63,17 @@
       when: casa_url == ''
 
     - name: download casa file release
-      get_url:
-        url: '{{casa_url}}'
-        dest: /usr/local/bin/casa
-        group: 'root'
-        owner: 'root'
-        mode: '0755'
+      shell: |
+        curl -L {{casa_url}} -o /usr/local/bin/casa
       when: casa_bin.rc != 0
+
+    - name: set permissions on casa binary
+      file:
+        path: /usr/local/bin/casa
+        owner: root
+        group: root
+        mode: '0755'
+      become: true
   when: casa_command.rc != 0
 
 - name: run casa
