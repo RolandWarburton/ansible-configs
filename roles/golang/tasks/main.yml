@@ -21,14 +21,19 @@
     group: root
     dest: '{{ golang_download_dir }}'
 
-- name: Download Go language SDK
-  get_url:
-    url: '{{ golang_mirror }}'
-    dest: '{{ golang_download_dir }}/{{ golang_redis_filename }}'
-    force: false
-    use_proxy: true
-    validate_certs: true
-    mode: 'u=rw,go=r'
+- name: Download Go language SDK using curl
+  become: true
+  shell: |
+    {% if ansible_architecture == 'x86_64' %}
+      {% set go_arch = 'amd64' %}
+    {% elif ansible_architecture == 'aarch64' %}
+      {% set go_arch = 'arm64' %}
+    {% else %}
+      {% set go_arch = 'amd64' %}
+    {% endif %}
+    curl -L "https://go.dev/dl/go{{ golang_version }}.linux-{{ go_arch }}.tar.gz" -o "{{ golang_download_dir }}/{{ golang_redis_filename }}"
+  args:
+    creates: "{{ golang_download_dir }}/{{ golang_redis_filename }}"
   when: not ansible_check_mode
 
 - name: Install unarchive dependencies (apt)
