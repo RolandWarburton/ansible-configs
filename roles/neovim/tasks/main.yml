@@ -63,33 +63,33 @@
       register: nvim_deb_stat
 
     - block:
-        - name: install packages
-          apt:
-            update_cache: yes
-            pkg:
-              - cmake
-              - gettext
-
-        - name: clone neovim
-          become_user: "{{username}}"
-          git:
-            repo: "https://github.com/neovim/neovim.git"
-            dest: "/tmp/neovim"
-            version: "v{{neovim_target_version}}"
-
-        - name: Build Neovim
-          become_user: "{{ username }}"
+        - name: Download Neovim binary using curl (ARM64)
           shell: |
-            cd /tmp/neovim
-            make CMAKE_BUILD_TYPE=Release
+            curl -L https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-arm64.tar.gz -o /tmp/nvim-linux-arm64.tar.gz
           args:
-            creates: /tmp/neovim/build
+            creates: /tmp/nvim-linux-arm64.tar.gz
 
-        - name: Install Neovim
-          become: true
-          shell: |
-            cd /tmp/neovim
-            make install
+        - name: Unzip Neovim tar gz (ARM64)
+          ansible.builtin.unarchive:
+            src: /tmp/nvim-linux-arm64.tar.gz
+            dest: /tmp
+            remote_src: true
+
+        - name: Copy nvim to /usr/bin/nvim-linux-arm64
+          ansible.builtin.copy:
+            src: /tmp/nvim-linux-arm64
+            dest: /usr/bin
+            remote_src: true
+            mode: '0755'
+            group: '{{ username }}'
+            owner: '{{ username }}'
+
+        - name: Create symbolic link for nvim binary (ARM64)
+          ansible.builtin.file:
+            src: /usr/bin/nvim-linux-arm64/bin/nvim
+            dest: /usr/bin/nvim
+            state: link
+            force: yes
       when: ansible_architecture == "aarch64"
 
     - block:
