@@ -22,6 +22,7 @@
       - man
       - starship
       - systemd-timesyncd
+      - smartmontools
       - build-essential
 
 # zshell
