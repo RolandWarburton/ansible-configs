@@ -2,28 +2,32 @@
   apt:
     update_cache: yes
     pkg:
-      - zsh
-      - git
-      - tmux
-      - ripgrep
-      - fd-find
-      - fzf
       - bat
+      - build-essential
+      - curl
+      - dnsutils
+      - fd-find
+      - foot-terminfo
+      - fzf
+      - git
+      - htop
+      - lsd
+      - lshw
+      - man
+      - network-manager
       - pinentry-curses
       - pinentry-tty
-      - network-manager
-      - htop
-      - psmisc
       - pkexec
-      - dnsutils
-      - lshw
-      - curl
-      - wget
-      - man
+      - psmisc
+      - ripgrep
       - starship
       - systemd-timesyncd
       - smartmontools
       - build-essential
+      - tmux
+      - tree
+      - wget
+      - zsh
 
 # zshell
 - name: Check if zsh is installed

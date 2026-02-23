@@ -4,13 +4,19 @@
   register: deno_directory
 
 - block:
-    - name: Download Deno installation script
-      get_url:
-        url: https://deno.land/install.sh
-        dest: '{{ deno_install_script_location }}'
+    - name: Download Deno installation script using curl
+      shell: |
+        curl -L https://deno.land/install.sh -o "{{ deno_install_script_location }}"
+      args:
+        creates: "{{ deno_install_script_location }}"
+
+    - name: Set permissions on Deno install script
+      file:
+        path: "{{ deno_install_script_location }}"
         mode: '0755'
-        owner: '{{ username }}'
-        group: '{{ username }}'
+        owner: "{{ username }}"
+        group: "{{ username }}"
+      become: true
 
     - name: Run Deno installation script
       become: yes

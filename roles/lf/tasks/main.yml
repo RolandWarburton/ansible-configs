@@ -10,12 +10,39 @@
   register: lf_tar_stat
 
 - name: download lf tar
-  get_url:
-    url: 'https://github.com/gokcehan/lf/releases/download/r32/lf-linux-amd64.tar.gz'
-    dest: '{{ tmp_dir }}/lf.tar.gz'
+  shell: |
+      {% if ansible_architecture == 'x86_64' %}
+      {% set lf_arch = 'amd64' %}
+      {% else %}
+      {% set lf_arch = 'arm64' %}
+      {% endif %}
+      curl -L "https://github.com/gokcehan/lf/releases/download/r32/lf-linux-{{ lf_arch }}.tar.gz" -o "{{ tmp_dir }}/lf.tar.gz"
+  args:
+    creates: "{{ tmp_dir }}/lf.tar.gz"
   when: not lf_tar_stat.stat.exists
 
-- name: extract lf tarball
-  command: 'tar -zxvf {{ tmp_dir }}/lf.tar.gz -C /home/{{ username }}/.local/bin'
-  args:
-    creates: '/home/{{ username }}/dotfiles/.local/bin'
+- name: Set permissions on downloaded tar
+  file:
+    path: "{{ tmp_dir }}/lf.tar.gz"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0644'
+  when: not lf_tar_stat.stat.exists
+
+- name: Ensure local bin directory exists
+  file:
+    path: "/home/{{ username }}/.local/bin"
+    state: directory
+    mode: '0755'
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Extract lf tarball
+  ansible.builtin.unarchive:
+    src: "{{ tmp_dir }}/lf.tar.gz"
+    dest: "/home/{{ username }}/.local/bin"
+    remote_src: yes
+    creates: "/home/{{ username }}/.local/bin/lf"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: '0755'
