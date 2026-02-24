@@ -1,4 +1,0 @@
-dependencies:
-  - role: lua
-  - role: rust
-  - role: golang
