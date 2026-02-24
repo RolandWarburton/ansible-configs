@@ -1,0 +1,70 @@
+- include_role:
+    name: ./roles/rust
+
+- name: Install satty build dependencies
+  apt:
+    update_cache: yes
+    pkg:
+      - libglib2.0-dev
+      - libgtk-4-dev
+      - libgdk-pixbuf-2.0-dev
+      - libadwaita-1-dev
+      - libepoxy-dev
+      - libfontconfig-dev
+
+- name: Create satty build directory
+  file:
+    path: '{{ satty_build_dir }}'
+    state: directory
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: 0775
+
+- name: Clone satty
+  become_user: '{{ username }}'
+  git:
+    repo: 'https://github.com/Satty-org/Satty.git'
+    dest: '{{ satty_build_dir }}'
+    version: '{{ satty_version }}'
+
+- name: Build satty
+  become_user: '{{ username }}'
+  shell:
+    cmd: '/usr/bin/cargo build --release'
+    chdir: '{{ satty_build_dir }}'
+    creates: '{{ satty_build_dir }}/target/release/satty'
+
+- name: Stat satty binary
+  stat:
+    path: '{{ satty_build_dir }}/target/release/satty'
+  register: satty_bin
+
+- name: Copy satty binary to /usr/bin
+  copy:
+    src: '{{ satty_build_dir }}/target/release/satty'
+    dest: /usr/bin/satty
+    owner: root
+    group: root
+    remote_src: true
+    mode: 0755
+  when: satty_bin.stat.exists
+
+- name: Install satty desktop file
+  copy:
+    src: '{{ satty_build_dir }}/satty.desktop'
+    dest: /usr/share/applications/satty.desktop
+    owner: root
+    group: root
+    remote_src: true
+    mode: 0644
+  when: satty_bin.stat.exists
+
+- name: Install satty icon
+  copy:
+    src: '{{ satty_build_dir }}/assets/satty.svg'
+    dest: /usr/share/icons/hicolor/scalable/apps/satty.svg
+    owner: root
+    group: root
+    remote_src: true
+    mode: 0644
+  when: satty_bin.stat.exists
