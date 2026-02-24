@@ -1,5 +1,4 @@
 golang_version: '1.24.2'
-golang_mirror: 'https://dl.google.com/go/go{{golang_version}}.linux-amd64.tar.gz'
 golang_install_dir: '/opt/go/{{ golang_version }}'
 golang_download_dir: '/tmp/golang_{{ golang_version}}'
 golang_gopath: '/home/{{ username }}/.go-workspace'
