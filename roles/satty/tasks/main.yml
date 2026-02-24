@@ -1,6 +1,3 @@
-- include_role:
-    name: ./roles/rust
-
 - name: Install satty build dependencies
   apt:
     update_cache: yes
