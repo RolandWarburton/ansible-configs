@@ -1,0 +1,44 @@
+- name: Check if /usr/bin/cargo exists
+  stat:
+    path: /usr/bin/cargo
+  register: cargo_stat
+
+- name: Download rustup installer
+  get_url:
+    url: https://sh.rustup.rs
+    dest: /tmp/rustup-init.sh
+    mode: '0755'
+  when: not cargo_stat.stat.exists
+
+- name: Run rustup installer
+  shell: sh /tmp/rustup-init.sh -y --no-modify-path --default-toolchain stable
+  environment:
+    CARGO_HOME: /usr/local/cargo
+    RUSTUP_HOME: /usr/local/rustup
+  when: not cargo_stat.stat.exists
+
+- name: Symlink /usr/bin/cargo
+  file:
+    src: /usr/local/cargo/bin/cargo
+    dest: /usr/bin/cargo
+    state: link
+
+- name: Symlink /usr/bin/rustup
+  file:
+    src: /usr/local/cargo/bin/rustup
+    dest: /usr/bin/rustup
+    state: link
+
+- name: Check current rustup toolchain
+  command: rustup show active-toolchain
+  register: rustup_toolchain
+  changed_when: false
+  ignore_errors: true
+  environment:
+    RUSTUP_HOME: /usr/local/rustup
+
+- name: Set rust to stable branch
+  shell: rustup default stable
+  when: "'stable' not in rustup_toolchain.stdout"
+  environment:
+    RUSTUP_HOME: /usr/local/rustup

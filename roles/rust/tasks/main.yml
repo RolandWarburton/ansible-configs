@@ -1,35 +1,13 @@
-- name: Install packages
+- name: Install liblz4-dev
   apt:
     update_cache: yes
     pkg:
       - liblz4-dev
-      - rustup
 
-- name: Check current rustup toolchain
-  command: rustup show active-toolchain
-  register: rustup_toolchain
-  changed_when: false
-  ignore_errors: true
+- name: Import Debian 12 install tasks
+  import_tasks: install_deb12.yml
+  when: ansible_distribution_major_version | int < 13
 
-- name: Debug current rustup toolchain (for testing)
-  debug:
-    msg: "Current Rust toolchain: {{ rustup_toolchain.stdout }}"
-
-- name: Check if toolchain is stable
-  set_fact:
-    is_stable: "{{ 'stable' in rustup_toolchain.stdout }}"
-
-- name: set rust to stable branch
-  shell: rustup default stable
-  when: not is_stable
-  register: rustup_update
-
-- name: Show rustup update status
-  debug:
-    msg: "Rust toolchain has been updated to stable."
-  when: rustup_update.changed
-
-- name: Print message if already on stable
-  debug:
-    msg: "Rust toolchain is already on the stable version."
-  when: is_stable
+- name: Import Debian 13+ install tasks
+  import_tasks: install_deb13.yml
+  when: ansible_distribution_major_version | int >= 13

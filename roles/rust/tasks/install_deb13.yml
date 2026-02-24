@@ -1,0 +1,14 @@
+- name: Install rustup via apt
+  apt:
+    pkg:
+      - rustup
+
+- name: Check current rustup toolchain
+  command: rustup show active-toolchain
+  register: rustup_toolchain
+  changed_when: false
+  ignore_errors: true
+
+- name: Set rust to stable branch
+  shell: rustup default stable
+  when: "'stable' not in rustup_toolchain.stdout"
