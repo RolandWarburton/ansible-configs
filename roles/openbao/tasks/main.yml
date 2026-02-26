@@ -13,10 +13,10 @@
     group: root
     mode: '0700'
 
-- name: Copy get-bao-secret script
+- name: Copy openbao-get-secret script
   copy:
-    src: get-bao-secret
-    dest: /usr/bin/get-bao-secret
+    src: openbao-get-secret
+    dest: /usr/bin/openbao-get-secret
     owner: root
     group: root
     mode: '0755'
