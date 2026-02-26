@@ -13,9 +13,18 @@
     group: root
     mode: '0700'
 
+- name: Copy get-bao-secret script
+  copy:
+    src: get-bao-secret
+    dest: /usr/bin/get-bao-secret
+    owner: root
+    group: root
+    mode: '0755'
+
 - name: Fetch OpenBao token
   shell:
     cmd: /usr/local/sbin/fetch-bao-token.sh
   environment:
     BAO_PASSWORD: "{{ bao_password }}"
   no_log: true
+  changed_when: false
