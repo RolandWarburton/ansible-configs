@@ -3,18 +3,21 @@
   become: true
   roles:
     # - ./roles/core
-    # - ./roles/ripdrag
-    # - ./roles/satty
-    # - ./roles/lua
-    # - ./roles/neovim
     # - ./roles/dotfiles
+    # - ./roles/starship
+    # - ./roles/rust
+    # - ./roles/neovim
+    # - ./roles/lf
+    # - ./roles/lua
+    # - ./roles/golang
+    # - ./roles/node
+    # - ./roles/deno
+    # GUI
     # - ./roles/sway
     # - ./roles/sway-fonts
+    # - ./roles/ripdrag
+    # - ./roles/satty
     # - ./roles/swww
-    # - ./roles/golang
-    # - ./roles/rust
     # - ./roles/chromium
-    # - ./roles/node
     # - ./roles/pico
-    # - ./roles/deno
     # - ./roles/wooz
