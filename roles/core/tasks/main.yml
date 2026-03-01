@@ -9,6 +9,7 @@
       - fd-find
       - foot-terminfo
       - fzf
+      - jq
       - git
       - htop
       - lsd
