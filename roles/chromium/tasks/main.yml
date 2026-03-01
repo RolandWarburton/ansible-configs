@@ -16,3 +16,4 @@
     regexp: '^Exec='
     state: present
     line: 'Exec=/usr/bin/chromium %U --ozone-platform=wayland'
+  when: chromium_desktop_stat.stat.exists

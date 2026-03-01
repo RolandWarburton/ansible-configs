@@ -1,9 +1,29 @@
-- name: Install libgtk-4-dev (ripdrag pre-requisite)
+- include_role:
+    name: ./roles/rust
+
+- name: Install ripdrag build dependencies
   apt:
     update_cache: yes
     pkg:
       - libgtk-4-dev
 
-- name: Install cargo packages
-  community.general.cargo:
-    name: ripdrag
+- name: Install ripdrag
+  become_user: '{{ username }}'
+  shell:
+    cmd: '/usr/bin/cargo install ripdrag'
+    creates: '/home/{{ username }}/.cargo/bin/ripdrag'
+
+- name: Stat ripdrag binary
+  stat:
+    path: '/home/{{ username }}/.cargo/bin/ripdrag'
+  register: ripdrag_bin
+
+- name: Copy ripdrag binary to /usr/bin
+  copy:
+    src: '/home/{{ username }}/.cargo/bin/ripdrag'
+    dest: /usr/bin/ripdrag
+    owner: root
+    group: root
+    remote_src: true
+    mode: 0755
+  when: ripdrag_bin.stat.exists

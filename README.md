@@ -40,7 +40,12 @@ usermod -aG sudo $USER
 
 ### Run the playbook
 
-```none
+```bash
+# Pull the OpenBao token for future use
 ansible-playbook \
-  ./playbooks/setup.yml --ask-become-pass
+  ./playbooks/setup-openbao.yml --ask-become-pass
+
+# Run the main playbook
+ansible-playbook \
+  ./playbooks/setup-localhost.yml --ask-become-pass
 ```

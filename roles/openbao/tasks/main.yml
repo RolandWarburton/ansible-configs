@@ -1,0 +1,30 @@
+- name: Install openbao token fetch dependencies
+  apt:
+    pkg:
+      - curl
+      - jq
+    state: present
+
+- name: Copy fetch-bao-token script
+  copy:
+    src: fetch-bao-token.sh
+    dest: /usr/local/sbin/fetch-bao-token.sh
+    owner: root
+    group: root
+    mode: '0700'
+
+- name: Copy openbao-get-secret script
+  copy:
+    src: openbao-get-secret
+    dest: /usr/bin/openbao-get-secret
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Fetch OpenBao token
+  shell:
+    cmd: /usr/local/sbin/fetch-bao-token.sh
+  environment:
+    BAO_PASSWORD: "{{ bao_password }}"
+  no_log: true
+  changed_when: false
