@@ -25,6 +25,7 @@
   shell:
     cmd: /usr/local/sbin/fetch-bao-token.sh
   environment:
+    BAO_USERNAME: "{{ bao_username }}"
     BAO_PASSWORD: "{{ bao_password }}"
   no_log: true
   changed_when: false

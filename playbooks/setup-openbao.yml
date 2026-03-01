@@ -2,6 +2,10 @@
   connection: local
   become: true
   vars_prompt:
+    - name: bao_username
+      prompt: "OpenBao username (press enter for hostname)"
+      default: "{{ lookup('pipe', 'hostname') }}"
+      private: no
     - name: bao_password
       prompt: "OpenBao password for roland"
       private: yes

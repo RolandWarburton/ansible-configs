@@ -5,10 +5,16 @@
 set -euo pipefail
 
 BAO_ADDR="https://secrets.wirecrop.net"
-USERNAME="roland"
 CREDENTIALS_DIR="/etc/credentials"
 TOKEN_FILE="$CREDENTIALS_DIR/openbao-token"
 TMP_RESPONSE=$(mktemp)
+
+# Accept username from environment else prompt interactively
+if [ -z "${BAO_USERNAME:-}" ]; then
+  read -rp "OpenBao username: " BAO_USERNAME
+  echo
+fi
+USERNAME="$BAO_USERNAME"
 
 # Accept password from environment else prompt interactively
 if [ -z "${BAO_PASSWORD:-}" ]; then
