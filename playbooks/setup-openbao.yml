@@ -7,7 +7,7 @@
       default: "{{ lookup('pipe', 'hostname') }}"
       private: no
     - name: bao_password
-      prompt: "OpenBao password for roland"
+      prompt: "OpenBao password"
       private: yes
   roles:
     - ../roles/openbao

@@ -1,5 +1,5 @@
 #!/bin/bash
-# fetch-token.sh — Authenticates to OpenBao as roland and saves the token to /etc/credentials/
+# fetch-token.sh — Authenticates to OpenBao as BAO_USERNAME and saves the token to /etc/credentials/
 # Usage: sudo ./fetch-bao-token.sh
 
 set -euo pipefail
@@ -14,27 +14,25 @@ if [ -z "${BAO_USERNAME:-}" ]; then
   read -rp "OpenBao username: " BAO_USERNAME
   echo
 fi
-USERNAME="$BAO_USERNAME"
 
 # Accept password from environment else prompt interactively
 if [ -z "${BAO_PASSWORD:-}" ]; then
-  read -rsp "OpenBao password for $USERNAME: " BAO_PASSWORD
+  read -rsp "OpenBao password for $BAO_USERNAME: " BAO_PASSWORD
   echo
 fi
-PASSWORD="$BAO_PASSWORD"
 
 if [ "$(id -u)" -ne 0 ]; then
   echo "Error: this script must be run as root (use sudo)"
   exit 1
 fi
 
-echo "Authenticating to OpenBao as $USERNAME..."
+echo "Authenticating to OpenBao as $BAO_USERNAME..."
 
 # Capture the response the first check for errors
 HTTP_CODE=$(curl -s -o "$TMP_RESPONSE" -w "%{http_code}" \
   --request POST \
-  --data "{\"password\": \"$PASSWORD\"}" \
-  "$BAO_ADDR/v1/auth/userpass/login/$USERNAME") || true
+  --data "{\"password\": \"$BAO_PASSWORD\"}" \
+  "$BAO_ADDR/v1/auth/userpass/login/$BAO_USERNAME") || true
 
 RESPONSE=$(cat "$TMP_RESPONSE")
 rm -f "$TMP_RESPONSE"
