@@ -6,7 +6,7 @@ set -euo pipefail
 
 BAO_ADDR="https://secrets.wirecrop.net"
 CREDENTIALS_DIR="/etc/credentials"
-TOKEN_FILE="$CREDENTIALS_DIR/openbao-token"
+TOKEN_FILE="${BAO_TOKEN_FILE:-$CREDENTIALS_DIR/openbao-token}"
 TMP_RESPONSE=$(mktemp)
 
 # Accept username from environment else prompt interactively
