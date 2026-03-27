@@ -14,7 +14,7 @@
       - fontconfig
       - fd-find
       - fonts-noto-color-emoji
-      - sudo apt install fonts-noto
+      - fonts-noto
 
 - name: create temp directory
   file:
