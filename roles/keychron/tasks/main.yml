@@ -1,0 +1,23 @@
+# Configures a udev rule to allow WebHID access to
+# Keychron QMK/VIA products
+
+- name: Create Keychron Q0 udev rule
+  copy:
+    dest: /etc/udev/rules.d/99-keychron.rules
+    content: |
+      KERNEL=="hidraw*", ATTRS{idVendor}=="3434", ATTRS{idProduct}=="0130", MODE="0660", GROUP="plugdev"
+    owner: root
+    group: root
+    mode: '0644'
+
+- name: Reload udev rules
+  command: udevadm control --reload-rules
+
+- name: Trigger udev rules
+  command: udevadm trigger
+
+- name: Ensure user is in plugdev group
+  user:
+    name: "{{ username }}"
+    groups: plugdev
+    append: true
