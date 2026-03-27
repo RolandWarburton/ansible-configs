@@ -24,7 +24,7 @@
 
 - name: download nerd fonts patched ttf-hack
   unarchive:
-    src: 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.0.2/Hack.tar.xz'
+    src: 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Hack.tar.xz'
     dest: '/tmp/ttf-hack-patched'
     remote_src: yes
 
