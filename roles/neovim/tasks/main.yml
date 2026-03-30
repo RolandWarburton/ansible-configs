@@ -1,7 +1,7 @@
 - name: Check if Neovim package is installed
   command: nvim --version | head -n 1 | grep -Po '\d+\.\d+\.\d+'
   register: neovim_output
-  ignore_errors: yes
+  ignore_errors: true
   changed_when: false
 
 - name: debug
