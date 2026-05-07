@@ -1,0 +1,122 @@
+- name: Fetch xray secrets from OpenBao
+  become: true
+  shell: openbao-get-secret kv/data/common/xray
+  register: xray_secrets_raw
+  no_log: true
+  changed_when: false
+  failed_when: xray_secrets_raw.rc != 0
+
+- name: Fail if uuid is missing from OpenBao response
+  fail:
+    msg: "OpenBao path kv/data/common/xray did not contain a 'uuid' key"
+  when: xray_secrets_raw.stdout_lines | select('match', '^uuid=') | list | length == 0
+
+- name: Set xray_uuid from OpenBao
+  set_fact:
+    xray_uuid: "{{ (xray_secrets_raw.stdout_lines | select('match', '^uuid=') | first).split('=', 1)[1] }}"
+  no_log: true
+
+- name: Create download directory
+  become: true
+  file:
+    state: directory
+    mode: '0700'
+    owner: root
+    group: root
+    dest: '{{ xray_download_dir }}'
+
+- name: Install unzip
+  become: true
+  apt:
+    name: unzip
+    state: present
+
+- name: Set Xray architecture
+  set_fact:
+    xray_arch: "{{ 'arm64-v8a' if ansible_architecture == 'aarch64' else '64' }}"
+
+- name: Download Xray
+  become: true
+  get_url:
+    url: 'https://github.com/XTLS/Xray-core/releases/download/v{{ xray_version }}/Xray-linux-{{ xray_arch }}.zip'
+    dest: '{{ xray_download_dir }}/xray.zip'
+    mode: '0600'
+
+- name: Extract Xray binary
+  become: true
+  unarchive:
+    src: '{{ xray_download_dir }}/xray.zip'
+    remote_src: true
+    dest: '{{ xray_download_dir }}'
+    creates: '{{ xray_download_dir }}/xray'
+
+- name: Install Xray binary
+  become: true
+  copy:
+    src: '{{ xray_download_dir }}/xray'
+    remote_src: true
+    dest: '{{ xray_install_dir }}/xray'
+    owner: root
+    group: root
+    mode: '0755'
+  notify: restart xray
+
+- name: Create asset directory
+  become: true
+  file:
+    state: directory
+    path: '{{ xray_asset_dir }}'
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Install geoip and geosite dat files
+  become: true
+  copy:
+    src: '{{ xray_download_dir }}/{{ item }}'
+    remote_src: true
+    dest: '{{ xray_asset_dir }}/{{ item }}'
+    owner: root
+    group: root
+    mode: '0644'
+  loop:
+    - geoip.dat
+    - geosite.dat
+
+- name: Create config directory
+  become: true
+  file:
+    state: directory
+    path: '{{ xray_config_dir }}'
+    owner: root
+    group: root
+    mode: '0750'
+
+- name: Deploy Xray client config
+  become: true
+  template:
+    src: config.json.j2
+    dest: '{{ xray_config_dir }}/config.json'
+    owner: root
+    group: root
+    mode: '0640'
+  notify: restart xray
+
+- name: Deploy Xray systemd service
+  become: true
+  template:
+    src: xray.service.j2
+    dest: /etc/systemd/system/xray.service
+    owner: root
+    group: root
+    mode: '0644'
+  notify:
+    - reload systemd
+    - restart xray
+
+- name: Enable and start Xray
+  become: true
+  systemd:
+    name: xray
+    enabled: true
+    state: started

@@ -1,0 +1,57 @@
+{
+  "log": {
+    "loglevel": "warning"
+  },
+  "inbounds": [
+    {
+      "listen": "127.0.0.1",
+      "port": {{ xray_local_socks_port }},
+      "protocol": "socks",
+      "settings": {
+        "udp": true
+      },
+      "tag": "socks"
+    },
+    {
+      "listen": "127.0.0.1",
+      "port": {{ xray_local_http_port }},
+      "protocol": "http",
+      "tag": "http"
+    }
+  ],
+  "outbounds": [
+    {
+      "protocol": "vless",
+      "settings": {
+        "vnext": [
+          {
+            "address": "{{ xray_server_host }}",
+            "port": {{ xray_server_port }},
+            "users": [
+              {
+                "id": "{{ xray_uuid }}",
+                "encryption": "none"
+              }
+            ]
+          }
+        ]
+      },
+      "streamSettings": {
+        "network": "xhttp",
+        "security": "tls",
+        "tlsSettings": {
+          "serverName": "{{ xray_server_host }}"
+        },
+        "xhttpSettings": {
+          "path": "{{ xray_path }}",
+          "mode": "stream-up"
+        }
+      },
+      "tag": "proxy"
+    },
+    {
+      "protocol": "freedom",
+      "tag": "direct"
+    }
+  ]
+}

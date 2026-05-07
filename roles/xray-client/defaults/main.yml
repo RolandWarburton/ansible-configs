@@ -1,0 +1,12 @@
+xray_version: '26.3.27'
+xray_download_dir: '/tmp/xray_{{ xray_version }}'
+xray_install_dir: '/usr/local/bin'
+xray_asset_dir: '/usr/local/share/xray'
+xray_config_dir: '/etc/xray'
+
+xray_server_host: 'proxy.wirecrop.net'
+xray_path: '/vless'
+xray_server_port: 443
+
+xray_local_socks_port: 1080  # curl --socks5, Firefox, Chromium, SSH ProxyCommand
+xray_local_http_port: 8118  # http_proxy/https_proxy env vars (apt, wget, curl -x)

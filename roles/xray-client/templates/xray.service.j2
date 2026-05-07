@@ -1,0 +1,12 @@
+[Unit]
+Description=Xray client
+After=network.target
+
+[Service]
+ExecStart={{ xray_install_dir }}/xray run -config {{ xray_config_dir }}/config.json
+Restart=on-failure
+RestartSec=5s
+Environment=XRAY_LOCATION_ASSET={{ xray_asset_dir }}
+
+[Install]
+WantedBy=multi-user.target
