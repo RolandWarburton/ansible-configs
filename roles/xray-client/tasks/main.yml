@@ -102,6 +102,15 @@
     mode: '0640'
   notify: restart xray
 
+- name: Deploy PAC file
+  become: true
+  template:
+    src: proxy.pac.j2
+    dest: '{{ xray_asset_dir }}/proxy.pac'
+    owner: root
+    group: root
+    mode: '0644'
+
 - name: Deploy Xray systemd service
   become: true
   template:
