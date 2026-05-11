@@ -12,6 +12,7 @@
     # - ./roles/golang
     # - ./roles/node
     # - ./roles/deno
+    # - ./roles/xray-client
     # GUI
     # - ./roles/sway
     # - ./roles/sway-fonts
