@@ -92,6 +92,17 @@
     group: root
     mode: '0750'
 
+# Proxy Auto-Config for browsers
+# The PAC file must be served over HTTP/HTTPS
+# loaded in /usr/share/applications/chromium.desktop
+# add --proxy-pac-url=https://<server>/proxy.pac to chrome flags
+#
+# PAC file example (served externally, not deployed by this role):
+#
+# function FindProxyForURL(url, host) {
+#   return "SOCKS5 127.0.0.1:{{ xray_local_socks_port }}; DIRECT";
+# }
+
 - name: Deploy Xray client config
   become: true
   template:
@@ -101,15 +112,6 @@
     group: root
     mode: '0640'
   notify: restart xray
-
-- name: Deploy PAC file
-  become: true
-  template:
-    src: proxy.pac.j2
-    dest: '{{ xray_asset_dir }}/proxy.pac'
-    owner: root
-    group: root
-    mode: '0644'
 
 - name: Deploy Xray systemd service
   become: true
