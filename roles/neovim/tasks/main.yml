@@ -1,33 +1,23 @@
 - name: Check if Neovim package is installed
-  command: nvim --version | head -n 1 | grep -Po '\d+\.\d+\.\d+'
+  command: nvim --version
   register: neovim_output
   ignore_errors: true
   changed_when: false
 
-- name: debug
-  debug:
-    msg: "{{ neovim_output.stdout | default('neovim version not found') }}"
-
 - name: Extract Neovim version number
   set_fact:
-    neovim_version: '{{ neovim_output.stdout }}'
-  when: neovim_output.rc == 0
+    neovim_version: "{{ neovim_output.stdout | regex_search('[0-9]+\\.[0-9]+\\.[0-9]+') | default('0.0.0', true) }}"
 
 - name: Set fact indicating Neovim installation status
   set_fact:
-    neovim_installed: '{{ true if neovim_output.rc == 0 else false }}'
+    neovim_installed: "{{ neovim_output.rc == 0 and neovim_version != '0.0.0' }}"
 
 - name: print neovim version
   debug:
-    msg: "neovim {{ 'is installed' if neovim_version is defined else 'is not isntalled' }}{{ ' (version ' + neovim_version[0]|string + ')' if neovim_version is defined else '' }}"
-
-- name: set neovim_version to 0.0.0 if not installed
-  set_fact:
-    neovim_version: '0.0.0'
-  when: not neovim_installed
+    msg: "neovim {{ 'is installed' if neovim_installed else 'is not installed' }} (version {{ neovim_version }})"
 
 - name: Check version comparison of target and actual neovim versions
-  command: dpkg --compare-versions "{{ neovim_target_version }}" gt "{{ neovim_version[0] }}"
+  command: dpkg --compare-versions "{{ neovim_target_version }}" gt "{{ neovim_version }}"
   register: version_comparison
   ignore_errors: true
   failed_when: false
@@ -35,13 +25,12 @@
 
 - name: skip running neovim upgrade
   debug:
-    msg: 'skipping upgrade as target version {{neovim_target_version}} is gte current version {{neovim_version[0]}}'
+    msg: 'skipping upgrade as target version {{ neovim_target_version }} is not greater than current version {{ neovim_version }}'
   when: version_comparison.rc != 0
 
 - name: set flag if target version is greater than the actual version of neovim
   set_fact:
-    target_neovim_version_is_greater: true
-  when: version_comparison.rc == 0
+    target_neovim_version_is_greater: "{{ version_comparison.rc == 0 }}"
 
 - block:
     - name: download neovim update
@@ -57,17 +46,12 @@
           - cmake
           - fzf
 
-    - name: check if nvim deb is downloaded
-      stat:
-        path: /tmp/nvim-linux64.deb
-      register: nvim_deb_stat
-
     - block:
-        - name: Download Neovim binary using curl (ARM64)
-          shell: |
-            curl -L https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-arm64.tar.gz -o /tmp/nvim-linux-arm64.tar.gz
-          args:
-            creates: /tmp/nvim-linux-arm64.tar.gz
+        - name: Download Neovim binary (ARM64)
+          get_url:
+            url: https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-arm64.tar.gz
+            dest: /tmp/nvim-linux-arm64.tar.gz
+            mode: '0644'
 
         - name: Unzip Neovim tar gz (ARM64)
           ansible.builtin.unarchive:
@@ -81,8 +65,8 @@
             dest: /usr/bin
             remote_src: true
             mode: '0755'
-            group: '{{ username }}'
-            owner: '{{ username }}'
+            group: root
+            owner: root
 
         - name: Create symbolic link for nvim binary (ARM64)
           ansible.builtin.file:
@@ -98,10 +82,9 @@
             url: https://github.com/neovim/neovim/releases/download/v{{neovim_target_version}}/nvim-linux-x86_64.tar.gz
             dest: /tmp/nvim-linux-x86_64.tar.gz
             mode: '0755'
-            group: '{{username}}'
-            owner: '{{username}}'
+            group: root
+            owner: root
           register: nvim_downloaded
-          when: nvim_deb_stat.stat.islnk is not defined # the file does not exist
 
         - name: Unzip Neovim tar gz
           ansible.builtin.unarchive:
@@ -115,8 +98,8 @@
             dest: /usr/bin
             remote_src: true
             mode: '0755'
-            group: '{{username}}'
-            owner: '{{username}}'
+            group: root
+            owner: root
 
         - name: Create symbolic link for nvim binary
           ansible.builtin.file:
@@ -126,7 +109,7 @@
             force: yes
       when: ansible_architecture == "x86_64"
 
-  when: target_neovim_version_is_greater is defined or not neovim_installed
+  when: target_neovim_version_is_greater or not neovim_installed
 
 # download nvim config
 - name: Check if nvim config exists
