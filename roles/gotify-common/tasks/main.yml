@@ -1,0 +1,34 @@
+- name: Preflight checks
+  import_tasks: preflight.yml
+
+- name: Fetch gotify secrets from OpenBao
+  become: true
+  shell: openbao-get-secret kv/data/{{ ansible_hostname }}/gotify
+  register: gotify_common_secrets_raw
+  no_log: true
+  changed_when: false
+  failed_when: gotify_common_secrets_raw.rc != 0
+
+- name: Set gotify_url and gotify_token from OpenBao
+  set_fact:
+    gotify_url: "{{ (gotify_common_secrets_raw.stdout_lines | select('match', '^HOST_URL=') | first).split('=', 1)[1] }}"
+    gotify_token: "{{ (gotify_common_secrets_raw.stdout_lines | select('match', '^CLIENT_TOKEN=') | first).split('=', 1)[1] }}"
+  no_log: true
+
+- name: Create /etc/gotify directory
+  become: true
+  file:
+    path: "{{ gotify_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy cli.json config
+  become: true
+  template:
+    src: cli.json.j2
+    dest: "{{ gotify_config_dir }}/cli.json"
+    owner: root
+    group: root
+    mode: '0644'

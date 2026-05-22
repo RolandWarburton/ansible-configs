@@ -1,20 +1,20 @@
 - name: Stat openbao-get-secret binary
   stat:
     path: /usr/bin/openbao-get-secret
-  register: gotify_cli_bao_bin
+  register: gotify_common_bao_bin
 
 - name: Stat openbao token file
   stat:
     path: /etc/credentials/openbao-token
-  register: gotify_cli_bao_token
+  register: gotify_common_bao_token
 
 - name: Fail if openbao role has not been run
   fail:
-    msg: "openbao role must run before gotify-cli (missing {{ item }})"
+    msg: "openbao role must run before gotify roles (missing {{ item }})"
   loop:
     - /usr/bin/openbao-get-secret
     - /etc/credentials/openbao-token
   when: not (
-    gotify_cli_bao_bin.stat.exists and
-    gotify_cli_bao_token.stat.exists
+    gotify_common_bao_bin.stat.exists and
+    gotify_common_bao_token.stat.exists
     )
