@@ -1,0 +1,49 @@
+- name: Get user UID
+  command: id -u {{ username }}
+  register: gotify_listener_uid
+  changed_when: false
+
+- name: Stat gotify-listen binary
+  stat:
+    path: "{{ gotify_listener_bin_dir }}/gotify-listen"
+  register: gotify_listener_binary_stat
+
+- name: Download gotify-listen binary
+  become: true
+  get_url:
+    url: "{{ gotify_listener_download_url }}"
+    dest: "{{ gotify_listener_bin_dir }}/gotify-listen"
+    owner: root
+    group: root
+    mode: '0755'
+  when: not gotify_listener_binary_stat.stat.exists
+
+- name: Create ~/.config/systemd/user directory
+  become: true
+  become_user: "{{ username }}"
+  file:
+    path: "/home/{{ username }}/.config/systemd/user"
+    state: directory
+    mode: '0755'
+
+- name: Deploy gotify-listen systemd service
+  become: true
+  become_user: "{{ username }}"
+  template:
+    src: gotify-listen.service.j2
+    dest: "/home/{{ username }}/.config/systemd/user/gotify-listen.service"
+    mode: '0644'
+  notify:
+    - reload user systemd
+    - restart gotify-listen
+
+- name: Enable and start gotify-listen user service
+  become: true
+  become_user: "{{ username }}"
+  systemd:
+    name: gotify-listen
+    scope: user
+    enabled: true
+    state: started
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ gotify_listener_uid.stdout | trim }}"
