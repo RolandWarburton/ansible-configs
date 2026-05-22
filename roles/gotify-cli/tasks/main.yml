@@ -1,0 +1,53 @@
+- name: Preflight checks
+  import_tasks: preflight.yml
+
+- name: Set gotify-cli architecture
+  set_fact:
+    gotify_cli_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+- name: Fetch gotify secrets from OpenBao
+  become: true
+  shell: openbao-get-secret kv/data/{{ ansible_hostname }}/gotify
+  register: gotify_secrets_raw
+  no_log: true
+  changed_when: false
+  failed_when: gotify_secrets_raw.rc != 0
+
+- name: Set gotify_cli_url and gotify_cli_token from OpenBao
+  set_fact:
+    gotify_cli_url: "{{ (gotify_secrets_raw.stdout_lines | select('match', '^HOST_URL=') | first).split('=', 1)[1] }}"
+    gotify_cli_token: "{{ (gotify_secrets_raw.stdout_lines | select('match', '^CLIENT_TOKEN=') | first).split('=', 1)[1] }}"
+  no_log: true
+
+- name: Stat gotify binary
+  stat:
+    path: "{{ gotify_cli_bin_dir }}/gotify"
+  register: gotify_cli_binary_stat
+
+- name: Download gotify-cli binary
+  become: true
+  get_url:
+    url: "https://github.com/gotify/cli/releases/download/v{{ gotify_cli_version }}/gotify-cli-linux-{{ gotify_cli_arch }}"
+    dest: "{{ gotify_cli_bin_dir }}/gotify"
+    owner: root
+    group: root
+    mode: '0755'
+  when: not gotify_cli_binary_stat.stat.exists
+
+- name: Create /etc/gotify directory
+  become: true
+  file:
+    path: "{{ gotify_cli_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy gotify-cli config
+  become: true
+  template:
+    src: cli.json.j2
+    dest: "{{ gotify_cli_config_dir }}/cli.json"
+    owner: root
+    group: root
+    mode: '0644'
