@@ -9,6 +9,13 @@
   changed_when: false
   failed_when: gotify_common_secrets_raw.rc != 0
 
+- name: Assert HOST_URL and CLIENT_TOKEN present in OpenBao response
+  assert:
+    that:
+      - gotify_common_secrets_raw.stdout_lines | select('match', '^HOST_URL=') | list
+      - gotify_common_secrets_raw.stdout_lines | select('match', '^CLIENT_TOKEN=') | list
+    fail_msg: "OpenBao path kv/data/{{ ansible_hostname }}/gotify is missing HOST_URL or CLIENT_TOKEN"
+
 - name: Set gotify_url and gotify_token from OpenBao
   set_fact:
     gotify_url: "{{ (gotify_common_secrets_raw.stdout_lines | select('match', '^HOST_URL=') | first).split('=', 1)[1] }}"
