@@ -1,3 +1,20 @@
+# Installs and runs gotify-listen as a user
+# systemd service for desktop notifications.
+# Depends on gotify-common (via meta) for
+# credentials and /etc/gotify/cli.json.
+#
+# 1. Binary
+# Downloads gotify-listen to
+# gotify_listener_bin_dir if not already present.
+#
+# 2. Service
+# Deploys a user-scoped systemd unit to
+# ~/.config/systemd/user/gotify-listen.service,
+# tied to graphical-session.target.
+#
+# 3. Enable
+# Enables and starts the service as the user.
+
 - name: Get user UID
   command: id -u {{ username }}
   register: gotify_listener_uid

@@ -1,3 +1,19 @@
+# Shared setup for gotify-cli and gotify-listener.
+#
+# 1. Preflight
+# Ensures the host has (openbao role has run):
+# * openbao-get-secret script is available
+# * /etc/credentials/openbao-token exists
+#
+# 2. Secrets
+# Fetches HOST_URL and CLIENT_TOKEN from OpenBao
+# at kv/data/<hostname>/gotify and exposes them
+# as gotify_url / gotify_token.
+#
+# 3. Config
+# Creates /etc/gotify/ and writes cli.json
+# with those credentials.
+
 - name: Preflight checks
   import_tasks: preflight.yml
 
