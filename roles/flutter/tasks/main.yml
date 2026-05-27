@@ -8,6 +8,7 @@
       - xz-utils
       - zip
       - libglu1-mesa
+      - mesa-utils
     state: present
 
 - name: Create download directory
