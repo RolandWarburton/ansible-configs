@@ -1,0 +1,73 @@
+- name: Install Flutter prerequisites
+  become: true
+  apt:
+    name:
+      - curl
+      - git
+      - unzip
+      - xz-utils
+      - zip
+      - libglu1-mesa
+    state: present
+
+- name: Create download directory
+  file:
+    state: directory
+    mode: '0700'
+    dest: '{{ flutter_download_dir }}'
+
+- name: Download Flutter SDK
+  shell: |
+    curl -L "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}-stable.tar.xz" \
+      -o "{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz"
+  args:
+    creates: '{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz'
+  when: not ansible_check_mode
+
+- name: 'Make sure {{ flutter_install_dir }} exists'
+  file:
+    path: '{{ flutter_install_dir }}'
+    state: directory
+    mode: '0755'
+
+- name: Install Flutter SDK
+  unarchive:
+    src: '{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz'
+    remote_src: true
+    extra_opts: '--strip-components=1'
+    dest: '{{ flutter_install_dir }}'
+    creates: '{{ flutter_install_dir }}/bin'
+  when: not ansible_check_mode
+
+- name: Check git is installed
+  command: which git
+  register: git_check
+  failed_when: false
+  changed_when: false
+
+- name: Mark Flutter SDK directories as git safe
+  command: git config --global --add safe.directory '{{ flutter_install_dir }}/*'
+  when: git_check.rc == 0
+
+- name: Create Ansible facts.d directory
+  become: true
+  file:
+    state: directory
+    dest: /etc/ansible/facts.d
+    owner: root
+    group: root
+    mode: 'u=rwx,go=rx'
+
+- name: Install Flutter SDK facts
+  become: true
+  template:
+    src: facts.j2
+    dest: /etc/ansible/facts.d/flutter.fact
+    owner: root
+    group: root
+    mode: 'u=rw,go=r'
+  when: not ansible_check_mode
+
+- name: Re-read facts
+  setup:
+    filter: ansible_local

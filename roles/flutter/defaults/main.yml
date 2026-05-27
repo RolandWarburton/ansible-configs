@@ -1,0 +1,3 @@
+flutter_version: '3.44.0'
+flutter_install_dir: '/home/{{ username }}/.flutter'
+flutter_download_dir: '/tmp/flutter_{{ flutter_version }}'
