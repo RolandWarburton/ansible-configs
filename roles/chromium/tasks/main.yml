@@ -16,5 +16,5 @@
     path: /usr/share/applications/chromium.desktop
     regexp: '^Exec='
     state: present
-    line: 'Exec=/usr/bin/chromium %U --ozone-platform=wayland --enable-native-notifications'
+    line: 'Exec=/usr/bin/chromium --ozone-platform=wayland %U'
   when: chromium_desktop_stat.stat.exists
