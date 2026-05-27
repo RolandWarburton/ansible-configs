@@ -1,0 +1,114 @@
+- name: Install Android SDK prerequisites
+  become: true
+  apt:
+    name:
+      - openjdk-21-jdk
+      - unzip
+    state: present
+
+- name: Create Android SDK download directory
+  file:
+    state: directory
+    mode: '0700'
+    dest: '{{ android_sdk_download_dir }}'
+
+- name: Make sure Android SDK directories exist
+  become: true
+  file:
+    path: '{{ item }}'
+    state: directory
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: '0755'
+  loop:
+    - '{{ android_sdk_dir }}'
+    - '{{ android_sdk_dir }}/cmdline-tools'
+    - '{{ android_sdk_dir }}/cmdline-tools/latest'
+
+- name: Make sure Android SDK command symlink directory exists
+  become: true
+  file:
+    path: '{{ android_sdk_bin_dir }}'
+    state: directory
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: '0755'
+
+- name: Download Android SDK command-line tools
+  get_url:
+    url: '{{ android_cmdline_tools_url }}'
+    dest: '{{ android_sdk_download_dir }}/{{ android_cmdline_tools_filename }}'
+    mode: '0644'
+  when: not ansible_check_mode
+
+- name: Extract Android SDK command-line tools
+  unarchive:
+    src: '{{ android_sdk_download_dir }}/{{ android_cmdline_tools_filename }}'
+    remote_src: true
+    dest: '{{ android_sdk_download_dir }}'
+    creates: '{{ android_sdk_download_dir }}/cmdline-tools/bin/sdkmanager'
+    owner: '{{ username }}'
+    group: '{{ username }}'
+  when: not ansible_check_mode
+
+- name: Install Android SDK command-line tools
+  become: true
+  copy:
+    src: '{{ android_sdk_download_dir }}/cmdline-tools/'
+    dest: '{{ android_sdk_dir }}/cmdline-tools/latest/'
+    remote_src: true
+    owner: '{{ username }}'
+    group: '{{ username }}'
+    mode: preserve
+  when: not ansible_check_mode
+
+- name: Link sdkmanager into PATH
+  become: true
+  become_user: '{{ username }}'
+  file:
+    src: '{{ android_sdk_dir }}/cmdline-tools/latest/bin/sdkmanager'
+    dest: '{{ android_sdk_bin_dir }}/sdkmanager'
+    state: link
+    force: true
+
+- name: Install Android SDK packages
+  become: true
+  become_user: '{{ username }}'
+  shell:
+    cmd: >-
+      yes |
+      {{ android_sdk_dir }}/cmdline-tools/latest/bin/sdkmanager
+      --sdk_root={{ android_sdk_dir }}
+      "{{ item.package }}"
+    creates: '{{ item.creates }}'
+  loop: '{{ android_sdk_packages }}'
+  when: not ansible_check_mode
+
+- name: Accept Android SDK licenses
+  become: true
+  become_user: '{{ username }}'
+  shell: >-
+    yes |
+    {{ android_sdk_dir }}/cmdline-tools/latest/bin/sdkmanager
+    --sdk_root={{ android_sdk_dir }}
+    --licenses
+  changed_when: false
+  when: not ansible_check_mode
+
+- name: Link adb into PATH
+  become: true
+  become_user: '{{ username }}'
+  file:
+    src: '{{ android_sdk_dir }}/platform-tools/adb'
+    dest: '{{ android_sdk_bin_dir }}/adb'
+    state: link
+    force: true
+
+# - name: Export Android SDK environment variables
+#   become: true
+#   template:
+#     src: android.sh.j2
+#     dest: /etc/profile.d/android-sdk.sh
+#     owner: root
+#     group: root
+#     mode: 'u=rw,go=r'

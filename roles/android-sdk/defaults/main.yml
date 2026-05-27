@@ -1,0 +1,13 @@
+android_sdk_dir: '/home/{{ username }}/.android-sdk'
+android_sdk_bin_dir: '/home/{{ username }}/.local/bin'
+android_sdk_download_dir: /tmp/android-sdk
+# https://developer.android.com/studio#command-line-tools-only
+android_cmdline_tools_url: https://dl.google.com/android/repository/commandlinetools-linux-14742923_latest.zip
+android_cmdline_tools_filename: commandlinetools-linux-14742923_latest.zip
+android_sdk_packages:
+  - package: platform-tools
+    creates: '{{ android_sdk_dir }}/platform-tools/adb'
+  - package: platforms;android-36
+    creates: '{{ android_sdk_dir }}/platforms/android-36/android.jar'
+  - package: build-tools;36.0.0
+    creates: '{{ android_sdk_dir }}/build-tools/36.0.0/aapt'
