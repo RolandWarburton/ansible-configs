@@ -6,6 +6,25 @@
       - unzip
     state: present
 
+- name: Install Android device udev rules
+  become: true
+  apt:
+    name: android-sdk-platform-tools-common
+    state: present
+  register: android_udev_rules_package
+
+- name: Reload Android device udev rules
+  become: true
+  command: udevadm control --reload-rules
+  changed_when: false
+  when: android_udev_rules_package.changed
+
+- name: Trigger Android device udev rules
+  become: true
+  command: udevadm trigger
+  changed_when: false
+  when: android_udev_rules_package.changed
+
 - name: Create Android SDK download directory
   file:
     state: directory
@@ -103,6 +122,16 @@
     dest: '{{ android_sdk_bin_dir }}/adb'
     state: link
     force: true
+
+- name: Stop adb server after Android device rules update
+  become: true
+  become_user: '{{ username }}'
+  command: '{{ android_sdk_dir }}/platform-tools/adb kill-server'
+  changed_when: false
+  failed_when: false
+  when:
+    - android_udev_rules_package.changed
+    - not ansible_check_mode
 
 # - name: Export Android SDK environment variables
 #   become: true

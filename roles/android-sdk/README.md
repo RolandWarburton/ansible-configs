@@ -4,6 +4,7 @@ Installs a user-owned Android SDK command-line toolchain.
 Includes:
 
 - OpenJDK 21
+- Android device udev rules from `android-sdk-platform-tools-common`
 - Android command-line tools
 - `platform-tools`
 - `platforms;android-36`
