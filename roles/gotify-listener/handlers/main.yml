@@ -14,5 +14,6 @@
     name: gotify-listen
     scope: user
     state: restarted
+    enabled: true
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ gotify_listener_uid.stdout | trim }}"
