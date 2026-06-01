@@ -1,0 +1,3 @@
+ntfy_config_dir: "/etc/ntfy"
+ntfy_url: "https://ntfy.example.com"
+ntfy_topics: []

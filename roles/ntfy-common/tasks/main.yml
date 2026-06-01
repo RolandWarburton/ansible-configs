@@ -1,0 +1,55 @@
+# Shared setup for ntfy roles.
+#
+# 1. Preflight
+# Ensures the host has (openbao role has run):
+# * openbao-get-secret script is available
+# * /etc/credentials/openbao-token exists
+#
+# 2. Secrets
+# Fetches ACCESS_TOKEN from OpenBao at kv/data/<hostname>/ntfy
+# and exposes it as ntfy_token.
+# ntfy_url and ntfy_topics are set via role defaults.
+#
+# 3. Config
+# Creates /etc/ntfy/ and writes client.json
+# with those credentials.
+
+- name: Preflight checks
+  import_tasks: preflight.yml
+
+- name: Fetch ntfy secrets from OpenBao
+  become: true
+  shell: openbao-get-secret kv/data/common/ntfy
+  register: ntfy_common_secrets_raw
+  no_log: true
+  changed_when: false
+  failed_when: ntfy_common_secrets_raw.rc != 0
+
+- name: Assert ACCESS_TOKEN present in OpenBao response
+  assert:
+    that:
+      - ntfy_common_secrets_raw.stdout_lines | select('match', '^ACCESS_TOKEN=') | list
+    fail_msg: "OpenBao path kv/data/common/ntfy is missing ACCESS_TOKEN"
+
+- name: Set ntfy_token from OpenBao
+  set_fact:
+    ntfy_token: "{{ (ntfy_common_secrets_raw.stdout_lines | select('match', '^ACCESS_TOKEN=') | first).split('=', 1)[1] }}"
+  no_log: true
+
+- name: Create /etc/ntfy directory
+  become: true
+  file:
+    path: "{{ ntfy_config_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: '0755'
+
+- name: Deploy client.json config
+  become: true
+  template:
+    src: client.json.j2
+    dest: "{{ ntfy_config_dir }}/client.json"
+    owner: root
+    group: root
+    mode: '0644'
