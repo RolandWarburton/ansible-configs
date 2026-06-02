@@ -1,3 +1,0 @@
-gotify_listener_version: "1.0.1"
-gotify_listener_bin_dir: "/usr/local/bin"
-gotify_listener_download_url: "https://github.com/RolandWarburton/gotify-listener/releases/download/v{{ gotify_listener_version }}/gotify-listen"
