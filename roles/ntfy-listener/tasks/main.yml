@@ -1,0 +1,66 @@
+# Installs and runs ntfy-listen as a user
+# systemd service for desktop notifications.
+# Depends on ntfy-common (via meta) for
+# credentials and /etc/ntfy/client.json.
+#
+# 1. Binary
+# Downloads ntfy-listen to
+# ntfy_listener_bin_dir if not already present.
+#
+# 2. Service
+# Deploys a user-scoped systemd unit to
+# ~/.config/systemd/user/ntfy-listen.service,
+# tied to graphical-session.target.
+#
+# 3. Enable
+# Enables and starts the service as the user.
+
+- name: Get user UID
+  command: id -u {{ username }}
+  register: ntfy_listener_uid
+  changed_when: false
+
+- name: Stat ntfy-listen binary
+  stat:
+    path: "{{ ntfy_listener_bin_dir }}/ntfy-listen"
+  register: ntfy_listener_binary_stat
+
+- name: Download ntfy-listen binary
+  become: true
+  get_url:
+    url: "{{ ntfy_listener_download_url }}"
+    dest: "{{ ntfy_listener_bin_dir }}/ntfy-listen"
+    owner: root
+    group: root
+    mode: '0755'
+  when: not ntfy_listener_binary_stat.stat.exists
+
+- name: Create ~/.config/systemd/user directory
+  become: true
+  become_user: "{{ username }}"
+  file:
+    path: "/home/{{ username }}/.config/systemd/user"
+    state: directory
+    mode: '0755'
+
+- name: Deploy ntfy-listen systemd service
+  become: true
+  become_user: "{{ username }}"
+  template:
+    src: ntfy-listen.service.j2
+    dest: "/home/{{ username }}/.config/systemd/user/ntfy-listen.service"
+    mode: '0644'
+  notify:
+    - reload user systemd
+    - restart ntfy-listen
+
+- name: Enable and start ntfy-listen user service
+  become: true
+  become_user: "{{ username }}"
+  systemd:
+    name: ntfy-listen
+    scope: user
+    enabled: true
+    state: started
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ntfy_listener_uid.stdout | trim }}"

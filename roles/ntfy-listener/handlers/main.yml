@@ -1,0 +1,19 @@
+- name: reload user systemd
+  become: true
+  become_user: "{{ username }}"
+  systemd:
+    daemon_reload: true
+    scope: user
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ntfy_listener_uid.stdout | trim }}"
+
+- name: restart ntfy-listen
+  become: true
+  become_user: "{{ username }}"
+  systemd:
+    name: ntfy-listen
+    scope: user
+    state: restarted
+    enabled: true
+  environment:
+    XDG_RUNTIME_DIR: "/run/user/{{ ntfy_listener_uid.stdout | trim }}"

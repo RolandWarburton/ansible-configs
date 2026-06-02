@@ -1,0 +1,12 @@
+[Unit]
+Description=Ntfy desktop notification listener
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+ExecStart={{ ntfy_listener_bin_dir }}/ntfy-listen
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=graphical-session.target
