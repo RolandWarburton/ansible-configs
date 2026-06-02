@@ -28,7 +28,7 @@
 - name: Assert ACCESS_TOKEN present in OpenBao response
   assert:
     that:
-      - ntfy_common_secrets_raw.stdout_lines | select('match', '^ACCESS_TOKEN=') | list
+      - ntfy_common_secrets_raw.stdout_lines | select('match', '^ACCESS_TOKEN=') | list | length > 0
     fail_msg: "OpenBao path kv/data/common/ntfy is missing ACCESS_TOKEN"
 
 - name: Set ntfy_token from OpenBao
