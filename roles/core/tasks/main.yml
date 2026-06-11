@@ -28,6 +28,7 @@
       - tree
       - wget
       - zsh
+      - aerc
 
 - name: Install starship from apt (Debian 13+)
   apt:
