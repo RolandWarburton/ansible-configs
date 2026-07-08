@@ -140,3 +140,14 @@
     GOROOT: '{{ golang_install_dir }}'
     PATH: "{{ golang_install_dir }}/bin:{{ golang_gopath }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
   register: gops_install
+
+- name: Install lefthook
+  become_user: "{{ username }}"
+  shell:
+    cmd: '{{ golang_install_dir }}/bin/go install github.com/evilmartians/lefthook@latest'
+    creates: '{{ golang_gopath }}/bin/lefthook'
+  environment:
+    GOPATH: '{{ golang_gopath }}'
+    GOROOT: '{{ golang_install_dir }}'
+    PATH: "{{ golang_install_dir }}/bin:{{ golang_gopath }}/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/sbin:/bin"
+  register: lefthook_install
