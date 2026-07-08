@@ -1,3 +1,5 @@
+xray_state: present  # present/absent to install/uninstall
+
 xray_version: '26.3.27'
 xray_download_dir: '/tmp/xray_{{ xray_version }}'
 xray_install_dir: '/usr/local/bin'

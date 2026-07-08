@@ -13,11 +13,12 @@
     # - ./roles/golang
     # - ./roles/node
     # - ./roles/deno
-    # - ./roles/xray-client
     # - ./roles/ntfy-common
     # - ./roles/ntfy-cli
     # - ./roles/ntfy-listener
     # - ./roles/flutter
+    # - role: ./roles/xray-client
+    #     xray_state: absent # absent/present
     # GUI
     # - ./roles/sway
     # - ./roles/sway-fonts
