@@ -1,0 +1,16 @@
+---
+# https://ansible.readthedocs.io/projects/lint/configuring/
+exclude_paths:
+  - .git/
+  - .cache/
+
+# Downgraded to warnings so the hook doesn't block on pervasive, low-risk
+# patterns in the install roles. Fix over time; they won't fail a commit.
+warn_list:
+  - command-instead-of-module   # curl in shell/command tasks (deno, node, ...)
+  - no-changed-when             # shell/command tasks without changed_when
+  - risky-shell-pipe            # `curl ... | sh` style installs
+
+# Repo intentionally uses short module names (apt, copy) not ansible.builtin.*
+skip_list:
+  - fqcn

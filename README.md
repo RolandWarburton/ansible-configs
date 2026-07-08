@@ -49,3 +49,21 @@ ansible-playbook \
 ansible-playbook \
   ./playbooks/setup-localhost.yml --ask-become-pass
 ```
+
+## Development
+
+Git hooks are required pre-commit to lint the project.
+They are managed by [lefthook](https://lefthook.dev)
+which runs `ansible-lint` on every commit.
+
+Requirements:
+
+* `lefthook` - installed by the `golang` role, or manually with
+  `go install github.com/evilmartians/lefthook@latest`.
+* `ansible-lint` - `sudo apt install ansible-lint`.
+
+Activate the hooks once per clone:
+
+```bash
+lefthook install
+```
