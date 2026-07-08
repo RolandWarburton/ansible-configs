@@ -3,11 +3,11 @@
 # Bypass a single commit:   git commit --no-verify   (or LEFTHOOK=0 git commit)
 
 pre-commit:
-  parallel: true
   commands:
     ansible-lint:
-      glob: "*.{yml,yaml}"
-      run: >
-        command -v ansible-lint >/dev/null 2>&1
-        && ansible-lint -q {staged_files}
-        || { echo "ansible-lint not installed. Run: sudo apt install ansible-lint (or bypass with git commit --no-verify)"; exit 1; }
+      run: |
+        if ! command -v ansible-lint >/dev/null 2>&1; then
+          echo "ansible-lint not installed. Run: sudo apt install ansible-lint (or bypass with git commit --no-verify)"
+          exit 1
+        fi
+        ansible-lint
