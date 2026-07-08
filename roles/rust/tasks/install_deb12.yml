@@ -7,7 +7,7 @@
   get_url:
     url: https://sh.rustup.rs
     dest: /tmp/rustup-init.sh
-    mode: '0755'
+    mode: "0755"
   when: not cargo_stat.stat.exists
 
 - name: Run rustup installer

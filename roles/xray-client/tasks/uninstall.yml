@@ -16,17 +16,17 @@
 - name: Remove xray binary
   become: true
   file:
-    path: '{{ xray_install_dir }}/xray'
+    path: "{{ xray_install_dir }}/xray"
     state: absent
 
 - name: Remove xray config directory
   become: true
   file:
-    path: '{{ xray_config_dir }}'
+    path: "{{ xray_config_dir }}"
     state: absent
 
 - name: Remove xray asset directory
   become: true
   file:
-    path: '{{ xray_asset_dir }}'
+    path: "{{ xray_asset_dir }}"
     state: absent

@@ -1,5 +1,5 @@
 - name: install packages
-  apt: 
+  apt:
     update_cache: true
     pkg:
       - alsa-utils
@@ -20,26 +20,24 @@
 
 - name: add '{{ username }}' to group pipewire
   user:
-    name: '{{ username }}'
+    name: "{{ username }}"
     groups: pipewire
     append: true
 
 - name: add '{{ username }}' to group realtime
   user:
-    name: '{{ username }}'
+    name: "{{ username }}"
     groups: realtime
     append: true
-
 
 # ensure build dir is created
 - name: ensure build dir created
   file:
-    path: '{{ tmp_dir }}'
+    path: "{{ tmp_dir }}"
     state: directory
-    mode: '0755'
-    owner: '{{ username }}'
-    group: '{{ username }}'
-
+    mode: "0755"
+    owner: "{{ username }}"
+    group: "{{ username }}"
 
 # pipewire download & extract
 - name: Check if Pipewire source exists
@@ -57,8 +55,8 @@
   unarchive:
     src: "{{ tmp_dir }}/pipewire-0.3.80.zip"
     dest: "{{ tmp_dir }}"
-    owner: '{{ username }}'
-    group: '{{ username }}'
+    owner: "{{ username }}"
+    group: "{{ username }}"
     remote_src: true
 
 # wireplumber download & extract
@@ -77,8 +75,8 @@
   unarchive:
     src: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
     dest: "{{ tmp_dir }}"
-    owner: '{{ username }}'
-    group: '{{ username }}'
+    owner: "{{ username }}"
+    group: "{{ username }}"
     remote_src: true
 
 # pipewire build
@@ -88,23 +86,23 @@
   register: pipewire_bin
 
 - name: Build Pipewire (configure)
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell:
-    cmd: 'meson setup builddir'
-    chdir: '{{ tmp_dir }}/pipewire-0.3.80'
+    cmd: "meson setup builddir"
+    chdir: "{{ tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
 
 - name: Build Pipewire (configure)
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell:
-    cmd: 'meson configure builddir -Dprefix=/usr'
-    chdir: '{{ tmp_dir }}/pipewire-0.3.80'
+    cmd: "meson configure builddir -Dprefix=/usr"
+    chdir: "{{ tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
 
 - name: Build Pipewire (install)
   shell:
-    cmd: 'meson install -C builddir'
-    chdir: '{{ tmp_dir }}/pipewire-0.3.80'
+    cmd: "meson install -C builddir"
+    chdir: "{{ tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
 
 # wireplumber build
@@ -114,21 +112,21 @@
   register: wireplumber_bin
 
 - name: build wireplumber (configure)
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell:
-    cmd: 'meson setup --prefix=/usr build'
-    chdir: '{{ tmp_dir }}/wireplumber-0.4.14'
+    cmd: "meson setup --prefix=/usr build"
+    chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
 
 - name: build wireplumber (configure)
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell:
-    cmd: 'meson compile -C build'
-    chdir: '{{ tmp_dir }}/wireplumber-0.4.14'
+    cmd: "meson compile -C build"
+    chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
 
 - name: build wireplumber (install)
   shell:
-    cmd: 'ninja -C build install'
-    chdir: '{{ tmp_dir }}/wireplumber-0.4.14'
+    cmd: "ninja -C build install"
+    chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin

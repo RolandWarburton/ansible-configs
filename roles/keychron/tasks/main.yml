@@ -8,7 +8,7 @@
       KERNEL=="hidraw*", ATTRS{idVendor}=="3434", ATTRS{idProduct}=="0130", MODE="0660", GROUP="plugdev"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
 
 - name: Reload udev rules
   command: udevadm control --reload-rules

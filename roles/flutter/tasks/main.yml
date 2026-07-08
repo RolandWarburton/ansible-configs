@@ -14,43 +14,43 @@
 - name: Create download directory
   file:
     state: directory
-    mode: '0700'
-    dest: '{{ flutter_download_dir }}'
+    mode: "0700"
+    dest: "{{ flutter_download_dir }}"
 
 - name: Download Flutter SDK
   shell: |
     curl -L "https://storage.googleapis.com/flutter_infra_release/releases/stable/linux/flutter_linux_{{ flutter_version }}-stable.tar.xz" \
       -o "{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz"
   args:
-    creates: '{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz'
+    creates: "{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz"
   when: not ansible_check_mode
 
-- name: 'Make sure {{ flutter_install_dir }} exists'
+- name: "Make sure {{ flutter_install_dir }} exists"
   file:
-    path: '{{ flutter_install_dir }}'
+    path: "{{ flutter_install_dir }}"
     state: directory
-    owner: '{{ username }}'
-    group: '{{ username }}'
-    mode: '0755'
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0755"
 
 - name: Install Flutter SDK
   unarchive:
-    src: '{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz'
+    src: "{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz"
     remote_src: true
-    extra_opts: '--strip-components=1'
-    dest: '{{ flutter_install_dir }}'
-    owner: '{{ username }}'
-    group: '{{ username }}'
-    creates: '{{ flutter_install_dir }}/bin'
+    extra_opts: "--strip-components=1"
+    dest: "{{ flutter_install_dir }}"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    creates: "{{ flutter_install_dir }}/bin"
   when: not ansible_check_mode
 
 - name: Make sure Flutter SDK is owned by {{ username }}
   become: true
   file:
-    path: '{{ flutter_install_dir }}'
+    path: "{{ flutter_install_dir }}"
     state: directory
-    owner: '{{ username }}'
-    group: '{{ username }}'
+    owner: "{{ username }}"
+    group: "{{ username }}"
     recurse: true
   when: not ansible_check_mode
 
@@ -71,7 +71,7 @@
     dest: /etc/ansible/facts.d
     owner: root
     group: root
-    mode: 'u=rwx,go=rx'
+    mode: "u=rwx,go=rx"
 
 - name: Install Flutter SDK facts
   become: true
@@ -80,7 +80,7 @@
     dest: /etc/ansible/facts.d/flutter.fact
     owner: root
     group: root
-    mode: 'u=rw,go=r'
+    mode: "u=rw,go=r"
   when: not ansible_check_mode
 
 - name: Re-read facts

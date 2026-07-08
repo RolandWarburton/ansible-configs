@@ -11,7 +11,7 @@
     dest: /usr/local/sbin/fetch-bao-token.sh
     owner: root
     group: root
-    mode: '0700'
+    mode: "0700"
 
 - name: Copy openbao-get-secret script
   copy:
@@ -19,7 +19,7 @@
     dest: /usr/bin/openbao-get-secret
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Fetch OpenBao token
   shell:

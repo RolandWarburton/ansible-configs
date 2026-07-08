@@ -43,7 +43,7 @@
     state: directory
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Deploy client.json config
   become: true
@@ -52,4 +52,4 @@
     dest: "{{ ntfy_config_dir }}/client.json"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"

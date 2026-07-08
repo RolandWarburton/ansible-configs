@@ -32,7 +32,7 @@
     dest: "{{ ntfy_listener_bin_dir }}/ntfy-listen"
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
   when: not ntfy_listener_binary_stat.stat.exists
 
 - name: Create ~/.config/systemd/user directory
@@ -41,7 +41,7 @@
   file:
     path: "/home/{{ username }}/.config/systemd/user"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Deploy ntfy-listen systemd service
   become: true
@@ -49,7 +49,7 @@
   template:
     src: ntfy-listen.service.j2
     dest: "/home/{{ username }}/.config/systemd/user/ntfy-listen.service"
-    mode: '0644'
+    mode: "0644"
   notify:
     - reload user systemd
     - restart ntfy-listen

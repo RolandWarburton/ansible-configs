@@ -19,7 +19,7 @@
   register: package_check
   failed_when: package_check.rc > 1
   changed_when: package_check.stdout == "install ok installed%"
-  loop: '{{ packages }}'
+  loop: "{{ packages }}"
   # loop_control:
   #   label: '{{ item }}'
 

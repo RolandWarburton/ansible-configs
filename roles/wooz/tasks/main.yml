@@ -30,7 +30,7 @@
   copy:
     src: "{{ build_dir }}/build/wooz"
     dest: /usr/local/bin/wooz
-    mode: '0755'
+    mode: "0755"
     owner: root
     group: root
     remote_src: true

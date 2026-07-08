@@ -2,21 +2,21 @@
   file:
     path: "{{ tmp_dir }}"
     state: directory
-    mode: '0755'
+    mode: "0755"
 
 - name: Check if lf tar already exists
   ansible.builtin.stat:
-    path: '{{ tmp_dir }}/lf.tar.gz'
+    path: "{{ tmp_dir }}/lf.tar.gz"
   register: lf_tar_stat
 
 - name: download lf tar
   shell: |
-      {% if ansible_architecture == 'x86_64' %}
-      {% set lf_arch = 'amd64' %}
-      {% else %}
-      {% set lf_arch = 'arm64' %}
-      {% endif %}
-      curl -L "https://github.com/gokcehan/lf/releases/download/r32/lf-linux-{{ lf_arch }}.tar.gz" -o "{{ tmp_dir }}/lf.tar.gz"
+    {% if ansible_architecture == 'x86_64' %}
+    {% set lf_arch = 'amd64' %}
+    {% else %}
+    {% set lf_arch = 'arm64' %}
+    {% endif %}
+    curl -L "https://github.com/gokcehan/lf/releases/download/r32/lf-linux-{{ lf_arch }}.tar.gz" -o "{{ tmp_dir }}/lf.tar.gz"
   args:
     creates: "{{ tmp_dir }}/lf.tar.gz"
   when: not lf_tar_stat.stat.exists
@@ -26,14 +26,14 @@
     path: "{{ tmp_dir }}/lf.tar.gz"
     owner: "{{ username }}"
     group: "{{ username }}"
-    mode: '0644'
+    mode: "0644"
   when: not lf_tar_stat.stat.exists
 
 - name: Ensure local bin directory exists
   file:
     path: "/home/{{ username }}/.local/bin"
     state: directory
-    mode: '0755'
+    mode: "0755"
     owner: "{{ username }}"
     group: "{{ username }}"
 
@@ -45,4 +45,4 @@
     creates: "/home/{{ username }}/.local/bin/lf"
     owner: "{{ username }}"
     group: "{{ username }}"
-    mode: '0755'
+    mode: "0755"

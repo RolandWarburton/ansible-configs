@@ -18,26 +18,26 @@
 
 - name: create temp directory
   file:
-    path: '/tmp/ttf-hack-patched'
-    mode: 0775
+    path: "/tmp/ttf-hack-patched"
+    mode: "0775"
     state: directory
 
 - name: download nerd fonts patched ttf-hack
   unarchive:
-    src: 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Hack.tar.xz'
-    dest: '/tmp/ttf-hack-patched'
+    src: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Hack.tar.xz"
+    dest: "/tmp/ttf-hack-patched"
     remote_src: true
 
 - name: create hack font directory
   file:
-    path: '/usr/share/fonts/truetype/hack'
-    mode: 0755
+    path: "/usr/share/fonts/truetype/hack"
+    mode: "0755"
     state: directory
 
 - name: Find ttf font files in source directory
   find:
     paths: /tmp/ttf-hack-patched
-    patterns: '*.ttf'
+    patterns: "*.ttf"
     file_type: file
     recurse: false
   register: found_fonts
@@ -48,5 +48,5 @@
     dest: /usr/share/fonts/truetype/hack/
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   loop: "{{ found_fonts.files | map(attribute='path') | list }}"

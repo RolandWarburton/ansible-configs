@@ -1,9 +1,10 @@
 - name: Check if Deno is already installed
   stat:
-    path: '/home/{{ username }}/.deno'
+    path: "/home/{{ username }}/.deno"
   register: deno_directory
 
-- block:
+- when: not deno_directory.stat.exists
+  block:
     - name: Download Deno installation script using curl
       shell: |
         curl -L https://deno.land/install.sh -o "{{ deno_install_script_location }}"
@@ -13,15 +14,14 @@
     - name: Set permissions on Deno install script
       file:
         path: "{{ deno_install_script_location }}"
-        mode: '0755'
+        mode: "0755"
         owner: "{{ username }}"
         group: "{{ username }}"
       become: true
 
     - name: Run Deno installation script
       become: true
-      become_user: '{{ username }}'
+      become_user: "{{ username }}"
       command:
-        cmd: '{{ deno_install_script_location }} --no-modify-path --yes'
-        creates: '/home/{{ username }}/.deno'
-  when: not deno_directory.stat.exists
+        cmd: "{{ deno_install_script_location }} --no-modify-path --yes"
+        creates: "/home/{{ username }}/.deno"

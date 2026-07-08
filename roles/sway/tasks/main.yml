@@ -31,10 +31,10 @@
   copy:
     src: sway-laptop-display.sh
     dest: /usr/local/bin/sway-laptop-display.sh
-    mode: 0755
+    mode: "0755"
 
 # udev rule to configure screens and desktop background when HDMI plug in or out
 - name: Copy on_hdmi_connected.rules to /etc/udev/rules.d/
   copy:
-    src: 'on_hdmi_connected.rules'
+    src: "on_hdmi_connected.rules"
     dest: /etc/udev/rules.d/on_hdmi_connected.rules

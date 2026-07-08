@@ -5,20 +5,20 @@
   register: dotfiles_stat
 
 - name: get dotfiles
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   git:
     repo: git@github.com:rolandwarburton/dotfiles.git
     dest: /home/{{ username }}/dotfiles
     accept_hostkey: true
     key_file: /home/{{ username }}/.ssh/id_github # on the remote host
-    version: 'wayland'
+    version: "wayland"
   when: not dotfiles_stat.stat.exists
 
 - name: Update git submodules
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   command: git submodule update --init --recursive
   args:
-    chdir: '/home/{{ username }}/dotfiles'
+    chdir: "/home/{{ username }}/dotfiles"
   environment:
     GIT_SSH_COMMAND: "ssh -i /home/{{ username }}/.ssh/id_github -o StrictHostKeyChecking=no"
   register: submodule_update_result
@@ -33,15 +33,17 @@
 
 # download casa
 - name: check if casa is installed
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell: 'zsh -c "source ~/.zshrc; command -v casa"'
   register: casa_command
   changed_when: false
   failed_when: false
 
-- block:
+- when: casa_command.rc != 0
+
+  block:
     - name: Check if casa binary exists
-      become_user: '{{ username }}'
+      become_user: "{{ username }}"
       shell: 'zsh -c "source ~/.zshrc; command -v casa"'
       register: casa_bin
       changed_when: false
@@ -72,12 +74,10 @@
         path: /usr/local/bin/casa
         owner: root
         group: root
-        mode: '0755'
+        mode: "0755"
       become: true
-  when: casa_command.rc != 0
-
 - name: run casa
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell:
     cmd: casa -c /home/{{ username }}/dotfiles/install.conf.yaml
     chdir: /home/{{ username }}/dotfiles

@@ -14,7 +14,4 @@
   loop:
     - /usr/bin/openbao-get-secret
     - /etc/credentials/openbao-token
-  when: not (
-    ntfy_common_bao_bin.stat.exists and
-    ntfy_common_bao_token.stat.exists
-    )
+  when: not ( ntfy_common_bao_bin.stat.exists and ntfy_common_bao_token.stat.exists )

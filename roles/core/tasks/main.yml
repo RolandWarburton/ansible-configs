@@ -50,6 +50,6 @@
 
 - name: Set zsh to be the default shell
   user:
-    name: '{{ username }}'
+    name: "{{ username }}"
     shell: /usr/bin/zsh
   when: zsh_binary_stat.stat.exists

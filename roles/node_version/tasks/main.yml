@@ -1,26 +1,26 @@
 # sets boolean variable node_out_of_date if the target version of
 - name: Check if .nvmrc exists
   stat:
-    path: '/home/{{ username }}/.nvmrc'
+    path: "/home/{{ username }}/.nvmrc"
   register: nvmrc_stat
 
 - name: Read .nvmrc contents
   slurp:
-    src: '/home/{{ username }}/.nvmrc'
+    src: "/home/{{ username }}/.nvmrc"
   register: nvmrc_contents
   when: nvmrc_stat.stat.exists
   failed_when: not nvmrc_stat.stat.exists
 
 - name: Set target_node_version variable
   set_fact:
-    target_node_version: '{{ nvmrc_contents.content | b64decode | trim }}'
+    target_node_version: "{{ nvmrc_contents.content | b64decode | trim }}"
 
 - name: debug target_node_version
   debug:
-    msg: 'target node version: {{ target_node_version }}'
+    msg: "target node version: {{ target_node_version }}"
 
 - name: get current node version
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   shell:
     cmd: zsh -i -c "source /home/{{ username }}/.zshrc; node --version | grep -Po '\d+\.\d+\.\d+'"
   register: current_node_version_register
@@ -45,7 +45,7 @@
 
 - name: set node_out_of_date fact
   set_fact:
-    node_out_of_date: '{{ true if version_comparison.rc == 0 else false }}'
+    node_out_of_date: "{{ true if version_comparison.rc == 0 else false }}"
 
 - name: Print node version comparison
   debug:

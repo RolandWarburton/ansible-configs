@@ -25,17 +25,20 @@
 
 - name: skip running neovim upgrade
   debug:
-    msg: 'skipping upgrade as target version {{ neovim_target_version }} is not greater than current version {{ neovim_version }}'
+    msg: "skipping upgrade as target version {{ neovim_target_version }} is not greater than current version {{ neovim_version }}"
   when: version_comparison.rc != 0
 
 - name: set flag if target version is greater than the actual version of neovim
   set_fact:
     target_neovim_version_is_greater: "{{ version_comparison.rc == 0 }}"
 
-- block:
+- when: target_neovim_version_is_greater or not neovim_installed
+
+  # download nvim config
+  block:
     - name: download neovim update
       debug:
-        msg: 'Updating neovim to v{{ neovim_target_version }}'
+        msg: "Updating neovim to v{{ neovim_target_version }}"
 
     - name: install packages for building neovim
       apt:
@@ -46,12 +49,14 @@
           - cmake
           - fzf
 
-    - block:
+    - when: ansible_architecture == "aarch64"
+
+      block:
         - name: Download Neovim binary (ARM64)
           get_url:
             url: https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-arm64.tar.gz
             dest: /tmp/nvim-linux-arm64.tar.gz
-            mode: '0644'
+            mode: "0644"
 
         - name: Unzip Neovim tar gz (ARM64)
           ansible.builtin.unarchive:
@@ -64,7 +69,7 @@
             src: /tmp/nvim-linux-arm64
             dest: /usr/bin
             remote_src: true
-            mode: '0755'
+            mode: "0755"
             group: root
             owner: root
 
@@ -74,14 +79,14 @@
             dest: /usr/bin/nvim
             state: link
             force: true
-      when: ansible_architecture == "aarch64"
+    - when: ansible_architecture == "x86_64"
 
-    - block:
+      block:
         - name: download neovim
           get_url:
             url: https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-x86_64.tar.gz
             dest: /tmp/nvim-linux-x86_64.tar.gz
-            mode: '0755'
+            mode: "0755"
             group: root
             owner: root
           register: nvim_downloaded
@@ -97,7 +102,7 @@
             src: /tmp/nvim-linux-x86_64
             dest: /usr/bin
             remote_src: true
-            mode: '0755'
+            mode: "0755"
             group: root
             owner: root
 
@@ -107,18 +112,13 @@
             dest: /usr/bin/nvim
             state: link
             force: true
-      when: ansible_architecture == "x86_64"
-
-  when: target_neovim_version_is_greater or not neovim_installed
-
-# download nvim config
 - name: Check if nvim config exists
   stat:
     path: /home/{{ username }}/.config/nvim
   register: nvim_config_stat
 
 - name: clone neovim config
-  become_user: '{{ username }}'
+  become_user: "{{ username }}"
   git:
     repo: git@github.com:rolandwarburton/nvim.conf.git
     dest: /home/{{ username }}/.config/nvim

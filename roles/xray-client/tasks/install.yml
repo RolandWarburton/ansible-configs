@@ -20,10 +20,10 @@
   become: true
   file:
     state: directory
-    mode: '0700'
+    mode: "0700"
     owner: root
     group: root
-    dest: '{{ xray_download_dir }}'
+    dest: "{{ xray_download_dir }}"
 
 - name: Install unzip
   become: true
@@ -38,47 +38,47 @@
 - name: Download Xray
   become: true
   get_url:
-    url: 'https://github.com/XTLS/Xray-core/releases/download/v{{ xray_version }}/Xray-linux-{{ xray_arch }}.zip'
-    dest: '{{ xray_download_dir }}/xray.zip'
-    mode: '0600'
+    url: "https://github.com/XTLS/Xray-core/releases/download/v{{ xray_version }}/Xray-linux-{{ xray_arch }}.zip"
+    dest: "{{ xray_download_dir }}/xray.zip"
+    mode: "0600"
 
 - name: Extract Xray binary
   become: true
   unarchive:
-    src: '{{ xray_download_dir }}/xray.zip'
+    src: "{{ xray_download_dir }}/xray.zip"
     remote_src: true
-    dest: '{{ xray_download_dir }}'
-    creates: '{{ xray_download_dir }}/xray'
+    dest: "{{ xray_download_dir }}"
+    creates: "{{ xray_download_dir }}/xray"
 
 - name: Install Xray binary
   become: true
   copy:
-    src: '{{ xray_download_dir }}/xray'
+    src: "{{ xray_download_dir }}/xray"
     remote_src: true
-    dest: '{{ xray_install_dir }}/xray'
+    dest: "{{ xray_install_dir }}/xray"
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
   notify: restart xray
 
 - name: Create asset directory
   become: true
   file:
     state: directory
-    path: '{{ xray_asset_dir }}'
+    path: "{{ xray_asset_dir }}"
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
 
 - name: Install geoip and geosite dat files
   become: true
   copy:
-    src: '{{ xray_download_dir }}/{{ item }}'
+    src: "{{ xray_download_dir }}/{{ item }}"
     remote_src: true
-    dest: '{{ xray_asset_dir }}/{{ item }}'
+    dest: "{{ xray_asset_dir }}/{{ item }}"
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   loop:
     - geoip.dat
     - geosite.dat
@@ -87,10 +87,10 @@
   become: true
   file:
     state: directory
-    path: '{{ xray_config_dir }}'
+    path: "{{ xray_config_dir }}"
     owner: root
     group: root
-    mode: '0750'
+    mode: "0750"
 
 # Proxy Auto-Config for browsers
 # The PAC file must be served over HTTP/HTTPS
@@ -107,10 +107,10 @@
   become: true
   template:
     src: config.json.j2
-    dest: '{{ xray_config_dir }}/config.json'
+    dest: "{{ xray_config_dir }}/config.json"
     owner: root
     group: root
-    mode: '0640'
+    mode: "0640"
   notify: restart xray
 
 - name: Deploy Xray systemd service
@@ -120,7 +120,7 @@
     dest: /etc/systemd/system/xray.service
     owner: root
     group: root
-    mode: '0644'
+    mode: "0644"
   notify:
     - reload systemd
     - restart xray

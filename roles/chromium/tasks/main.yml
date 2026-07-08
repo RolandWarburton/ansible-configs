@@ -14,7 +14,7 @@
   become: true
   lineinfile:
     path: /usr/share/applications/chromium.desktop
-    regexp: '^Exec='
+    regexp: "^Exec="
     state: present
-    line: 'Exec=/usr/bin/chromium --ozone-platform=wayland %U'
+    line: "Exec=/usr/bin/chromium --ozone-platform=wayland %U"
   when: chromium_desktop_stat.stat.exists

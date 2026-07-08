@@ -12,7 +12,7 @@
   get_url:
     url: "https://github.com/binwiederhier/ntfy/releases/download/v{{ ntfy_cli_version }}/ntfy_{{ ntfy_cli_version }}_linux_{{ ntfy_cli_arch }}.tar.gz"
     dest: "/tmp/ntfy_{{ ntfy_cli_version }}_linux_{{ ntfy_cli_arch }}.tar.gz"
-    mode: '0644'
+    mode: "0644"
   when: not ntfy_cli_binary_stat.stat.exists
 
 - name: Extract ntfy binary
@@ -26,5 +26,5 @@
       - "ntfy_{{ ntfy_cli_version }}_linux_{{ ntfy_cli_arch }}/ntfy"
     owner: root
     group: root
-    mode: '0755'
+    mode: "0755"
   when: not ntfy_cli_binary_stat.stat.exists
