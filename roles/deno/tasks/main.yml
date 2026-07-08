@@ -3,7 +3,8 @@
     path: "/home/{{ username }}/.deno"
   register: deno_directory
 
-- when: not deno_directory.stat.exists
+- name: Install Deno if not present
+  when: not deno_directory.stat.exists
   block:
     - name: Download Deno installation script using curl
       shell: |

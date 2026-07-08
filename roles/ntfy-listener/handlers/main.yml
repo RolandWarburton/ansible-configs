@@ -1,4 +1,4 @@
-- name: reload user systemd
+- name: Reload user systemd
   become: true
   become_user: "{{ username }}"
   systemd:
@@ -7,7 +7,7 @@
   environment:
     XDG_RUNTIME_DIR: "/run/user/{{ ntfy_listener_uid.stdout | trim }}"
 
-- name: restart ntfy-listen
+- name: Restart ntfy-listen
   become: true
   become_user: "{{ username }}"
   systemd:

@@ -12,7 +12,7 @@
   set_fact:
     neovim_installed: "{{ neovim_output.rc == 0 and neovim_version != '0.0.0' }}"
 
-- name: print neovim version
+- name: Print neovim version
   debug:
     msg: "neovim {{ 'is installed' if neovim_installed else 'is not installed' }} (version {{ neovim_version }})"
 
@@ -23,24 +23,25 @@
   failed_when: false
   changed_when: false
 
-- name: skip running neovim upgrade
+- name: Skip running neovim upgrade
   debug:
     msg: "skipping upgrade as target version {{ neovim_target_version }} is not greater than current version {{ neovim_version }}"
   when: version_comparison.rc != 0
 
-- name: set flag if target version is greater than the actual version of neovim
+- name: Set flag if target version is greater than the actual version of neovim
   set_fact:
     target_neovim_version_is_greater: "{{ version_comparison.rc == 0 }}"
 
-- when: target_neovim_version_is_greater or not neovim_installed
+- name: Install or upgrade Neovim
+  when: target_neovim_version_is_greater or not neovim_installed
 
   # download nvim config
   block:
-    - name: download neovim update
+    - name: Download neovim update
       debug:
         msg: "Updating neovim to v{{ neovim_target_version }}"
 
-    - name: install packages for building neovim
+    - name: Install packages for building neovim
       apt:
         update_cache: true
         pkg:
@@ -49,7 +50,8 @@
           - cmake
           - fzf
 
-    - when: ansible_architecture == "aarch64"
+    - name: Install Neovim binary (ARM64)
+      when: ansible_architecture == "aarch64"
 
       block:
         - name: Download Neovim binary (ARM64)
@@ -79,10 +81,11 @@
             dest: /usr/bin/nvim
             state: link
             force: true
-    - when: ansible_architecture == "x86_64"
+    - name: Install Neovim binary (x86_64)
+      when: ansible_architecture == "x86_64"
 
       block:
-        - name: download neovim
+        - name: Download neovim
           get_url:
             url: https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-x86_64.tar.gz
             dest: /tmp/nvim-linux-x86_64.tar.gz
@@ -117,7 +120,7 @@
     path: /home/{{ username }}/.config/nvim
   register: nvim_config_stat
 
-- name: clone neovim config
+- name: Clone neovim config
   become_user: "{{ username }}"
   git:
     repo: git@github.com:rolandwarburton/nvim.conf.git

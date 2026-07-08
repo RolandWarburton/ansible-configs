@@ -1,4 +1,5 @@
-- hosts: localhost
+- name: Set up OpenBao on localhost
+  hosts: localhost
   connection: local
   become: true
   vars_prompt:

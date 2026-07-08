@@ -7,7 +7,7 @@
 # roles/alacritty uses this to set the terminal fonts
 #
 
-- name: install packages
+- name: Install packages
   apt:
     update_cache: true
     pkg:
@@ -16,19 +16,19 @@
       - fonts-noto-color-emoji
       - fonts-noto
 
-- name: create temp directory
+- name: Create temp directory
   file:
     path: "/tmp/ttf-hack-patched"
     mode: "0775"
     state: directory
 
-- name: download nerd fonts patched ttf-hack
+- name: Download nerd fonts patched ttf-hack
   unarchive:
     src: "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Hack.tar.xz"
     dest: "/tmp/ttf-hack-patched"
     remote_src: true
 
-- name: create hack font directory
+- name: Create hack font directory
   file:
     path: "/usr/share/fonts/truetype/hack"
     mode: "0755"

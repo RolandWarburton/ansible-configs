@@ -25,7 +25,7 @@
     creates: "{{ flutter_download_dir }}/flutter_linux_{{ flutter_version }}-stable.tar.xz"
   when: not ansible_check_mode
 
-- name: "Make sure {{ flutter_install_dir }} exists"
+- name: "Make sure the Flutter install directory exists {{ flutter_install_dir }}"
   file:
     path: "{{ flutter_install_dir }}"
     state: directory

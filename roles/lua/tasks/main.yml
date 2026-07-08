@@ -1,4 +1,4 @@
-- name: install packages
+- name: Install packages
   apt:
     update_cache: true
     pkg:

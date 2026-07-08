@@ -1,4 +1,4 @@
-- name: install packages
+- name: Install packages
   apt:
     update_cache: true
     pkg:
@@ -18,20 +18,20 @@
     name: realtime
     state: present
 
-- name: add '{{ username }}' to group pipewire
+- name: Add user to pipewire group {{ username }}
   user:
     name: "{{ username }}"
     groups: pipewire
     append: true
 
-- name: add '{{ username }}' to group realtime
+- name: Add user to realtime group {{ username }}
   user:
     name: "{{ username }}"
     groups: realtime
     append: true
 
 # ensure build dir is created
-- name: ensure build dir created
+- name: Ensure build dir created
   file:
     path: "{{ tmp_dir }}"
     state: directory
@@ -45,7 +45,7 @@
     path: "{{ tmp_dir }}/pipewire-0.3.80.zip"
   register: pipewire_src
 
-- name: download Pipewire Zip File
+- name: Download Pipewire Zip File
   get_url:
     url: "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/0.3.80/pipewire-0.3.80.zip"
     dest: "{{ tmp_dir }}/pipewire-0.3.80.zip"
@@ -65,7 +65,7 @@
     path: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
   register: wireplumber_src
 
-- name: download Pipewire Zip File
+- name: Download Pipewire Zip File
   get_url:
     url: "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/0.4.14/wireplumber-0.4.14.zip"
     dest: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
@@ -111,21 +111,21 @@
     path: "/usr/bin/wireplumber"
   register: wireplumber_bin
 
-- name: build wireplumber (configure)
+- name: Build wireplumber (configure)
   become_user: "{{ username }}"
   shell:
     cmd: "meson setup --prefix=/usr build"
     chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
 
-- name: build wireplumber (configure)
+- name: Build wireplumber (configure)
   become_user: "{{ username }}"
   shell:
     cmd: "meson compile -C build"
     chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
 
-- name: build wireplumber (install)
+- name: Build wireplumber (install)
   shell:
     cmd: "ninja -C build install"
     chdir: "{{ tmp_dir }}/wireplumber-0.4.14"

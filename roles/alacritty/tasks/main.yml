@@ -1,7 +1,8 @@
-- include_role:
+- name: Include rust role
+  include_role:
     name: ./roles/rust
 
-- name: install packages
+- name: Install packages
   apt:
     update_cache: true
     pkg:
@@ -14,7 +15,7 @@
       - python3
       - fontconfig
 
-- name: create alacritty build directory
+- name: Create alacritty build directory
   become_user: "{{ username }}"
   file:
     path: "{{ alacritty_install_dir }}"
@@ -23,21 +24,21 @@
     group: "{{ username }}"
     state: directory
 
-- name: clone alacritty
+- name: Clone alacritty
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/alacritty/alacritty.git"
     dest: "{{ alacritty_install_dir }}/alacritty"
     version: "v0.11.0"
 
-- name: set rustup compiler to stable
+- name: Set rustup compiler to stable
   become_user: "{{ username }}"
   shell:
     cmd: "/home/{{ username }}/.cargo/bin/rustup override set stable && rustup update stable"
   failed_when: false
   changed_when: false
 
-- name: build alacritty
+- name: Build alacritty
   become_user: "{{ username }}"
   shell:
     cmd: cargo build --release --no-default-features --features=wayland
@@ -45,12 +46,12 @@
     chdir: "{{ alacritty_install_dir }}/alacritty"
     creates: "{{ alacritty_install_dir }}/alacritty/target/release/alacritty"
 
-- name: stat alacritty binary
+- name: Stat alacritty binary
   stat:
     path: "{{ alacritty_install_dir }}/alacritty/target/release/alacritty"
   register: alacritty_stat
 
-- name: stat alacritty binary in /usr/bin
+- name: Stat alacritty binary in /usr/bin
   stat:
     path: "/usr/bin/alacritty"
   register: alacritty_stat_bin
@@ -59,7 +60,7 @@
   command: mv {{ alacritty_install_dir }}/alacritty/target/release/alacritty /usr/bin/alacritty
   when: alacritty_stat.stat.exists == true and alacritty_stat_bin.stat.exists == false
 
-- name: chown alacritty
+- name: Chown alacritty
   file:
     path: /usr/bin/alacritty
     owner: root
@@ -67,26 +68,26 @@
     state: file
   when: alacritty_stat_bin.stat.exists
 
-- name: refresh fonts cache
+- name: Refresh fonts cache
   become_user: "{{ username }}"
   shell:
     cmd: "fc-cache -fv"
 
-- name: stat check /usr/share/applications exists
+- name: Stat check /usr/share/applications exists
   stat:
     path: "/usr/share/applications"
   register: desktop_folder
 
-- name: copt alacritty.desktop to /usr/share/applications
+- name: Copy alacritty.desktop to /usr/share/applications
   command: cp {{ alacritty_install_dir }}/alacritty/extra/linux/Alacritty.desktop /usr/share/applications
   when: alacritty_stat.stat.exists == true and desktop_folder.stat.exists == true
 
-- name: stat check /usr/share/icons exists
+- name: Stat check /usr/share/icons exists
   stat:
     path: "/usr/share/icons"
   register: icons_folder
 
-- name: copy alacritty-term.png to /usr/share/icons
+- name: Copy alacritty-term.png to /usr/share/icons
   command: cp {{ alacritty_install_dir }}/alacritty/extra/logo/compat/alacritty-term.png /usr/share/icons
   when: alacritty_stat.stat.exists == true and icons_folder.stat.exists == true
 

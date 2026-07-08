@@ -9,7 +9,7 @@
     - ../vars/architecture/default.yml
   include_vars: "{{ item }}"
 
-- name: debug
+- name: Debug
   debug:
     msg: "{{ ansible_facts.architecture | lower }}"
 
@@ -44,7 +44,7 @@
       - tar
     state: present
 
-- name: "Make sure {{ golang_install_dir }} exists"
+- name: "Make sure the Go install directory exists {{ golang_install_dir }}"
   become: true
   file:
     path: "{{ golang_install_dir }}"

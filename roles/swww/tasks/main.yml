@@ -22,13 +22,13 @@
     msg: "Wayland protocols directory /usr/share/wayland-protocols/stable does not exist! Install the wayland-protocols package."
   when: not wayland_protocols_dir.stat.exists
 
-- name: clone swww
+- name: Clone swww
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/LGFae/swww.git"
     dest: "{{ build_dir }}/swww"
 
-- name: build swww (compile)
+- name: Build swww (compile)
   become_user: "{{ username }}"
   shell:
     cmd: "cargo build --release"

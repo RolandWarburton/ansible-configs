@@ -15,11 +15,11 @@
   set_fact:
     target_node_version: "{{ nvmrc_contents.content | b64decode | trim }}"
 
-- name: debug target_node_version
+- name: Debug target_node_version
   debug:
     msg: "target node version: {{ target_node_version }}"
 
-- name: get current node version
+- name: Get current node version
   become_user: "{{ username }}"
   shell:
     cmd: zsh -i -c "source /home/{{ username }}/.zshrc; node --version | grep -Po '\d+\.\d+\.\d+'"
@@ -31,7 +31,7 @@
   set_fact:
     current_node_version: "{{ current_node_version_register.stdout if current_node_version_register.stdout != '' else '0.0.0' }}"
 
-- name: print the installed node version
+- name: Print the installed node version
   debug:
     msg: Installed NodeJS version is {{ current_node_version }}
 
@@ -43,7 +43,7 @@
   failed_when: false
   changed_when: false
 
-- name: set node_out_of_date fact
+- name: Set node_out_of_date fact
   set_fact:
     node_out_of_date: "{{ true if version_comparison.rc == 0 else false }}"
 

@@ -12,7 +12,7 @@
     create: true
     mode: "0755"
 
-- name: install neovim npm package
+- name: Install neovim npm package
   community.general.npm:
     name: false
     global: true

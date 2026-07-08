@@ -1,9 +1,9 @@
-- name: test starship binary exists
+- name: Test starship binary exists
   stat:
     path: /usr/local/bin/starship
   register: test_starship_binary
 
-- name: ensure usr local bin is created
+- name: Ensure usr local bin is created
   file:
     path: /usr/local/bin
     state: directory

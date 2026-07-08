@@ -6,14 +6,15 @@
   set_fact:
     language_is_set: "{{ ansible_env.LANGUAGE is defined and ansible_env.LANGUAGE != '' }}"
 
-- when: not lang_is_set or not language_is_set
+- name: Generate locales if not already set
+  when: not lang_is_set or not language_is_set
   block:
-    - name: Ensure localisation files for '{{ config_system_locale }}' are available
+    - name: Ensure localisation files are available for '{{ config_system_locale }}'
       locale_gen:
         name: "{{ config_system_locale }}"
         state: present
 
-    - name: Ensure localisation files for '{{ config_system_language }}' are available
+    - name: Ensure localisation files are available for '{{ config_system_language }}'
       locale_gen:
         name: "{{ config_system_language }}"
         state: present

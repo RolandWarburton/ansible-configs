@@ -1,9 +1,9 @@
 # check if npm markdown lint cli is installed
-- name: set npm executable
+- name: Set npm executable
   set_fact:
     npm_executable: /home/{{ username }}/.nvm/versions/node/v{{ target_node_version }}/bin/npm
 
-- name: install markdownlint-cli
+- name: Install markdownlint-cli
   become_user: "{{ username }}"
   community.general.npm:
     name: markdownlint-cli
@@ -12,45 +12,46 @@
     state: present
 
 # check if vale is installed
-- name: check if vale is installed
+- name: Check if vale is installed
   become_user: "{{ username }}"
   shell: 'zsh -c "source ~/.zshrc; command -v vale"'
   register: vale_command
   changed_when: false
   failed_when: false
 
-- name: set vale_installed
+- name: Set vale_installed
   set_fact:
     vale_installed: "{{ vale_command.rc == 0 }}"
 
-- name: print vale version
+- name: Print vale version
   debug:
     msg: "vale appears already installed in {{ vale_command.stdout }}"
   when: vale_installed
 
 # install vale
-- when: not vale_installed
+- name: Install vale if not present
+  when: not vale_installed
 
   block:
-    - name: copy install vale script
+    - name: Copy install vale script
       template:
         src: ./install-vale.j2
         dest: /usr/local/bin/install-vale.zsh
         mode: "0755"
 
-    - name: install vale
+    - name: Install vale
       shell:
         cmd: /usr/local/bin/install-vale.zsh
         creates: /usr/local/bin/vale
       register: vale
-- name: check vale is installed
+- name: Check vale is installed
   become_user: "{{ username }}"
   shell: 'zsh -c "source ~/.zshrc; vale --version"'
   register: vale_version
   failed_when: vale_version.rc != 0
   changed_when: false
 
-- name: print vale version
+- name: Print vale version
   debug:
     msg: "{{ vale_version.stdout }}"
   when: vale_version.rc == 0

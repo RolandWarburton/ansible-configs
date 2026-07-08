@@ -9,7 +9,7 @@
     path: "{{ tmp_dir }}/lf.tar.gz"
   register: lf_tar_stat
 
-- name: download lf tar
+- name: Download lf tar
   shell: |
     {% if ansible_architecture == 'x86_64' %}
     {% set lf_arch = 'amd64' %}

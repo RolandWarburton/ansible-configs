@@ -1,8 +1,10 @@
-- import_playbook: setup-openbao.yml
+- name: Set up OpenBao for kvmcv
+  import_playbook: setup-openbao.yml
   vars:
     bao_username: kvmcv
 
-- hosts: kvmcv.net
+- name: Configure kvmcv host
+  hosts: kvmcv.net
   become: true
   roles:
     - ./roles/core

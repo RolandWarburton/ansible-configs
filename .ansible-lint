@@ -11,11 +11,11 @@ exclude_paths:
   # trips the non-skippable schema[playbook] rule. Uncomment roles to run it.
   - playbooks/setup-localhost.yml
 
-# Enforced as errors (NOT listed below): yaml, key-order, schema, syntax-check.
+# Enforced as errors (NOT listed below): yaml, key-order, schema, syntax-check,
+# name (task/handler/play names: present + capitalised, no mid-name templates).
 
 # Shown as warnings, do not block a commit:
 warn_list:
-  - name # task/handler name casing + missing names
   - partial-become # become/become_user scoping
   - command-instead-of-shell # intentional shell usage
   - command-instead-of-module # intentional curl/shell installs
