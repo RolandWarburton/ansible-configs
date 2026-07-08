@@ -23,12 +23,14 @@
   when: not wayland_protocols_dir.stat.exists
 
 - name: Clone swww
+  become: true
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/LGFae/swww.git"
     dest: "{{ build_dir }}/swww"
 
 - name: Build swww (compile)
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "cargo build --release"

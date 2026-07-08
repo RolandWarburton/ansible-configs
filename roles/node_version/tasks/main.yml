@@ -20,6 +20,7 @@
     msg: "target node version: {{ target_node_version }}"
 
 - name: Get current node version
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: zsh -i -c "source /home/{{ username }}/.zshrc; node --version | grep -Po '\d+\.\d+\.\d+'"

@@ -9,6 +9,7 @@
       - libgtk-4-dev
 
 - name: Install ripdrag
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "/usr/bin/cargo install ripdrag"

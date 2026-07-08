@@ -109,6 +109,7 @@
 
 # packages
 - name: Install gopls
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "{{ golang_install_dir }}/bin/go install golang.org/x/tools/gopls@latest"
@@ -120,6 +121,7 @@
   register: gopls_install
 
 - name: Install dlv
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "{{ golang_install_dir }}/bin/go install github.com/go-delve/delve/cmd/dlv@latest"
@@ -131,6 +133,7 @@
   register: dlv_install
 
 - name: Install gops
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "{{ golang_install_dir }}/bin/go install github.com/google/gops@latest"
@@ -142,6 +145,7 @@
   register: gops_install
 
 - name: Install lefthook
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "{{ golang_install_dir }}/bin/go install github.com/evilmartians/lefthook@latest"

@@ -121,6 +121,7 @@
   register: nvim_config_stat
 
 - name: Clone neovim config
+  become: true
   become_user: "{{ username }}"
   git:
     repo: git@github.com:rolandwarburton/nvim.conf.git

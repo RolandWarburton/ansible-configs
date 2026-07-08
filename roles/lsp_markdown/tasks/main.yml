@@ -4,6 +4,7 @@
     npm_executable: /home/{{ username }}/.nvm/versions/node/v{{ target_node_version }}/bin/npm
 
 - name: Install markdownlint-cli
+  become: true
   become_user: "{{ username }}"
   community.general.npm:
     name: markdownlint-cli
@@ -13,6 +14,7 @@
 
 # check if vale is installed
 - name: Check if vale is installed
+  become: true
   become_user: "{{ username }}"
   shell: 'zsh -c "source ~/.zshrc; command -v vale"'
   register: vale_command
@@ -45,6 +47,7 @@
         creates: /usr/local/bin/vale
       register: vale
 - name: Check vale is installed
+  become: true
   become_user: "{{ username }}"
   shell: 'zsh -c "source ~/.zshrc; vale --version"'
   register: vale_version
@@ -57,6 +60,7 @@
   when: vale_version.rc == 0
 
 - name: Run vale sync
+  become: true
   become_user: "{{ username }}"
   shell: >
     /usr/local/bin/vale sync

@@ -16,6 +16,7 @@
       - fontconfig
 
 - name: Create alacritty build directory
+  become: true
   become_user: "{{ username }}"
   file:
     path: "{{ alacritty_install_dir }}"
@@ -25,6 +26,7 @@
     state: directory
 
 - name: Clone alacritty
+  become: true
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/alacritty/alacritty.git"
@@ -32,6 +34,7 @@
     version: "v0.11.0"
 
 - name: Set rustup compiler to stable
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "/home/{{ username }}/.cargo/bin/rustup override set stable && rustup update stable"
@@ -39,6 +42,7 @@
   changed_when: false
 
 - name: Build alacritty
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: cargo build --release --no-default-features --features=wayland
@@ -69,6 +73,7 @@
   when: alacritty_stat_bin.stat.exists
 
 - name: Refresh fonts cache
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "fc-cache -fv"

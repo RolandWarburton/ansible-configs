@@ -86,6 +86,7 @@
   register: pipewire_bin
 
 - name: Build Pipewire (configure)
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "meson setup builddir"
@@ -93,6 +94,7 @@
   when: not pipewire_bin.stat.exists
 
 - name: Build Pipewire (configure)
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "meson configure builddir -Dprefix=/usr"
@@ -112,6 +114,7 @@
   register: wireplumber_bin
 
 - name: Build wireplumber (configure)
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "meson setup --prefix=/usr build"
@@ -119,6 +122,7 @@
   register: wireplumber_bin
 
 - name: Build wireplumber (configure)
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: "meson compile -C build"

@@ -5,6 +5,7 @@
   register: dotfiles_stat
 
 - name: Get dotfiles
+  become: true
   become_user: "{{ username }}"
   git:
     repo: git@github.com:rolandwarburton/dotfiles.git
@@ -15,6 +16,7 @@
   when: not dotfiles_stat.stat.exists
 
 - name: Update git submodules
+  become: true
   become_user: "{{ username }}"
   command: git submodule update --init --recursive
   args:
@@ -33,6 +35,7 @@
 
 # download casa
 - name: Check if casa is installed
+  become: true
   become_user: "{{ username }}"
   shell: 'zsh -c "source ~/.zshrc; command -v casa"'
   register: casa_command
@@ -44,6 +47,7 @@
 
   block:
     - name: Check if casa binary exists
+      become: true
       become_user: "{{ username }}"
       shell: 'zsh -c "source ~/.zshrc; command -v casa"'
       register: casa_bin
@@ -78,6 +82,7 @@
         mode: "0755"
       become: true
 - name: Run casa
+  become: true
   become_user: "{{ username }}"
   shell:
     cmd: casa -c /home/{{ username }}/dotfiles/install.conf.yaml
