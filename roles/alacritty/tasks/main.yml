@@ -3,7 +3,7 @@
 
 - name: install packages
   apt: 
-    update_cache: yes
+    update_cache: true
     pkg:
       - cmake
       - pkg-config

@@ -1,6 +1,6 @@
 - name: Install liblz4-dev
   apt:
-    update_cache: yes
+    update_cache: true
     pkg:
       - liblz4-dev
 

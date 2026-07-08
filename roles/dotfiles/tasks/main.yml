@@ -9,7 +9,7 @@
   git:
     repo: git@github.com:rolandwarburton/dotfiles.git
     dest: /home/{{ username }}/dotfiles
-    accept_hostkey: yes
+    accept_hostkey: true
     key_file: /home/{{ username }}/.ssh/id_github # on the remote host
     version: 'wayland'
   when: not dotfiles_stat.stat.exists

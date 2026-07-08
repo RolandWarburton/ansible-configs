@@ -3,7 +3,7 @@
 
 - name: Install ripdrag build dependencies
   apt:
-    update_cache: yes
+    update_cache: true
     pkg:
       - libgtk-4-dev
 

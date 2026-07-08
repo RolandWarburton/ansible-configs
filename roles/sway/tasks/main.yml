@@ -1,12 +1,12 @@
 - name: install core packages
   apt:
-    update_cache: yes
+    update_cache: true
     pkg:
       - sway
 
 - name: install portals and xwayland
   apt:
-    update_cache: no
+    update_cache: false
     pkg:
       - xdg-desktop-portal
       - xdg-desktop-portal-wlr
@@ -16,7 +16,7 @@
 
 - name: install extras
   apt:
-    update_cache: no
+    update_cache: false
     pkg:
       - grim
       - wl-clipboard

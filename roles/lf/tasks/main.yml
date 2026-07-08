@@ -41,7 +41,7 @@
   ansible.builtin.unarchive:
     src: "{{ tmp_dir }}/lf.tar.gz"
     dest: "/home/{{ username }}/.local/bin"
-    remote_src: yes
+    remote_src: true
     creates: "/home/{{ username }}/.local/bin/lf"
     owner: "{{ username }}"
     group: "{{ username }}"

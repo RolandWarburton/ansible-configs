@@ -1,7 +1,7 @@
 - name: install chromium package
   become: true
   apt:
-    update_cache: yes
+    update_cache: true
     pkg:
       - chromium
 

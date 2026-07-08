@@ -19,7 +19,7 @@
       become: true
 
     - name: Run Deno installation script
-      become: yes
+      become: true
       become_user: '{{ username }}'
       command:
         cmd: '{{ deno_install_script_location }} --no-modify-path --yes'

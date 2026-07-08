@@ -1,6 +1,6 @@
 - name: install packages
   apt: 
-    update_cache: yes
+    update_cache: true
     pkg:
       - alsa-utils
       - pulseaudio
@@ -22,13 +22,13 @@
   user:
     name: '{{ username }}'
     groups: pipewire
-    append: yes
+    append: true
 
 - name: add '{{ username }}' to group realtime
   user:
     name: '{{ username }}'
     groups: realtime
-    append: yes
+    append: true
 
 
 # ensure build dir is created
@@ -59,7 +59,7 @@
     dest: "{{ tmp_dir }}"
     owner: '{{ username }}'
     group: '{{ username }}'
-    remote_src: yes
+    remote_src: true
 
 # wireplumber download & extract
 - name: Check if wireplumber source exists
@@ -79,7 +79,7 @@
     dest: "{{ tmp_dir }}"
     owner: '{{ username }}'
     group: '{{ username }}'
-    remote_src: yes
+    remote_src: true
 
 # pipewire build
 - name: Check if wireplumber source exists

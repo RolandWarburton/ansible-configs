@@ -28,5 +28,5 @@
   unarchive:
     src: "{{ starship_url }}"
     dest: /usr/local/bin
-    remote_src: yes
+    remote_src: true
   when: not test_starship_binary.stat.exists

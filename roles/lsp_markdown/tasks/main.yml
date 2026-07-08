@@ -7,7 +7,7 @@
   become_user: '{{ username }}'
   community.general.npm:
     name: markdownlint-cli
-    global: yes
+    global: true
     executable: '{{ npm_executable }}'
     state: present
 

@@ -39,7 +39,7 @@
 
     - name: install packages for building neovim
       apt:
-        update_cache: yes
+        update_cache: true
         pkg:
           - luarocks
           - build-essential
@@ -73,7 +73,7 @@
             src: /usr/bin/nvim-linux-arm64/bin/nvim
             dest: /usr/bin/nvim
             state: link
-            force: yes
+            force: true
       when: ansible_architecture == "aarch64"
 
     - block:
@@ -106,7 +106,7 @@
             src: /usr/bin/nvim-linux-x86_64/bin/nvim
             dest: /usr/bin/nvim
             state: link
-            force: yes
+            force: true
       when: ansible_architecture == "x86_64"
 
   when: target_neovim_version_is_greater or not neovim_installed
@@ -122,11 +122,11 @@
   git:
     repo: git@github.com:rolandwarburton/nvim.conf.git
     dest: /home/{{ username }}/.config/nvim
-    accept_hostkey: yes
-    track_submodules: yes
-    recursive: yes
+    accept_hostkey: true
+    track_submodules: true
+    recursive: true
     version: master
-    force: yes
+    force: true
     key_file: /home/{{ username }}/.ssh/id_github # on the remote host
   when: not nvim_config_stat.stat.exists
 
@@ -153,6 +153,6 @@
 - name: Install tree-sitter-cli globally via npm
   community.general.npm:
     name: tree-sitter-cli
-    global: yes
+    global: true
     state: present
   become: true

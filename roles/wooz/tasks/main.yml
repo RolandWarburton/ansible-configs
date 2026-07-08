@@ -1,5 +1,5 @@
 - name: Install wooz build dependencies
-  become: yes
+  become: true
   package:
     name: "{{ dependencies }}"
     state: present
@@ -9,7 +9,7 @@
     repo: "{{ repo_url }}"
     dest: "{{ build_dir }}"
     version: "cd8bc6092462d438f6497c016b7e79115c4b4723" # Oct 9 2025
-    force: yes
+    force: true
 
 - name: Configure wooz build with Meson
   command:
@@ -33,7 +33,7 @@
     mode: '0755'
     owner: root
     group: root
-    remote_src: yes
+    remote_src: true
 
 - name: Verify installation
   command:

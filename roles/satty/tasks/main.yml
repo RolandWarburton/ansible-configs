@@ -1,6 +1,6 @@
 - name: Install satty build dependencies
   apt:
-    update_cache: yes
+    update_cache: true
     pkg:
       - libglib2.0-dev
       - libgtk-4-dev

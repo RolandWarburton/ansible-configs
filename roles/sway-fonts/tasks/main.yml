@@ -9,7 +9,7 @@
 
 - name: install packages
   apt:
-    update_cache: yes
+    update_cache: true
     pkg:
       - fontconfig
       - fd-find
@@ -26,7 +26,7 @@
   unarchive:
     src: 'https://github.com/ryanoasis/nerd-fonts/releases/download/v3.4.0/Hack.tar.xz'
     dest: '/tmp/ttf-hack-patched'
-    remote_src: yes
+    remote_src: true
 
 - name: create hack font directory
   file:
@@ -39,7 +39,7 @@
     paths: /tmp/ttf-hack-patched
     patterns: '*.ttf'
     file_type: file
-    recurse: no
+    recurse: false
   register: found_fonts
 
 - name: Copy ttf fonts to font directory

@@ -16,5 +16,5 @@
   systemd:
     scope: user
     name: ssh-agent
-    enabled: yes
+    enabled: true
     state: started
