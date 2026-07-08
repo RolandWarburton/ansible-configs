@@ -35,7 +35,7 @@
 - block:
     - name: download neovim update
       debug:
-        msg: 'Updating neovim to v{{neovim_target_version}}'
+        msg: 'Updating neovim to v{{ neovim_target_version }}'
 
     - name: install packages for building neovim
       apt:
@@ -79,7 +79,7 @@
     - block:
         - name: download neovim
           get_url:
-            url: https://github.com/neovim/neovim/releases/download/v{{neovim_target_version}}/nvim-linux-x86_64.tar.gz
+            url: https://github.com/neovim/neovim/releases/download/v{{ neovim_target_version }}/nvim-linux-x86_64.tar.gz
             dest: /tmp/nvim-linux-x86_64.tar.gz
             mode: '0755'
             group: root
@@ -118,16 +118,16 @@
   register: nvim_config_stat
 
 - name: clone neovim config
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   git:
     repo: git@github.com:rolandwarburton/nvim.conf.git
-    dest: /home/{{username}}/.config/nvim
+    dest: /home/{{ username }}/.config/nvim
     accept_hostkey: yes
     track_submodules: yes
     recursive: yes
     version: master
     force: yes
-    key_file: /home/{{username}}/.ssh/id_github # on the remote host
+    key_file: /home/{{ username }}/.ssh/id_github # on the remote host
   when: not nvim_config_stat.stat.exists
 
 # update the debian alternatives/preferences

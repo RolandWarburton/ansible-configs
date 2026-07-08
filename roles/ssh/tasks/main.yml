@@ -6,13 +6,13 @@
   register: ssh_agent_condition
 
 - name: Reload systemd daemon
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
     cmd: systemctl --user daemon-reload
   when: ssh_agent_condition.changed
 
 - name: Enable the ssh-agent service
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   systemd:
     scope: user
     name: ssh-agent

@@ -59,7 +59,7 @@
 #   update_cache: yes
 # - name: debug
 #   debug:
-#     msg: '{{result.stdout}}'
+#     msg: '{{ result.stdout }}'
 
 # - name: install packages
 #   apt:

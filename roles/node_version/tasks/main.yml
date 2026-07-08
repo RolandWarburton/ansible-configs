@@ -1,12 +1,12 @@
 # sets boolean variable node_out_of_date if the target version of
 - name: Check if .nvmrc exists
   stat:
-    path: '/home/{{username}}/.nvmrc'
+    path: '/home/{{ username }}/.nvmrc'
   register: nvmrc_stat
 
 - name: Read .nvmrc contents
   slurp:
-    src: '/home/{{username}}/.nvmrc'
+    src: '/home/{{ username }}/.nvmrc'
   register: nvmrc_contents
   when: nvmrc_stat.stat.exists
   failed_when: not nvmrc_stat.stat.exists
@@ -17,12 +17,12 @@
 
 - name: debug target_node_version
   debug:
-    msg: 'target node version: {{target_node_version}}'
+    msg: 'target node version: {{ target_node_version }}'
 
 - name: get current node version
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
-    cmd: zsh -i -c "source /home/{{username}}/.zshrc; node --version | grep -Po '\d+\.\d+\.\d+'"
+    cmd: zsh -i -c "source /home/{{ username }}/.zshrc; node --version | grep -Po '\d+\.\d+\.\d+'"
   register: current_node_version_register
   changed_when: false
   failed_when: false
@@ -33,7 +33,7 @@
 
 - name: print the installed node version
   debug:
-    msg: Installed NodeJS version is {{current_node_version}}
+    msg: Installed NodeJS version is {{ current_node_version }}
 
 - name: Compare target and actual NodeJS versions
   shell:
@@ -45,8 +45,8 @@
 
 - name: set node_out_of_date fact
   set_fact:
-    node_out_of_date: '{{true if version_comparison.rc == 0 else false}}'
+    node_out_of_date: '{{ true if version_comparison.rc == 0 else false }}'
 
 - name: Print node version comparison
   debug:
-    msg: "Node {{ 'IS out of date' if node_out_of_date else 'is NOT out of date' }} (target: {{target_node_version}}, installed: {{current_node_version}})"
+    msg: "Node {{ 'IS out of date' if node_out_of_date else 'is NOT out of date' }} (target: {{ target_node_version }}, installed: {{ current_node_version }})"

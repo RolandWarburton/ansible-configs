@@ -1,19 +1,19 @@
 # check if npm markdown lint cli is installed
 - name: set npm executable
   set_fact:
-    npm_executable: /home/{{username}}/.nvm/versions/node/v{{target_node_version}}/bin/npm
+    npm_executable: /home/{{ username }}/.nvm/versions/node/v{{ target_node_version }}/bin/npm
 
 - name: install markdownlint-cli
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   community.general.npm:
     name: markdownlint-cli
     global: yes
-    executable: '{{npm_executable}}'
+    executable: '{{ npm_executable }}'
     state: present
 
 # check if vale is installed
 - name: check if vale is installed
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell: 'zsh -c "source ~/.zshrc; command -v vale"'
   register: vale_command
   changed_when: false
@@ -25,7 +25,7 @@
 
 - name: print vale version
   debug:
-    msg: 'vale appears already installed in {{vale_command.stdout}}'
+    msg: 'vale appears already installed in {{ vale_command.stdout }}'
   when: vale_installed
 
 # install vale
@@ -44,7 +44,7 @@
   when: not vale_installed
 
 - name: check vale is installed
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell: 'zsh -c "source ~/.zshrc; vale --version"'
   register: vale_version
   failed_when: vale_version.rc != 0

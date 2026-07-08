@@ -1,6 +1,6 @@
 - name: Check if Deno is already installed
   stat:
-    path: '/home/{{username}}/.deno'
+    path: '/home/{{ username }}/.deno'
   register: deno_directory
 
 - block:
@@ -23,5 +23,5 @@
       become_user: '{{ username }}'
       command:
         cmd: '{{ deno_install_script_location }} --no-modify-path --yes'
-        creates: '/home/{{username}}/.deno'
+        creates: '/home/{{ username }}/.deno'
   when: not deno_directory.stat.exists

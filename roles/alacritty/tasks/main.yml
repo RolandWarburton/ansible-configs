@@ -15,39 +15,39 @@
       - fontconfig
 
 - name: create alacritty build directory
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   file:
-    path: '{{alacritty_install_dir}}'
+    path: '{{ alacritty_install_dir }}'
     mode: 0775
-    owner: '{{username}}'
-    group: '{{username}}'
+    owner: '{{ username }}'
+    group: '{{ username }}'
     state: directory
 
 - name: clone alacritty
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   git:
     repo: 'https://github.com/alacritty/alacritty.git'
-    dest: '{{alacritty_install_dir}}/alacritty'
+    dest: '{{ alacritty_install_dir }}/alacritty'
     version: 'v0.11.0'
 
 - name: set rustup compiler to stable
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
-    cmd: '/home/{{username}}/.cargo/bin/rustup override set stable && rustup update stable'
+    cmd: '/home/{{ username }}/.cargo/bin/rustup override set stable && rustup update stable'
   failed_when: false
   changed_when: false
 
 - name: build alacritty
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
     cmd: cargo build --release --no-default-features --features=wayland
     executable: /usr/bin/zsh
-    chdir: '{{alacritty_install_dir}}/alacritty'
-    creates: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
+    chdir: '{{ alacritty_install_dir }}/alacritty'
+    creates: '{{ alacritty_install_dir }}/alacritty/target/release/alacritty'
 
 - name: stat alacritty binary
   stat:
-    path: '{{alacritty_install_dir}}/alacritty/target/release/alacritty'
+    path: '{{ alacritty_install_dir }}/alacritty/target/release/alacritty'
   register: alacritty_stat
 
 - name: stat alacritty binary in /usr/bin
@@ -56,7 +56,7 @@
   register: alacritty_stat_bin
 
 - name: Move alacritty to /usr/bin
-  command: mv {{alacritty_install_dir}}/alacritty/target/release/alacritty /usr/bin/alacritty
+  command: mv {{ alacritty_install_dir }}/alacritty/target/release/alacritty /usr/bin/alacritty
   when: alacritty_stat.stat.exists == true and alacritty_stat_bin.stat.exists == false
 
 - name: chown alacritty
@@ -68,7 +68,7 @@
   when: alacritty_stat_bin.stat.exists
 
 - name: refresh fonts cache
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
     cmd: 'fc-cache -fv'
 
@@ -78,7 +78,7 @@
   register: desktop_folder
 
 - name: copt alacritty.desktop to /usr/share/applications
-  command: cp {{alacritty_install_dir}}/alacritty/extra/linux/Alacritty.desktop /usr/share/applications
+  command: cp {{ alacritty_install_dir }}/alacritty/extra/linux/Alacritty.desktop /usr/share/applications
   when: alacritty_stat.stat.exists == true and desktop_folder.stat.exists == true
 
 - name: stat check /usr/share/icons exists
@@ -87,7 +87,7 @@
   register: icons_folder
 
 - name: copy alacritty-term.png to /usr/share/icons
-  command: cp {{alacritty_install_dir}}/alacritty/extra/logo/compat/alacritty-term.png /usr/share/icons
+  command: cp {{ alacritty_install_dir }}/alacritty/extra/logo/compat/alacritty-term.png /usr/share/icons
   when: alacritty_stat.stat.exists == true and icons_folder.stat.exists == true
 
 - name: Replace Icon value in the desktop file

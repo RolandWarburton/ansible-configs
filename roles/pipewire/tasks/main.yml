@@ -18,15 +18,15 @@
     name: realtime
     state: present
 
-- name: add '{{username}}' to group pipewire
+- name: add '{{ username }}' to group pipewire
   user:
-    name: '{{username}}'
+    name: '{{ username }}'
     groups: pipewire
     append: yes
 
-- name: add '{{username}}' to group realtime
+- name: add '{{ username }}' to group realtime
   user:
-    name: '{{username}}'
+    name: '{{ username }}'
     groups: realtime
     append: yes
 
@@ -34,11 +34,11 @@
 # ensure build dir is created
 - name: ensure build dir created
   file:
-    path: '{{tmp_dir}}'
+    path: '{{ tmp_dir }}'
     state: directory
     mode: '0755'
-    owner: '{{username}}'
-    group: '{{username}}'
+    owner: '{{ username }}'
+    group: '{{ username }}'
 
 
 # pipewire download & extract
@@ -57,8 +57,8 @@
   unarchive:
     src: "{{ tmp_dir }}/pipewire-0.3.80.zip"
     dest: "{{ tmp_dir }}"
-    owner: '{{username}}'
-    group: '{{username}}'
+    owner: '{{ username }}'
+    group: '{{ username }}'
     remote_src: yes
 
 # wireplumber download & extract
@@ -77,8 +77,8 @@
   unarchive:
     src: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
     dest: "{{ tmp_dir }}"
-    owner: '{{username}}'
-    group: '{{username}}'
+    owner: '{{ username }}'
+    group: '{{ username }}'
     remote_src: yes
 
 # pipewire build
@@ -114,21 +114,21 @@
   register: wireplumber_bin
 
 - name: build wireplumber (configure)
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
     cmd: 'meson setup --prefix=/usr build'
-    chdir: '{{tmp_dir}}/wireplumber-0.4.14'
+    chdir: '{{ tmp_dir }}/wireplumber-0.4.14'
   register: wireplumber_bin
 
 - name: build wireplumber (configure)
-  become_user: '{{username}}'
+  become_user: '{{ username }}'
   shell:
     cmd: 'meson compile -C build'
-    chdir: '{{tmp_dir}}/wireplumber-0.4.14'
+    chdir: '{{ tmp_dir }}/wireplumber-0.4.14'
   register: wireplumber_bin
 
 - name: build wireplumber (install)
   shell:
     cmd: 'ninja -C build install'
-    chdir: '{{tmp_dir}}/wireplumber-0.4.14'
+    chdir: '{{ tmp_dir }}/wireplumber-0.4.14'
   register: wireplumber_bin
