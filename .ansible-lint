@@ -14,3 +14,4 @@ warn_list:
 # Repo intentionally uses short module names (apt, copy) not ansible.builtin.*
 skip_list:
   - fqcn
+  - yaml[document-start] # repo does not use the leading '---' marker
