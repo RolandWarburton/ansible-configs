@@ -28,6 +28,12 @@
       - libnotify-bin
       - libspa-0.2-bluetooth
 
+- name: Install brightnessctl on laptops
+  apt:
+    name: brightnessctl
+    state: present
+  when: ansible_form_factor in ['Notebook', 'Laptop', 'Portable', 'Sub Notebook', 'Hand Held']
+
 - name: Copy configure laptop display script to sway configuration directory
   copy:
     src: sway-laptop-display.sh
