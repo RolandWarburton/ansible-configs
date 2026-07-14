@@ -21,6 +21,7 @@
       - grim
       - wl-clipboard
       - imv
+      - wob
       - clipman
       - wofi
       - mako-notifier
