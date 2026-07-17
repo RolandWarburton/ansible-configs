@@ -1,6 +1,6 @@
 #!/bin/bash
-# fetch-bao-token — Authenticates to OpenBao as BAO_USERNAME and saves the token to /etc/credentials/
-# Usage: sudo fetch-bao-token
+# openbao-fetch-token — Authenticates to OpenBao as BAO_USERNAME and saves the token to /etc/credentials/
+# Usage: sudo openbao-fetch-token
 
 set -euo pipefail
 

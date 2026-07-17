@@ -7,10 +7,10 @@
 
 # Both scripts need root (one writes /etc/credentials, the other reads the
 # token from it)
-- name: Copy fetch-bao-token script
+- name: Copy openbao-fetch-token script
   copy:
-    src: fetch-bao-token
-    dest: /usr/local/sbin/fetch-bao-token
+    src: openbao-fetch-token
+    dest: /usr/local/sbin/openbao-fetch-token
     owner: root
     group: root
     mode: "0755"
@@ -23,6 +23,16 @@
     group: root
     mode: "0755"
 
+- name: Fetch OpenBao token
+  shell:
+    cmd: /usr/local/sbin/openbao-fetch-token
+  environment:
+    BAO_USERNAME: "{{ bao_username }}"
+    BAO_PASSWORD: "{{ bao_password }}"
+  no_log: true
+  changed_when: false
+
+# Cleanup
 # Previous locations, removed so a stale copy cannot shadow the real one.
 - name: Remove openbao scripts from their old locations
   file:
@@ -31,12 +41,4 @@
   loop:
     - /usr/bin/openbao-get-secret
     - /usr/local/sbin/fetch-bao-token.sh
-
-- name: Fetch OpenBao token
-  shell:
-    cmd: /usr/local/sbin/fetch-bao-token
-  environment:
-    BAO_USERNAME: "{{ bao_username }}"
-    BAO_PASSWORD: "{{ bao_password }}"
-  no_log: true
-  changed_when: false
+    - /usr/local/sbin/fetch-bao-token
