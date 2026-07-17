@@ -5,25 +5,36 @@
       - jq
     state: present
 
+# Both scripts need root (one writes /etc/credentials, the other reads the
+# token from it)
 - name: Copy fetch-bao-token script
   copy:
-    src: fetch-bao-token.sh
-    dest: /usr/local/sbin/fetch-bao-token.sh
-    owner: root
-    group: root
-    mode: "0700"
-
-- name: Copy openbao-get-secret script
-  copy:
-    src: openbao-get-secret
-    dest: /usr/bin/openbao-get-secret
+    src: fetch-bao-token
+    dest: /usr/local/sbin/fetch-bao-token
     owner: root
     group: root
     mode: "0755"
 
+- name: Copy openbao-get-secret script
+  copy:
+    src: openbao-get-secret
+    dest: /usr/local/sbin/openbao-get-secret
+    owner: root
+    group: root
+    mode: "0755"
+
+# Previous locations, removed so a stale copy cannot shadow the real one.
+- name: Remove openbao scripts from their old locations
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /usr/bin/openbao-get-secret
+    - /usr/local/sbin/fetch-bao-token.sh
+
 - name: Fetch OpenBao token
   shell:
-    cmd: /usr/local/sbin/fetch-bao-token.sh
+    cmd: /usr/local/sbin/fetch-bao-token
   environment:
     BAO_USERNAME: "{{ bao_username }}"
     BAO_PASSWORD: "{{ bao_password }}"

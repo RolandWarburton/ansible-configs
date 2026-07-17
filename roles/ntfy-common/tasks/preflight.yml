@@ -1,6 +1,6 @@
 - name: Stat openbao-get-secret binary
   stat:
-    path: /usr/bin/openbao-get-secret
+    path: /usr/local/sbin/openbao-get-secret
   register: ntfy_common_bao_bin
 
 - name: Stat openbao token file
@@ -12,6 +12,6 @@
   fail:
     msg: "openbao role must run before ntfy roles (missing {{ item }})"
   loop:
-    - /usr/bin/openbao-get-secret
+    - /usr/local/sbin/openbao-get-secret
     - /etc/credentials/openbao-token
   when: not ( ntfy_common_bao_bin.stat.exists and ntfy_common_bao_token.stat.exists )
