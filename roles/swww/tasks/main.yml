@@ -1,12 +1,12 @@
 # swww
 - name: Check if build dir exists
   stat:
-    path: "{{ build_dir }}/swww"
+    path: "{{ swww_build_dir }}/swww"
   register: build_dir_exists
 
 - name: Create build dir if it does not exist
   file:
-    path: "{{ build_dir }}/swww"
+    path: "{{ swww_build_dir }}/swww"
     state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
@@ -28,21 +28,22 @@
   become_user: "{{ username }}"
   git:
     repo: "https://github.com/LGFae/swww.git"
-    dest: "{{ build_dir }}/swww"
+    dest: "{{ swww_build_dir }}/swww"
+    version: "v0.11.2"
 
 - name: Build swww (compile)
   become: true
   become_user: "{{ username }}"
   command:
     cmd: "cargo build --release"
-    chdir: "{{ build_dir }}/swww"
-    creates: "{{ build_dir }}/swww/target/release/swww"
+    chdir: "{{ swww_build_dir }}/swww"
+    creates: "{{ swww_build_dir }}/swww/target/release/swww"
   environment:
     WAYLAND_PROTOCOLS_DIR: /usr/share/wayland-protocols/stable
 
 - name: Copy 'swww' binary to '/usr/bin' directory
   copy:
-    src: "{{ build_dir }}/swww/target/release/swww"
+    src: "{{ swww_build_dir }}/swww/target/release/swww"
     dest: /usr/bin/swww
     owner: root
     group: root
@@ -51,7 +52,7 @@
 
 - name: Copy 'swww-daemon' binary to '/usr/bin' directory
   copy:
-    src: "{{ build_dir }}/swww/target/release/swww-daemon"
+    src: "{{ swww_build_dir }}/swww/target/release/swww-daemon"
     dest: /usr/bin
     owner: root
     group: root

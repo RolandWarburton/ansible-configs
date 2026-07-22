@@ -33,7 +33,7 @@
 # ensure build dir is created
 - name: Ensure build dir created
   file:
-    path: "{{ tmp_dir }}"
+    path: "{{ pipewire_tmp_dir }}"
     state: directory
     mode: "0755"
     owner: "{{ username }}"
@@ -42,20 +42,20 @@
 # pipewire download & extract
 - name: Check if Pipewire source exists
   stat:
-    path: "{{ tmp_dir }}/pipewire-0.3.80.zip"
+    path: "{{ pipewire_tmp_dir }}/pipewire-0.3.80.zip"
   register: pipewire_src
 
 - name: Download Pipewire Zip File
   get_url:
     url: "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/0.3.80/pipewire-0.3.80.zip"
-    dest: "{{ tmp_dir }}/pipewire-0.3.80.zip"
+    dest: "{{ pipewire_tmp_dir }}/pipewire-0.3.80.zip"
     mode: "0644"
   when: not pipewire_src.stat.exists
 
 - name: Extract Pipewire Zip File
   unarchive:
-    src: "{{ tmp_dir }}/pipewire-0.3.80.zip"
-    dest: "{{ tmp_dir }}"
+    src: "{{ pipewire_tmp_dir }}/pipewire-0.3.80.zip"
+    dest: "{{ pipewire_tmp_dir }}"
     owner: "{{ username }}"
     group: "{{ username }}"
     remote_src: true
@@ -63,20 +63,20 @@
 # wireplumber download & extract
 - name: Check if wireplumber source exists
   stat:
-    path: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
+    path: "{{ pipewire_tmp_dir }}/wireplumber-0.4.14.zip"
   register: wireplumber_src
 
 - name: Download Pipewire Zip File
   get_url:
     url: "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/0.4.14/wireplumber-0.4.14.zip"
-    dest: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
+    dest: "{{ pipewire_tmp_dir }}/wireplumber-0.4.14.zip"
     mode: "0644"
   when: not wireplumber_src.stat.exists
 
 - name: Extract wireplumber Zip File
   unarchive:
-    src: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
-    dest: "{{ tmp_dir }}"
+    src: "{{ pipewire_tmp_dir }}/wireplumber-0.4.14.zip"
+    dest: "{{ pipewire_tmp_dir }}"
     owner: "{{ username }}"
     group: "{{ username }}"
     remote_src: true
@@ -92,7 +92,7 @@
   become_user: "{{ username }}"
   command:
     cmd: "meson setup builddir"
-    chdir: "{{ tmp_dir }}/pipewire-0.3.80"
+    chdir: "{{ pipewire_tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
   changed_when: true
 
@@ -101,14 +101,14 @@
   become_user: "{{ username }}"
   command:
     cmd: "meson configure builddir -Dprefix=/usr"
-    chdir: "{{ tmp_dir }}/pipewire-0.3.80"
+    chdir: "{{ pipewire_tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
   changed_when: true
 
 - name: Build Pipewire (install)
   command:
     cmd: "meson install -C builddir"
-    chdir: "{{ tmp_dir }}/pipewire-0.3.80"
+    chdir: "{{ pipewire_tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
   changed_when: true
 
@@ -123,7 +123,7 @@
   become_user: "{{ username }}"
   command:
     cmd: "meson setup --prefix=/usr build"
-    chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
+    chdir: "{{ pipewire_tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
   changed_when: true
 
@@ -132,13 +132,13 @@
   become_user: "{{ username }}"
   command:
     cmd: "meson compile -C build"
-    chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
+    chdir: "{{ pipewire_tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
   changed_when: true
 
 - name: Build wireplumber (install)
   command:
     cmd: "ninja -C build install"
-    chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
+    chdir: "{{ pipewire_tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
   changed_when: true

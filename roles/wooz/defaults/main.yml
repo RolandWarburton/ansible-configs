@@ -1,6 +1,6 @@
-repo_url: "https://github.com/negrel/wooz.git"
-build_dir: "/tmp/wooz_build"
-dependencies:
+wooz_repo_url: "https://github.com/negrel/wooz.git"
+wooz_build_dir: "/tmp/wooz_build"
+wooz_dependencies:
   - git
   - meson
   - ninja-build

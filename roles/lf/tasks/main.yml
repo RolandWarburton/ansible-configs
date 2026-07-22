@@ -1,12 +1,12 @@
 - name: Create temporary directory
   file:
-    path: "{{ tmp_dir }}"
+    path: "{{ lf_tmp_dir }}"
     state: directory
     mode: "0755"
 
 - name: Check if lf tar already exists
   ansible.builtin.stat:
-    path: "{{ tmp_dir }}/lf.tar.gz"
+    path: "{{ lf_tmp_dir }}/lf.tar.gz"
   register: lf_tar_stat
 
 - name: Download lf tar
@@ -18,14 +18,14 @@
     {% else %}
     {% set lf_arch = 'arm64' %}
     {% endif %}
-    curl -L "https://github.com/gokcehan/lf/releases/download/r32/lf-linux-{{ lf_arch }}.tar.gz" -o "{{ tmp_dir }}/lf.tar.gz"
+    curl -L "https://github.com/gokcehan/lf/releases/download/r32/lf-linux-{{ lf_arch }}.tar.gz" -o "{{ lf_tmp_dir }}/lf.tar.gz"
   args:
-    creates: "{{ tmp_dir }}/lf.tar.gz"
+    creates: "{{ lf_tmp_dir }}/lf.tar.gz"
   when: not lf_tar_stat.stat.exists
 
 - name: Set permissions on downloaded tar
   file:
-    path: "{{ tmp_dir }}/lf.tar.gz"
+    path: "{{ lf_tmp_dir }}/lf.tar.gz"
     owner: "{{ username }}"
     group: "{{ username }}"
     mode: "0644"
@@ -41,7 +41,7 @@
 
 - name: Extract lf tarball
   ansible.builtin.unarchive:
-    src: "{{ tmp_dir }}/lf.tar.gz"
+    src: "{{ lf_tmp_dir }}/lf.tar.gz"
     dest: "/home/{{ username }}/.local/bin"
     remote_src: true
     creates: "/home/{{ username }}/.local/bin/lf"

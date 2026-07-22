@@ -1,34 +1,34 @@
-- name: Install wooz build dependencies
+- name: Install wooz build wooz_dependencies
   become: true
   package:
-    name: "{{ dependencies }}"
+    name: "{{ wooz_dependencies }}"
     state: present
 
 - name: Clone wooz repository
   git:
-    repo: "{{ repo_url }}"
-    dest: "{{ build_dir }}"
+    repo: "{{ wooz_repo_url }}"
+    dest: "{{ wooz_build_dir }}"
     version: "cd8bc6092462d438f6497c016b7e79115c4b4723" # Oct 9 2025
     force: true
 
 - name: Configure wooz build with Meson
   command:
     cmd: meson setup build
-    chdir: "{{ build_dir }}"
-    creates: "{{ build_dir }}/build/build.ninja"
+    chdir: "{{ wooz_build_dir }}"
+    creates: "{{ wooz_build_dir }}/build/build.ninja"
   environment:
     CFLAGS: "-O3"
 
 - name: Compile the source with Ninja
   command:
     cmd: ninja -C build
-    chdir: "{{ build_dir }}"
+    chdir: "{{ wooz_build_dir }}"
   register: build_output
   changed_when: "'ninja: no work to do' not in build_output.stdout"
 
 - name: Copy wooz binary to /usr/local/bin
   copy:
-    src: "{{ build_dir }}/build/wooz"
+    src: "{{ wooz_build_dir }}/build/wooz"
     dest: /usr/local/bin/wooz
     mode: "0755"
     owner: root

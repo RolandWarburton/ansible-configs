@@ -19,17 +19,21 @@ exclude_paths:
 # risky-file-permissions (files/dirs need an explicit mode),
 # ignore-errors (use failed_when instead),
 # no-handler (use notify + a handler, not `when: x.changed`),
-# command-instead-of-shell (use shell only for pipes/redirects/expansion).
+# command-instead-of-shell (use shell only for pipes/redirects/expansion),
+# var-naming (role vars must be prefixed with the role name),
+# latest (git clones must pin a version).
 
 # Shown as warnings, do not block a commit:
 warn_list:
   - command-instead-of-module # intentional curl/shell installs
   - risky-shell-pipe # `curl ... | sh` style installs
-  - var-naming # role vars without the role-name prefix
-  - role-name # e.g. xray-client (dash in role name)
-  - latest # git/pip using latest/HEAD
 
 # Repo intentionally uses short module names (apt, copy) not ansible.builtin.*
 skip_list:
   - fqcn
   - yaml[document-start] # repo does not use the leading '---' marker
+  # Role dirs are named with dashes (xray-client, ntfy-cli, sway-fonts) and
+  # playbooks reference roles by path (./roles/rust) rather than via a
+  # configured roles_path. Both are deliberate; renaming would churn every
+  # playbook and host_vars entry for no functional gain.
+  - role-name

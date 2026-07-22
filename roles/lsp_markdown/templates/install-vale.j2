@@ -6,7 +6,7 @@ source /home/{{ username }}/.zshrc
 # export L="/home/{{ username }}/.local/bin";
 export BIN_DIRECTORY="/usr/local/bin"
 export VALE_DIRECTORY="$BIN_DIRECTORY/vale-temp"
-export S="{{ vale_download_url }}"
+export S="{{ lsp_markdown_vale_download_url }}"
 
 if [ ! -d $BIN_DIRECTORY ]; then
   echo "$BIN_DIRECTORY does not exist" >&2
