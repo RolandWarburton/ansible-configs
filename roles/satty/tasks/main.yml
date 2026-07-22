@@ -28,7 +28,7 @@
 - name: Build satty
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "/usr/bin/cargo build --release"
     chdir: "{{ satty_build_dir }}"
     creates: "{{ satty_build_dir }}/target/release/satty"

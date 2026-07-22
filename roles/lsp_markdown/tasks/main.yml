@@ -42,7 +42,7 @@
         mode: "0755"
 
     - name: Install vale
-      shell:
+      command:
         cmd: /usr/local/bin/install-vale.zsh
         creates: /usr/local/bin/vale
       register: vale

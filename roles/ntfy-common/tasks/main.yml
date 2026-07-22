@@ -19,7 +19,7 @@
 
 - name: Fetch ntfy secrets from OpenBao
   become: true
-  shell: openbao-get-secret kv/data/common/ntfy
+  command: openbao-get-secret kv/data/common/ntfy
   register: ntfy_common_secrets_raw
   no_log: true
   changed_when: false

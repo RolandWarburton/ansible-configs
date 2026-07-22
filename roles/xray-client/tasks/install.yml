@@ -1,6 +1,6 @@
 - name: Fetch xray secrets from OpenBao
   become: true
-  shell: openbao-get-secret kv/data/common/xray
+  command: openbao-get-secret kv/data/common/xray
   register: xray_secrets_raw
   no_log: true
   changed_when: false

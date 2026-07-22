@@ -18,11 +18,11 @@ exclude_paths:
 # no-changed-when (command/shell tasks must declare changed_when),
 # risky-file-permissions (files/dirs need an explicit mode),
 # ignore-errors (use failed_when instead),
-# no-handler (use notify + a handler, not `when: x.changed`).
+# no-handler (use notify + a handler, not `when: x.changed`),
+# command-instead-of-shell (use shell only for pipes/redirects/expansion).
 
 # Shown as warnings, do not block a commit:
 warn_list:
-  - command-instead-of-shell # intentional shell usage
   - command-instead-of-module # intentional curl/shell installs
   - risky-shell-pipe # `curl ... | sh` style installs
   - var-naming # role vars without the role-name prefix

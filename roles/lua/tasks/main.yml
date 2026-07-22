@@ -8,12 +8,12 @@
       - libyaml-dev
 
 - name: Set the default lua interpreter
-  shell: update-alternatives --set lua-interpreter /usr/bin/lua5.1
+  command: update-alternatives --set lua-interpreter /usr/bin/lua5.1
   changed_when: false
   failed_when: false
 
 - name: Set the default lua compiler
-  shell: update-alternatives --set lua-compiler /usr/bin/luac5.1
+  command: update-alternatives --set lua-compiler /usr/bin/luac5.1
   become: true
   changed_when: false
   failed_when: false
@@ -38,7 +38,7 @@
         version: latest
 
 - name: Check if lua packages are installed
-  shell:
+  command:
     cmd: luarocks show {{ item.name }}
   register: package_show_installed
   changed_when: false

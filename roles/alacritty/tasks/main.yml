@@ -76,7 +76,7 @@
 - name: Refresh fonts cache
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "fc-cache -fv"
   changed_when: false
 

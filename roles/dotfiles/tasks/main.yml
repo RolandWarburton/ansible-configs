@@ -86,7 +86,7 @@
 - name: Run casa
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: casa -c /home/{{ username }}/dotfiles/install.conf.yaml
     chdir: /home/{{ username }}/dotfiles
   register: casa_output

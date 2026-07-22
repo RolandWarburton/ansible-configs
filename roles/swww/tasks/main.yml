@@ -33,7 +33,7 @@
 - name: Build swww (compile)
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "cargo build --release"
     chdir: "{{ build_dir }}/swww"
     creates: "{{ build_dir }}/swww/target/release/swww"

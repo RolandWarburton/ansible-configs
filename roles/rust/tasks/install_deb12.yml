@@ -11,7 +11,7 @@
   when: not cargo_stat.stat.exists
 
 - name: Run rustup installer
-  shell: sh /tmp/rustup-init.sh -y --no-modify-path --default-toolchain stable
+  command: sh /tmp/rustup-init.sh -y --no-modify-path --default-toolchain stable
   environment:
     CARGO_HOME: /usr/local/cargo
     RUSTUP_HOME: /usr/local/rustup
@@ -39,7 +39,7 @@
     RUSTUP_HOME: /usr/local/rustup
 
 - name: Set rust to stable branch
-  shell: rustup default stable
+  command: rustup default stable
   when: "'stable' not in rustup_toolchain.stdout"
   environment:
     RUSTUP_HOME: /usr/local/rustup

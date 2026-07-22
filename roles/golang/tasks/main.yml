@@ -104,7 +104,7 @@
 - name: Install gopls
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "{{ golang_install_dir }}/bin/go install golang.org/x/tools/gopls@latest"
     creates: "{{ golang_gopath }}/bin/gopls"
   environment:
@@ -116,7 +116,7 @@
 - name: Install dlv
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "{{ golang_install_dir }}/bin/go install github.com/go-delve/delve/cmd/dlv@latest"
     creates: "{{ golang_gopath }}/bin/dlv"
   environment:
@@ -128,7 +128,7 @@
 - name: Install gops
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "{{ golang_install_dir }}/bin/go install github.com/google/gops@latest"
     creates: "{{ golang_gopath }}/bin/gops"
   environment:
@@ -140,7 +140,7 @@
 - name: Install lefthook
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "{{ golang_install_dir }}/bin/go install github.com/evilmartians/lefthook@latest"
     creates: "{{ golang_gopath }}/bin/lefthook"
   environment:

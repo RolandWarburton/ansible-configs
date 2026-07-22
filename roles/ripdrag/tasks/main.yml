@@ -11,7 +11,7 @@
 - name: Install ripdrag
   become: true
   become_user: "{{ username }}"
-  shell:
+  command:
     cmd: "/usr/bin/cargo install ripdrag"
     creates: "/home/{{ username }}/.cargo/bin/ripdrag"
 

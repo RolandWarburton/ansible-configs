@@ -24,7 +24,7 @@
     mode: "0755"
 
 - name: Fetch OpenBao token
-  shell:
+  command:
     cmd: /usr/local/sbin/openbao-fetch-token
   environment:
     BAO_USERNAME: "{{ bao_username }}"
