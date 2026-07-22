@@ -24,14 +24,7 @@
 - name: Download Go language SDK using curl
   become: true
   shell: |
-    {% if ansible_architecture == 'x86_64' %}
-      {% set go_arch = 'amd64' %}
-    {% elif ansible_architecture == 'aarch64' %}
-      {% set go_arch = 'arm64' %}
-    {% else %}
-      {% set go_arch = 'amd64' %}
-    {% endif %}
-    curl -L "https://go.dev/dl/go{{ golang_version }}.linux-{{ go_arch }}.tar.gz" -o "{{ golang_download_dir }}/{{ golang_redis_filename }}"
+    curl -L "https://go.dev/dl/go{{ golang_version }}.linux-{{ golang_architecture }}.tar.gz" -o "{{ golang_download_dir }}/{{ golang_redis_filename }}"
   args:
     creates: "{{ golang_download_dir }}/{{ golang_redis_filename }}"
   when: not ansible_check_mode
