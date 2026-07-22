@@ -49,6 +49,7 @@
   get_url:
     url: "https://gitlab.freedesktop.org/pipewire/pipewire/-/archive/0.3.80/pipewire-0.3.80.zip"
     dest: "{{ tmp_dir }}/pipewire-0.3.80.zip"
+    mode: "0644"
   when: not pipewire_src.stat.exists
 
 - name: Extract Pipewire Zip File
@@ -69,6 +70,7 @@
   get_url:
     url: "https://gitlab.freedesktop.org/pipewire/wireplumber/-/archive/0.4.14/wireplumber-0.4.14.zip"
     dest: "{{ tmp_dir }}/wireplumber-0.4.14.zip"
+    mode: "0644"
   when: not wireplumber_src.stat.exists
 
 - name: Extract wireplumber Zip File

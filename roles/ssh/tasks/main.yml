@@ -3,6 +3,7 @@
   copy:
     src: ssh-agent.service
     dest: /usr/lib/systemd/user/ssh-agent.service
+    mode: "0644"
   register: ssh_agent_condition
 
 - name: Reload systemd daemon

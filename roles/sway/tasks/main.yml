@@ -45,3 +45,4 @@
   copy:
     src: "on_hdmi_connected.rules"
     dest: /etc/udev/rules.d/on_hdmi_connected.rules
+    mode: "0644"

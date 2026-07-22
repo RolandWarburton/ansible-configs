@@ -4,7 +4,7 @@
     name: xray
     state: stopped
     enabled: false
-  ignore_errors: true
+  failed_when: false
 
 - name: Remove xray systemd service
   become: true

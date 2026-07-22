@@ -15,18 +15,18 @@ exclude_paths:
 # name (task/handler/play names: present + capitalised, no mid-name templates),
 # partial-become (become_user must be paired with become at the same level),
 # literal-compare (no `when: x == true`),
-# no-changed-when (command/shell tasks must declare changed_when).
+# no-changed-when (command/shell tasks must declare changed_when),
+# risky-file-permissions (files/dirs need an explicit mode),
+# ignore-errors (use failed_when instead).
 
 # Shown as warnings, do not block a commit:
 warn_list:
   - command-instead-of-shell # intentional shell usage
   - command-instead-of-module # intentional curl/shell installs
   - risky-shell-pipe # `curl ... | sh` style installs
-  - risky-file-permissions # files/dirs created without an explicit mode
   - var-naming # role vars without the role-name prefix
   - role-name # e.g. xray-client (dash in role name)
   - no-handler # notify vs. conditional task
-  - ignore-errors # prefer failed_when
   - latest # git/pip using latest/HEAD
 
 # Repo intentionally uses short module names (apt, copy) not ansible.builtin.*
