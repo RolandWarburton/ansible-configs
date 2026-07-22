@@ -10,7 +10,7 @@
     state: directory
     owner: "{{ username }}"
     group: "{{ username }}"
-  when: build_dir_exists.stat.exists == False
+  when: not build_dir_exists.stat.exists
 
 - name: Check if Wayland protocols directory exists
   stat:

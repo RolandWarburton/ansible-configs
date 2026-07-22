@@ -13,7 +13,8 @@ exclude_paths:
 
 # Enforced as errors (NOT listed below): yaml, key-order, schema, syntax-check,
 # name (task/handler/play names: present + capitalised, no mid-name templates),
-# partial-become (become_user must be paired with become at the same level).
+# partial-become (become_user must be paired with become at the same level),
+# literal-compare (no `when: x == true`).
 
 # Shown as warnings, do not block a commit:
 warn_list:
@@ -24,7 +25,6 @@ warn_list:
   - risky-file-permissions # files/dirs created without an explicit mode
   - var-naming # role vars without the role-name prefix
   - role-name # e.g. xray-client (dash in role name)
-  - literal-compare # `when: x == true`
   - no-handler # notify vs. conditional task
   - ignore-errors # prefer failed_when
   - latest # git/pip using latest/HEAD
