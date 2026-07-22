@@ -1,0 +1,8 @@
+- name: Configure Raspberry Pi Zero W host
+  hosts: rpizerow
+  become: true
+  roles:
+    - ./roles/core
+    - ./roles/dotfiles
+    - ./roles/lf
+    - ./roles/rust
