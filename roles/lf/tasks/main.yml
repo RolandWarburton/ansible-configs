@@ -13,6 +13,8 @@
   shell: |
     {% if ansible_architecture == 'x86_64' %}
     {% set lf_arch = 'amd64' %}
+    {% elif ansible_architecture.startswith('armv') %}
+    {% set lf_arch = 'arm' %}
     {% else %}
     {% set lf_arch = 'arm64' %}
     {% endif %}
