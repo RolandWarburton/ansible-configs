@@ -1,3 +1,14 @@
+- name: Assert Debian 13 or newer
+  assert:
+    that:
+      - ansible_distribution == "Debian"
+      - ansible_distribution_major_version | int >= 13
+    fail_msg: >-
+      roles/sway targets Debian 13 (trixie) or newer; found
+      {{ ansible_distribution }} {{ ansible_distribution_major_version }}.
+      Older releases ship pipewire 0.3.x, where wireplumber 0.5 and
+      pipewire-alsa are unavailable or incompatible.
+
 - name: Install core packages
   apt:
     update_cache: true
@@ -26,6 +37,15 @@
       - wofi
       - mako-notifier
       - libnotify-bin
+
+- name: Install audio stack
+  apt:
+    update_cache: false
+    pkg:
+      - pipewire
+      - pipewire-pulse
+      - pipewire-alsa
+      - wireplumber
       - libspa-0.2-bluetooth
 
 - name: Install brightnessctl on laptops
