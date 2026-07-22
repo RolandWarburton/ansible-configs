@@ -1,0 +1,6 @@
+- name: Reload user systemd daemon
+  become: true
+  become_user: "{{ username }}"
+  shell:
+    cmd: systemctl --user daemon-reload
+  changed_when: false

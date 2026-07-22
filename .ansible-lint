@@ -17,7 +17,8 @@ exclude_paths:
 # literal-compare (no `when: x == true`),
 # no-changed-when (command/shell tasks must declare changed_when),
 # risky-file-permissions (files/dirs need an explicit mode),
-# ignore-errors (use failed_when instead).
+# ignore-errors (use failed_when instead),
+# no-handler (use notify + a handler, not `when: x.changed`).
 
 # Shown as warnings, do not block a commit:
 warn_list:
@@ -26,7 +27,6 @@ warn_list:
   - risky-shell-pipe # `curl ... | sh` style installs
   - var-naming # role vars without the role-name prefix
   - role-name # e.g. xray-client (dash in role name)
-  - no-handler # notify vs. conditional task
   - latest # git/pip using latest/HEAD
 
 # Repo intentionally uses short module names (apt, copy) not ansible.builtin.*

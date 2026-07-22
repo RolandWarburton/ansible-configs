@@ -4,15 +4,7 @@
     src: ssh-agent.service
     dest: /usr/lib/systemd/user/ssh-agent.service
     mode: "0644"
-  register: ssh_agent_condition
-
-- name: Reload systemd daemon
-  become: true
-  become_user: "{{ username }}"
-  shell:
-    cmd: systemctl --user daemon-reload
-  when: ssh_agent_condition.changed
-  changed_when: false
+  notify: Reload user systemd daemon
 
 - name: Enable the ssh-agent service
   become: true

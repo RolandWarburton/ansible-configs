@@ -1,0 +1,17 @@
+- name: Reload udev rules
+  become: true
+  command: udevadm control --reload-rules
+  changed_when: false
+
+- name: Trigger udev rules
+  become: true
+  command: udevadm trigger
+  changed_when: false
+
+- name: Stop adb server
+  become: true
+  become_user: "{{ username }}"
+  command: "{{ android_sdk_dir }}/platform-tools/adb kill-server"
+  changed_when: false
+  failed_when: false
+  when: not ansible_check_mode
