@@ -14,13 +14,13 @@ exclude_paths:
 # Enforced as errors (NOT listed below): yaml, key-order, schema, syntax-check,
 # name (task/handler/play names: present + capitalised, no mid-name templates),
 # partial-become (become_user must be paired with become at the same level),
-# literal-compare (no `when: x == true`).
+# literal-compare (no `when: x == true`),
+# no-changed-when (command/shell tasks must declare changed_when).
 
 # Shown as warnings, do not block a commit:
 warn_list:
   - command-instead-of-shell # intentional shell usage
   - command-instead-of-module # intentional curl/shell installs
-  - no-changed-when # shell/command tasks without changed_when
   - risky-shell-pipe # `curl ... | sh` style installs
   - risky-file-permissions # files/dirs created without an explicit mode
   - var-naming # role vars without the role-name prefix

@@ -63,6 +63,7 @@
 - name: Mark Flutter SDK directories as git safe
   command: git config --global --add safe.directory '{{ flutter_install_dir }}/*'
   when: git_check.rc == 0
+  changed_when: true
 
 - name: Create Ansible facts.d directory
   become: true

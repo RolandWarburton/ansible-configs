@@ -63,6 +63,7 @@
 - name: Move alacritty to /usr/bin
   command: mv {{ alacritty_install_dir }}/alacritty/target/release/alacritty /usr/bin/alacritty
   when: alacritty_stat.stat.exists and not alacritty_stat_bin.stat.exists
+  changed_when: true
 
 - name: Chown alacritty
   file:
@@ -77,6 +78,7 @@
   become_user: "{{ username }}"
   shell:
     cmd: "fc-cache -fv"
+  changed_when: false
 
 - name: Stat check /usr/share/applications exists
   stat:
@@ -86,6 +88,7 @@
 - name: Copy alacritty.desktop to /usr/share/applications
   command: cp {{ alacritty_install_dir }}/alacritty/extra/linux/Alacritty.desktop /usr/share/applications
   when: alacritty_stat.stat.exists and desktop_folder.stat.exists
+  changed_when: true
 
 - name: Stat check /usr/share/icons exists
   stat:
@@ -95,6 +98,7 @@
 - name: Copy alacritty-term.png to /usr/share/icons
   command: cp {{ alacritty_install_dir }}/alacritty/extra/logo/compat/alacritty-term.png /usr/share/icons
   when: alacritty_stat.stat.exists and icons_folder.stat.exists
+  changed_when: true
 
 - name: Replace Icon value in the desktop file
   lineinfile:

@@ -16,6 +16,7 @@
     CARGO_HOME: /usr/local/cargo
     RUSTUP_HOME: /usr/local/rustup
   when: not cargo_stat.stat.exists
+  changed_when: true
 
 - name: Symlink /usr/bin/cargo
   file:
@@ -42,3 +43,4 @@
   when: "'stable' not in rustup_toolchain.stdout"
   environment:
     RUSTUP_HOME: /usr/local/rustup
+  changed_when: true

@@ -12,3 +12,4 @@
 - name: Set rust to stable branch
   shell: rustup default stable
   when: "'stable' not in rustup_toolchain.stdout"
+  changed_when: true

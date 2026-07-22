@@ -146,6 +146,7 @@
   command: update-alternatives --install /usr/bin/editor editor /usr/bin/nvim 100
   when: "'/usr/bin/nvim' not in editor_alternatives.stdout"
   register: nvim_registered
+  changed_when: true
 
 - name: Set Neovim as the default editor
   command: >

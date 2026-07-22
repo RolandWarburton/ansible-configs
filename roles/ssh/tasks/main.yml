@@ -11,6 +11,7 @@
   shell:
     cmd: systemctl --user daemon-reload
   when: ssh_agent_condition.changed
+  changed_when: false
 
 - name: Enable the ssh-agent service
   become: true

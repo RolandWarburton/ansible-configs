@@ -92,6 +92,7 @@
     cmd: "meson setup builddir"
     chdir: "{{ tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
+  changed_when: true
 
 - name: Build Pipewire (configure)
   become: true
@@ -100,12 +101,14 @@
     cmd: "meson configure builddir -Dprefix=/usr"
     chdir: "{{ tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
+  changed_when: true
 
 - name: Build Pipewire (install)
   shell:
     cmd: "meson install -C builddir"
     chdir: "{{ tmp_dir }}/pipewire-0.3.80"
   when: not pipewire_bin.stat.exists
+  changed_when: true
 
 # wireplumber build
 - name: Check if wireplumber source exists
@@ -120,6 +123,7 @@
     cmd: "meson setup --prefix=/usr build"
     chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
+  changed_when: true
 
 - name: Build wireplumber (configure)
   become: true
@@ -128,9 +132,11 @@
     cmd: "meson compile -C build"
     chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
+  changed_when: true
 
 - name: Build wireplumber (install)
   shell:
     cmd: "ninja -C build install"
     chdir: "{{ tmp_dir }}/wireplumber-0.4.14"
   register: wireplumber_bin
+  changed_when: true
