@@ -47,7 +47,3 @@ bootstrap_radxa_zero_sync_ignore:
 
 bootstrap_radxa_zero_mutagen_version: "0.18.1"
 bootstrap_radxa_zero_mutagen_url: "https://github.com/mutagen-io/mutagen/releases/download/v{{ bootstrap_radxa_zero_mutagen_version }}"
-
-# The image ships with this account; bootstrap connects as it on first contact
-# and harden.yml locks its password on every converge after that.
-bootstrap_radxa_zero_vendor_user: "radxa"
