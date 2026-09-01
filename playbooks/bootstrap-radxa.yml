@@ -1,0 +1,11 @@
+# One-shot bootstrap for a freshly imaged board.
+# Connects as the vendor's 'radxa' account.
+#
+#   ansible-playbook playbooks/bootstrap-radxa.yml --ask-become-pass
+- name: Bootstrap the primary user on a fresh Radxa host
+  hosts: radxa
+  become: true
+  remote_user: radxa
+  gather_facts: true
+  roles:
+    - ./roles/bootstrap-radxa-zero

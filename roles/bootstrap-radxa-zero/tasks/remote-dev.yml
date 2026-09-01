@@ -1,0 +1,197 @@
+# Prepares the board as a remote development target.
+#
+# # In order:
+#
+#   - Create the sync destination on the board, owned by the primary user.
+#   - Install mutagen and its agent bundle into the workstation user's
+#     ~/.local/bin.
+#   - Create the local project directory that forms the alpha endpoint.
+#   - Install and start a systemd --user unit for the mutagen daemon.
+#   - Create the sync session.
+
+# The sync root itself on the remote machine
+- name: Create the remote development directory
+  file:
+    path: "{{ bootstrap_radxa_zero_remote_dir }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0755"
+
+# Without this, ansible_architecture is the BOARD's (aarch64) and the workstation
+# would get an arm64 binary it cannot run.
+- name: Gather facts about the local workstation
+  setup:
+    gather_subset: min
+  delegate_to: localhost
+  delegate_facts: true
+  become: false
+
+- name: Set the mutagen architecture
+  set_fact:
+    bootstrap_radxa_zero_mutagen_arch: "{{ 'arm64' if hostvars['localhost']['ansible_architecture'] == 'aarch64' else 'amd64' }}"
+
+# Separate task, not a second key in the one above: keys within a single
+# set_fact are not guaranteed to evaluate in order.
+- name: Set the mutagen archive name
+  set_fact:
+    bootstrap_radxa_zero_mutagen_tarball: "mutagen_linux_{{ bootstrap_radxa_zero_mutagen_arch }}_v{{ bootstrap_radxa_zero_mutagen_version }}.tar.gz"
+
+- name: Stat the mutagen binary on the workstation
+  stat:
+    path: "{{ bootstrap_radxa_zero_mutagen_bin_dir }}/mutagen"
+  register: bootstrap_radxa_zero_mutagen_stat
+  delegate_to: localhost
+  become: false
+
+- name: Download the mutagen release archive
+  get_url:
+    url: "{{ bootstrap_radxa_zero_mutagen_url }}/{{ bootstrap_radxa_zero_mutagen_tarball }}"
+    dest: "/tmp/{{ bootstrap_radxa_zero_mutagen_tarball }}"
+    mode: "0644"
+  delegate_to: localhost
+  become: false
+  when: not bootstrap_radxa_zero_mutagen_stat.stat.exists
+
+# The archive holds the binary plus mutagen-agents.tar.gz. The agent bundle must
+# sit next to the binary or mutagen cannot install the arm64 agent on the board.
+- name: Create the mutagen install directory
+  file:
+    path: "{{ bootstrap_radxa_zero_mutagen_bin_dir }}"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+
+- name: Install mutagen and its agent bundle
+  unarchive:
+    src: "/tmp/{{ bootstrap_radxa_zero_mutagen_tarball }}"
+    dest: "{{ bootstrap_radxa_zero_mutagen_bin_dir }}"
+    remote_src: true
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+  when: not bootstrap_radxa_zero_mutagen_stat.stat.exists
+
+- name: Create the sync source directory
+  file:
+    path: "{{ bootstrap_radxa_zero_local_dir }}"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+
+- name: Check the board is reachable from the workstation over ssh
+  command:
+    cmd: "ssh -o BatchMode=yes -o ConnectTimeout=5 {{ bootstrap_radxa_zero_beta_host }} true"
+  register: bootstrap_radxa_zero_ssh_check
+  changed_when: false
+  failed_when: false
+  delegate_to: localhost
+  become: false
+
+# Mutagen shells out to ssh as the workstation user, so it needs key auth and a
+# known host key of its own -- ansible's own connection settings do not apply.
+- name: Fail when the board is not reachable for mutagen
+  fail:
+    msg: >-
+      Cannot ssh to {{ bootstrap_radxa_zero_beta_host }} without a prompt. Mutagen drives
+      the ssh binary directly, so the key must be loaded and the host key
+      already accepted before the sync session can be created.
+  when: bootstrap_radxa_zero_ssh_check.rc != 0
+
+# `mutagen daemon register` does not exist in 0.18 -- the subcommand is gone and
+# the binary just prints help and exits 0, so a task calling it silently does
+# nothing. A user unit running the (hidden) `daemon run` is the equivalent.
+- name: Create the systemd user unit directory
+  file:
+    path: "/home/{{ bootstrap_radxa_zero_local_user }}/.config/systemd/user"
+    state: directory
+    mode: "0755"
+  delegate_to: localhost
+  become: false
+
+- name: Install the mutagen daemon user unit
+  copy:
+    dest: "/home/{{ bootstrap_radxa_zero_local_user }}/.config/systemd/user/mutagen.service"
+    mode: "0644"
+    content: |
+      [Unit]
+      Description=Mutagen synchronisation daemon
+      After=default.target
+
+      [Service]
+      Type=simple
+      ExecStart={{ bootstrap_radxa_zero_mutagen_bin_dir }}/mutagen daemon run
+      Restart=on-failure
+      RestartSec=5
+
+      [Install]
+      WantedBy=default.target
+  delegate_to: localhost
+  become: false
+
+# daemon_reload here so the unit written above is loaded before its state is
+# read; the task itself only queries, hence changed_when: false.
+- name: Load the mutagen daemon unit and read its state
+  systemd:
+    name: mutagen.service
+    scope: user
+    daemon_reload: true
+  register: bootstrap_radxa_zero_mutagen_active
+  changed_when: false
+  delegate_to: localhost
+  become: false
+
+# Any mutagen command auto-starts a daemon outside systemd, and it holds a lock
+# the unit cannot take. Sessions live on disk, so stopping it is safe -- they
+# resume when the daemon comes back under systemd.
+- name: Stop an ad-hoc mutagen daemon so systemd can own it
+  command:
+    cmd: "{{ bootstrap_radxa_zero_mutagen_bin_dir }}/mutagen daemon stop"
+  changed_when: false
+  failed_when: false
+  delegate_to: localhost
+  become: false
+  when: bootstrap_radxa_zero_mutagen_active.status.ActiveState != 'active'
+
+- name: Enable the mutagen daemon to autostart on login
+  systemd:
+    name: mutagen.service
+    scope: user
+    enabled: true
+    state: started
+  delegate_to: localhost
+  become: false
+
+# `sync create` errors out on a duplicate name, so look the session up first.
+- name: Look up the existing sync session
+  command:
+    cmd: "{{ bootstrap_radxa_zero_mutagen_bin_dir }}/mutagen sync list {{ bootstrap_radxa_zero_sync_name }}"
+  register: bootstrap_radxa_zero_session_list
+  changed_when: false
+  failed_when: false
+  delegate_to: localhost
+  become: false
+
+- name: Create the sync session
+  command:
+    cmd: >-
+      {{ bootstrap_radxa_zero_mutagen_bin_dir }}/mutagen sync create
+      --name={{ bootstrap_radxa_zero_sync_name }}
+      --sync-mode={{ bootstrap_radxa_zero_sync_mode }}
+      --ignore-vcs
+      {{ bootstrap_radxa_zero_local_dir }}
+      {{ bootstrap_radxa_zero_beta_host }}:{{ bootstrap_radxa_zero_remote_dir }}
+  changed_when: true
+  delegate_to: localhost
+  become: false
+  when: bootstrap_radxa_zero_session_list.rc != 0
+
+- name: Flush the sync session so the initial copy completes
+  command:
+    cmd: "{{ bootstrap_radxa_zero_mutagen_bin_dir }}/mutagen sync flush {{ bootstrap_radxa_zero_sync_name }}"
+  changed_when: false
+  delegate_to: localhost
+  become: false
+  when: bootstrap_radxa_zero_session_list.rc != 0

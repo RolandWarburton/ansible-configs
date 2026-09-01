@@ -1,0 +1,70 @@
+# ---------------------------------------------------------------------
+# preflight
+
+- name: Check the board is reachable
+  import_tasks: preflight.yml
+  tags: always
+
+# -------------------------------------------------------------------
+# bootstrap
+
+# Connecting as the vendor's 'radxa' account,
+# because the primary user does not exist yet.
+- name: Create the primary user
+  user:
+    name: "{{ username }}"
+    groups: sudo
+    append: true
+    shell: "{{ bootstrap_radxa_zero_shell }}"
+    create_home: true
+
+- name: Authorise the workstation ssh key
+  authorized_key:
+    user: "{{ username }}"
+    key: "{{ lookup('file', bootstrap_radxa_zero_pubkey) }}"
+    state: present
+
+- name: Allow passwordless sudo for the primary user
+  copy:
+    dest: "/etc/sudoers.d/{{ username }}"
+    content: "{{ username }} ALL=(ALL) NOPASSWD:ALL\n"
+    mode: "0440"
+    validate: visudo -cf %s
+
+- name: Set the static hostname
+  hostname:
+    name: "{{ bootstrap_radxa_zero_hostname }}"
+
+# Without this sudo logs a "unable to resolve host" warning on every call.
+- name: Map the hostname to the loopback address
+  lineinfile:
+    path: /etc/hosts
+    regexp: '^127\.0\.1\.1\s'
+    line: "127.0.1.1\t{{ bootstrap_radxa_zero_hostname }}"
+    state: present
+    mode: "0644"
+
+- name: Install avahi for mDNS discovery
+  apt:
+    name: avahi-daemon
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Enable the avahi daemon
+  systemd:
+    name: avahi-daemon
+    enabled: true
+    state: started
+
+# ---------------------------------------------------------------------
+# beacon install
+- name: Manage the ip-beacon client
+  import_tasks: beacon.yml
+  tags: beacon
+
+# ----------------------------------------------------------------
+# mutagen remote dev
+- name: Prepare the board as a remote development target
+  import_tasks: remote-dev.yml
+  tags: remote-dev

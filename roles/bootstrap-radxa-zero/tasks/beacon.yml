@@ -1,0 +1,60 @@
+# Owns the ip-beacon client outright. This is NOT first contact: reaching the
+# board over ssh already needed an address it had reported. See README.md.
+#
+# Imported by main.yml rather than included, so `--tags beacon` reaches every
+# task in here.
+- name: Assert the beacon registry URL is https and substituted
+  assert:
+    that:
+      - bootstrap_radxa_zero_beacon_registry_url.startswith('https://')
+      - "'@@' not in bootstrap_radxa_zero_beacon_registry_url"
+    fail_msg: >-
+      The beacon registry URL must be https:// with no @@PLACEHOLDER@@.
+      The registry must serve valid TLS; do not relax this to http.
+
+# Fetched from the running registry, never vendored. A copy from a git clone
+# arrives with @@BASE_URL@@ unsubstituted; a copy taken from the registry is
+# correct today and silently stale tomorrow.
+- name: Install the beacon register script
+  get_url:
+    url: "{{ bootstrap_radxa_zero_beacon_registry_url }}/client/register.sh"
+    dest: "{{ bootstrap_radxa_zero_beacon_bin }}"
+    owner: root
+    group: root
+    mode: "0755"
+  notify: Restart beacon
+
+- name: Install the beacon service unit
+  get_url:
+    url: "{{ bootstrap_radxa_zero_beacon_registry_url }}/client/beacon.service"
+    dest: "{{ bootstrap_radxa_zero_beacon_unit_dir }}/beacon.service"
+    owner: root
+    group: root
+    mode: "0644"
+  notify:
+    - Reload systemd daemon
+    - Restart beacon
+
+- name: Install the beacon timer unit
+  get_url:
+    url: "{{ bootstrap_radxa_zero_beacon_registry_url }}/client/beacon.timer"
+    dest: "{{ bootstrap_radxa_zero_beacon_unit_dir }}/beacon.timer"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload systemd daemon
+
+- name: Enable the beacon timer
+  systemd:
+    name: beacon.timer
+    enabled: true
+    state: started
+    daemon_reload: true
+
+# Oneshot: forces a report now rather than waiting out OnBootSec. The
+# hostname is already set above, so this reports under the new name.
+- name: Report to the registry now
+  systemd:
+    name: beacon.service
+    state: started
+  changed_when: false

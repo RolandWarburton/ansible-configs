@@ -1,0 +1,44 @@
+# ----------------------------------------------------------
+# Core
+
+bootstrap_radxa_zero_pubkey: "~/.ssh/id_rsa.pub"
+bootstrap_radxa_zero_shell: "/bin/bash"
+bootstrap_radxa_zero_hostname: "zero"
+bootstrap_radxa_zero_preflight_timeout: 5
+
+# -----------------------------------------------------------
+# Beacon
+
+bootstrap_radxa_zero_beacon_registry_url: "https://beacon.wirecrop.net"
+bootstrap_radxa_zero_beacon_bin: "/usr/local/bin/beacon-register"
+bootstrap_radxa_zero_beacon_unit_dir: "/etc/systemd/system"
+
+# ----------------------------------------------------------
+# Remote dev
+
+# The user on THIS machine,
+# which is not necessarily the board's user.
+# Everything delegated to localhost runs as this account.
+# Defined first because the paths below are built from it.
+bootstrap_radxa_zero_local_user: "{{ username }}"
+
+bootstrap_radxa_zero_project: "zero"
+
+# The local user home on THIS machine
+bootstrap_radxa_zero_mutagen_bin_dir: "/home/{{ bootstrap_radxa_zero_local_user }}/.local/bin"
+
+bootstrap_radxa_zero_local_dir: "/home/{{ bootstrap_radxa_zero_local_user }}/projects/{{ bootstrap_radxa_zero_project }}"
+
+# The sync root itself: the contents of the local project dir land directly
+# in ~/dev on the board, with no per-project subfolder underneath.
+bootstrap_radxa_zero_remote_dir: "/home/{{ username }}/dev"
+
+# Derived from the host being converged rather than an ssh alias, so the sync
+# always lands on the board this play is actually targeting.
+bootstrap_radxa_zero_beta_host: "{{ username }}@{{ inventory_hostname }}"
+
+bootstrap_radxa_zero_sync_name: "{{ bootstrap_radxa_zero_project }}"
+bootstrap_radxa_zero_sync_mode: "one-way-safe"
+
+bootstrap_radxa_zero_mutagen_version: "0.18.1"
+bootstrap_radxa_zero_mutagen_url: "https://github.com/mutagen-io/mutagen/releases/download/v{{ bootstrap_radxa_zero_mutagen_version }}"

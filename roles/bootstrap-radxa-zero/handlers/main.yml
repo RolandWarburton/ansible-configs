@@ -1,0 +1,8 @@
+- name: Reload systemd daemon
+  systemd:
+    daemon_reload: true
+
+- name: Restart beacon
+  systemd:
+    name: beacon.service
+    state: restarted

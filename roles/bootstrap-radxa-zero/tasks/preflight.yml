@@ -1,0 +1,38 @@
+# Refuses to touch the board at all when it is not actually there.
+#
+# Deliberately does NOT authenticate. On a freshly imaged board the primary
+# user does not exist yet, so checking `{{ username }}@{{ inventory_hostname }}`
+# here would fail on exactly the run that is meant to create that account.
+# ssh-keyscan only needs the host to resolve and to answer with a banner, which
+# is true both before and after bootstrap. remote-dev.yml still makes the
+# stricter, user-specific and unattended check, once the account exists.
+#
+# Run from the workstation rather than the board: this is the resolution path
+# that mutagen and every later playbook depend on, and mDNS is the part most
+# likely to be what is broken.
+#
+- name: Check the board resolves and answers on ssh
+  command:
+    cmd: "ssh-keyscan -T {{ bootstrap_radxa_zero_preflight_timeout }} {{ inventory_hostname }}"
+  check_mode: false
+  register: bootstrap_radxa_zero_board_check
+  changed_when: false
+  failed_when: false
+  delegate_to: localhost
+  become: false
+
+# ssh-keyscan runs on the WORKSTATION, so its version governs this, not the
+# board's. Verified rc 1 for both an unresolvable name and a closed port on the
+# 10.0p2 client here; older ssh-keyscan could exit 0 having found nothing, so an
+# empty stdout counts as a failure too.
+- name: Fail when the board cannot be found
+  fail:
+    msg: >-
+      Cannot reach {{ inventory_hostname }} on port 22 from this workstation, so
+      the play is stopping before it changes anything. Check the board is
+      powered on and on the network, that its mDNS name still resolves
+      (`getent hosts {{ inventory_hostname }}`), and that the beacon registry
+      agrees with the address you expect.
+  when: >-
+    bootstrap_radxa_zero_board_check.rc != 0
+    or bootstrap_radxa_zero_board_check.stdout | trim == ""
