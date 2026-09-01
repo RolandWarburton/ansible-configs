@@ -68,3 +68,9 @@
 - name: Prepare the board as a remote development target
   import_tasks: remote-dev.yml
   tags: remote-dev
+
+# --------------------------------------------------------------------
+# harden
+- name: Harden the board
+  import_tasks: harden.yml
+  tags: harden
