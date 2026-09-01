@@ -38,7 +38,12 @@ bootstrap_radxa_zero_remote_dir: "/home/{{ username }}/dev"
 bootstrap_radxa_zero_beta_host: "{{ username }}@{{ inventory_hostname }}"
 
 bootstrap_radxa_zero_sync_name: "{{ bootstrap_radxa_zero_project }}"
-bootstrap_radxa_zero_sync_mode: "one-way-safe"
+bootstrap_radxa_zero_sync_mode: "two-way-resolved"
+
+bootstrap_radxa_zero_sync_ignore:
+  - "*.swp"
+  - "*~"
+  - ".DS_Store"
 
 bootstrap_radxa_zero_mutagen_version: "0.18.1"
 bootstrap_radxa_zero_mutagen_url: "https://github.com/mutagen-io/mutagen/releases/download/v{{ bootstrap_radxa_zero_mutagen_version }}"
