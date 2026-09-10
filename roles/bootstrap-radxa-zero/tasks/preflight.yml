@@ -1,21 +1,26 @@
-# Refuses to touch the board at all when it is not actually there.
+# Works out which name the board is answering on, and refuses to touch it at
+# all when it is not actually there.
 #
-# Deliberately does NOT authenticate. On a freshly imaged board the primary
-# user does not exist yet, so checking `{{ username }}@{{ inventory_hostname }}`
-# here would fail on exactly the run that is meant to create that account.
-# ssh-keyscan only needs the host to resolve and to answer with a banner, which
-# is true both before and after bootstrap. remote-dev.yml still makes the
-# stricter, user-specific and unattended check, once the account exists.
+# A board has two names over its life. Freshly imaged it announces the vendor
+# default, radxa.local. Once this role has renamed it, it answers as
+# zero.local -- which is what the inventory calls it and what every later play
+# connects to. Checking only the inventory name would fail on exactly the run
+# that is meant to set that name, so both are tried, configured name first.
 #
-# Run from the workstation rather than the board: this is the resolution path
+# Deliberately does NOT authenticate: ssh-keyscan only needs the host to
+# resolve and to answer with a banner. remote-dev.yml still makes the stricter,
+# user-specific and unattended check further down.
+#
+# Runs from the workstation rather than the board: this is the resolution path
 # that mutagen and every later playbook depend on, and mDNS is the part most
-# likely to be what is broken.
+# likely to be what is broken. It also has to run before ansible opens its own
+# connection, which is why the play gathers no facts until this is done.
 #
-- name: Check the board resolves and answers on ssh
+- name: Check the board answers on ssh under its configured name
   command:
     cmd: "ssh-keyscan -T {{ bootstrap_radxa_zero_preflight_timeout }} {{ inventory_hostname }}"
   check_mode: false
-  register: bootstrap_radxa_zero_board_check
+  register: bootstrap_radxa_zero_configured_check
   changed_when: false
   failed_when: false
   delegate_to: localhost
@@ -25,14 +30,53 @@
 # board's. Verified rc 1 for both an unresolvable name and a closed port on the
 # 10.0p2 client here; older ssh-keyscan could exit 0 having found nothing, so an
 # empty stdout counts as a failure too.
-- name: Fail when the board cannot be found
+- name: Note whether the configured name answered
+  set_fact:
+    bootstrap_radxa_zero_configured_ok: >-
+      {{ bootstrap_radxa_zero_configured_check.rc == 0
+         and bootstrap_radxa_zero_configured_check.stdout | trim != '' }}
+
+- name: Check the board answers on ssh under the vendor name
+  command:
+    cmd: "ssh-keyscan -T {{ bootstrap_radxa_zero_preflight_timeout }} {{ bootstrap_radxa_zero_vendor_hostname }}"
+  check_mode: false
+  register: bootstrap_radxa_zero_vendor_check
+  changed_when: false
+  failed_when: false
+  delegate_to: localhost
+  become: false
+  when: not bootstrap_radxa_zero_configured_ok
+
+- name: Note whether the vendor name answered
+  set_fact:
+    bootstrap_radxa_zero_vendor_ok: >-
+      {{ not bootstrap_radxa_zero_configured_ok
+         and bootstrap_radxa_zero_vendor_check.rc | default(1) == 0
+         and bootstrap_radxa_zero_vendor_check.stdout | default('') | trim != '' }}
+
+- name: Fail when the board cannot be found under either name
   fail:
     msg: >-
-      Cannot reach {{ inventory_hostname }} on port 22 from this workstation, so
-      the play is stopping before it changes anything. Check the board is
-      powered on and on the network, that its mDNS name still resolves
-      (`getent hosts {{ inventory_hostname }}`), and that the beacon registry
-      agrees with the address you expect.
-  when: >-
-    bootstrap_radxa_zero_board_check.rc != 0
-    or bootstrap_radxa_zero_board_check.stdout | trim == ""
+      Cannot reach {{ inventory_hostname }} or
+      {{ bootstrap_radxa_zero_vendor_hostname }} on port 22 from this
+      workstation, so the play is stopping before it changes anything. Check
+      the board is powered on and on the network, that one of those mDNS names
+      still resolves (`getent hosts {{ inventory_hostname }}`), and that the
+      beacon registry agrees with the address you expect.
+  when: not bootstrap_radxa_zero_configured_ok and not bootstrap_radxa_zero_vendor_ok
+
+# Pins the connection to the name that actually answered. Every task after this
+# one talks to the board, so this must be the last thing preflight does.
+# inventory_hostname is untouched, so the sync target and later plays still use
+# zero.local.
+- name: Connect on the name that answered
+  set_fact:
+    ansible_host: >-
+      {{ inventory_hostname if bootstrap_radxa_zero_configured_ok
+         else bootstrap_radxa_zero_vendor_hostname }}
+
+# become: false because fact gathering needs no privilege, and demanding one
+# here would make even a --check run prompt for a sudo password.
+- name: Gather facts about the board
+  setup:
+  become: false

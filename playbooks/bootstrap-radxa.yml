@@ -1,11 +1,22 @@
-# One-shot bootstrap for a freshly imaged board.
-# Connects as the vendor's 'radxa' account.
+# One-shot bootstrap for a freshly imaged board, and safe to rerun afterwards.
+#
+# Connects as the vendor's 'radxa' account and stays on it -- no separate user
+# is created. A fresh board answers as radxa.local and a bootstrapped one as
+# zero.local; the role's preflight works out which, so the same command covers
+# both.
 #
 #   ansible-playbook playbooks/bootstrap-radxa.yml --ask-become-pass
-- name: Bootstrap the primary user on a fresh Radxa host
+#
+# --ask-become-pass is needed every run. sudo on the board is left exactly as
+# the image configures it, and the vendor account's password is the vendor
+# default.
+- name: Bootstrap a Radxa Zero board on its vendor account
   hosts: radxa
   become: true
   remote_user: radxa
-  gather_facts: true
+  # Facts are gathered by the role, immediately after preflight has decided
+  # which hostname the board is answering on. Gathering here would connect to
+  # the inventory name first and fail on an unbootstrapped board.
+  gather_facts: false
   roles:
     - ./roles/bootstrap-radxa-zero

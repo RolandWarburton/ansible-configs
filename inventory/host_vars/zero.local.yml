@@ -1,1 +1,4 @@
-username: roland
+# The board runs on the vendor's own account; no separate user is created.
+# This is deliberately not `roland` -- that is the workstation's user, and the
+# bootstrap-radxa-zero role reads it from localhost's host_vars instead.
+username: radxa

@@ -1,9 +1,23 @@
 # ----------------------------------------------------------
 # Core
 
+# The board runs on the vendor's own account. No extra user is created: the
+# image ships `radxa`, already in the sudo group, and a second account buys
+# nothing on a single-purpose board. This is the BOARD's user, and it is
+# deliberately independent of `username`, which is the workstation's.
+bootstrap_radxa_zero_board_user: "radxa"
+
 bootstrap_radxa_zero_pubkey: "~/.ssh/id_rsa.pub"
-bootstrap_radxa_zero_shell: "/bin/bash"
+
+# The short hostname this role sets on the board. `inventory_hostname`
+# (zero.local) is the mDNS name that follows from it, and is what every later
+# play connects to.
 bootstrap_radxa_zero_hostname: "zero"
+
+# What a freshly imaged board announces itself as, before this role has
+# renamed it. Used for first contact only -- see preflight.yml.
+bootstrap_radxa_zero_vendor_hostname: "radxa.local"
+
 bootstrap_radxa_zero_preflight_timeout: 5
 
 # -----------------------------------------------------------
@@ -16,11 +30,12 @@ bootstrap_radxa_zero_beacon_unit_dir: "/etc/systemd/system"
 # ----------------------------------------------------------
 # Remote dev
 
-# The user on THIS machine,
-# which is not necessarily the board's user.
-# Everything delegated to localhost runs as this account.
+# The user on THIS machine, which is not the board's user. Everything
+# delegated to localhost runs as this account. Read from localhost's own
+# host_vars rather than `username`, which resolves against the board being
+# converged and would drag the board's identity onto the workstation.
 # Defined first because the paths below are built from it.
-bootstrap_radxa_zero_local_user: "{{ username }}"
+bootstrap_radxa_zero_local_user: "{{ hostvars['localhost']['username'] }}"
 
 bootstrap_radxa_zero_project: "zero"
 
@@ -31,14 +46,21 @@ bootstrap_radxa_zero_local_dir: "/home/{{ bootstrap_radxa_zero_local_user }}/pro
 
 # The sync root itself: the contents of the local project dir land directly
 # in ~/dev on the board, with no per-project subfolder underneath.
-bootstrap_radxa_zero_remote_dir: "/home/{{ username }}/dev"
+bootstrap_radxa_zero_remote_dir: "/home/{{ bootstrap_radxa_zero_board_user }}/dev"
 
 # Derived from the host being converged rather than an ssh alias, so the sync
-# always lands on the board this play is actually targeting.
-bootstrap_radxa_zero_beta_host: "{{ username }}@{{ inventory_hostname }}"
+# always lands on the board this play is actually targeting. Uses
+# inventory_hostname, not the vendor name: by the time mutagen runs the board
+# has been renamed and answers as zero.local.
+bootstrap_radxa_zero_beta_host: "{{ bootstrap_radxa_zero_board_user }}@{{ inventory_hostname }}"
 
 bootstrap_radxa_zero_sync_name: "{{ bootstrap_radxa_zero_project }}"
 bootstrap_radxa_zero_sync_mode: "two-way-resolved"
+
+# How long to wait for the renamed board to come back under its new mDNS name
+# before giving up on creating the sync session.
+bootstrap_radxa_zero_ssh_retries: 12
+bootstrap_radxa_zero_ssh_delay: 5
 
 bootstrap_radxa_zero_sync_ignore:
   - "*.swp"

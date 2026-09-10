@@ -1,5 +1,8 @@
 # ---------------------------------------------------------------------
 # preflight
+#
+# Also decides which name to connect on and gathers the board's facts, so it
+# has to come first and the play must not gather facts itself.
 
 - name: Check the board is reachable
   import_tasks: preflight.yml
@@ -7,29 +10,17 @@
 
 # -------------------------------------------------------------------
 # bootstrap
-
-# Connecting as the vendor's 'radxa' account,
-# because the primary user does not exist yet.
-- name: Create the primary user
-  user:
-    name: "{{ username }}"
-    groups: sudo
-    append: true
-    shell: "{{ bootstrap_radxa_zero_shell }}"
-    create_home: true
+#
+# No account is created. The board runs on the vendor's own `radxa` user,
+# which the image ships in the sudo group with a working password, so nothing
+# here touches authentication beyond adding a key. sudo is left as the image
+# configures it and the play is run with --ask-become-pass.
 
 - name: Authorise the workstation ssh key
   authorized_key:
-    user: "{{ username }}"
+    user: "{{ bootstrap_radxa_zero_board_user }}"
     key: "{{ lookup('file', bootstrap_radxa_zero_pubkey) }}"
     state: present
-
-- name: Allow passwordless sudo for the primary user
-  copy:
-    dest: "/etc/sudoers.d/{{ username }}"
-    content: "{{ username }} ALL=(ALL) NOPASSWD:ALL\n"
-    mode: "0440"
-    validate: visudo -cf %s
 
 - name: Set the static hostname
   hostname:
@@ -56,6 +47,15 @@
     name: avahi-daemon
     enabled: true
     state: started
+
+# On the run that renames the board, avahi is still announcing the vendor name
+# until it is restarted. Everything downstream reaches the board as
+# zero.local, so the new name has to be on the wire before we get there.
+- name: Re-announce the board under its new name
+  systemd:
+    name: avahi-daemon
+    state: restarted
+  when: not bootstrap_radxa_zero_configured_ok
 
 # ---------------------------------------------------------------------
 # beacon install
