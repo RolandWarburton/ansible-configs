@@ -57,6 +57,21 @@
     state: restarted
   when: not bootstrap_radxa_zero_configured_ok
 
+# Userspace ALSA tooling (aplay, amixer, speaker-test). The kernel drivers are
+# in the vendor image already; this is only what makes them usable by hand.
+- name: Install alsa-utils for audio playback and mixer control
+  apt:
+    name: alsa-utils
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+# ---------------------------------------------------------------------
+# nginx
+- name: Serve a site from the board
+  import_tasks: nginx.yml
+  tags: nginx
+
 # ---------------------------------------------------------------------
 # beacon install
 - name: Manage the ip-beacon client

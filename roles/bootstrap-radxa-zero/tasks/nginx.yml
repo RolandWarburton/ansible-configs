@@ -1,0 +1,84 @@
+# Serves a single site on the board over plain http, on a high port. Nothing
+# here touches port 80: the board is on the LAN only, there is no certificate
+# and no reason to squat the privileged port, so the site lives on
+# `bootstrap_radxa_zero_nginx_port` and is reached as zero.local:8080.
+#
+# Imported by main.yml rather than included, so `--tags nginx` reaches every
+# task in here.
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+# The webroot is deliberately its own directory rather than the mutagen sync
+# target (~/dev). The two have different owners and different lifetimes, and a
+# sync that deletes a file should not be able to empty the site. Point
+# `bootstrap_radxa_zero_nginx_root` at the sync dir if you do want that -- the
+# worker runs as www-data, so the path has to stay world-readable.
+- name: Create the site root
+  file:
+    path: "{{ bootstrap_radxa_zero_nginx_root }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+# A placeholder only, and only when the directory is still empty: anything
+# already deployed there outranks it, so a rerun never overwrites a real site.
+- name: Check whether the site root already has content
+  find:
+    paths: "{{ bootstrap_radxa_zero_nginx_root }}"
+    file_type: any
+  register: bootstrap_radxa_zero_nginx_existing
+
+- name: Install the placeholder index page
+  template:
+    src: index.html.j2
+    dest: "{{ bootstrap_radxa_zero_nginx_root }}/index.html"
+    owner: root
+    group: root
+    mode: "0644"
+  when: bootstrap_radxa_zero_nginx_existing.matched == 0
+
+- name: Install the site config
+  template:
+    src: nginx-site.conf.j2
+    dest: "/etc/nginx/sites-available/{{ bootstrap_radxa_zero_nginx_site }}"
+    owner: root
+    group: root
+    mode: "0644"
+  notify: Reload nginx
+
+- name: Enable the site
+  file:
+    src: "/etc/nginx/sites-available/{{ bootstrap_radxa_zero_nginx_site }}"
+    dest: "/etc/nginx/sites-enabled/{{ bootstrap_radxa_zero_nginx_site }}"
+    state: link
+  notify: Reload nginx
+
+# The Debian package ships a default site on port 80. It does not clash with
+# ours, but leaving it enabled means the board answers on a port nothing is
+# meant to be served from.
+- name: Disable the packaged default site
+  file:
+    path: /etc/nginx/sites-enabled/default
+    state: absent
+  when: bootstrap_radxa_zero_nginx_disable_default
+  notify: Reload nginx
+
+# nginx -t reads the whole tree, so it can only run once the symlinks above are
+# in place. Doing it here rather than as a `validate:` on the template means a
+# broken server block is reported as itself, instead of surfacing later as a
+# failed reload in a handler.
+- name: Validate the nginx configuration
+  command:
+    cmd: nginx -t
+  changed_when: false
+
+- name: Enable nginx
+  systemd:
+    name: nginx
+    enabled: true
+    state: started

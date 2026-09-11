@@ -1,0 +1,23 @@
+# {{ ansible_managed }}
+#
+# The board's only site. Plain http on a high port: LAN-only, no certificate,
+# and nothing worth squatting port 80 for.
+server {
+    listen {{ bootstrap_radxa_zero_nginx_port }} default_server;
+    listen [::]:{{ bootstrap_radxa_zero_nginx_port }} default_server;
+
+    # Catch-all rather than the mDNS name. The board is also reached by bare
+    # IP -- from the beacon registry, or whenever mDNS is the broken thing --
+    # and a name-matched block would 404 those.
+    server_name _;
+
+    root {{ bootstrap_radxa_zero_nginx_root }};
+    index index.html;
+
+    access_log /var/log/nginx/{{ bootstrap_radxa_zero_nginx_site }}.access.log;
+    error_log /var/log/nginx/{{ bootstrap_radxa_zero_nginx_site }}.error.log;
+
+    location / {
+        try_files $uri $uri/ =404;
+    }
+}

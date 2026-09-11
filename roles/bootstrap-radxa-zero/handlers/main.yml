@@ -6,3 +6,8 @@
   systemd:
     name: beacon.service
     state: restarted
+
+- name: Reload nginx
+  systemd:
+    name: nginx
+    state: reloaded

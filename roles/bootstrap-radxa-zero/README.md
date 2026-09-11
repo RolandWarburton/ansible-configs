@@ -73,6 +73,33 @@ the workstation's resolver time to catch up.
 
 **avahi** — so `zero.local` resolves on the LAN without a DHCP reservation.
 
+**alsa-utils** — `aplay`, `amixer` and `speaker-test`, so the board's audio can
+be driven from the shell. The vendor image ships the kernel drivers; this is
+only the userspace tooling on top of them.
+
+**nginx** (`--tags nginx`) — a single site on **port 8080**, so
+`http://zero.local:8080` loads once the board has been renamed. Plain http on a
+high port is deliberate: the board is LAN-only and has no certificate, so
+port 80 buys nothing, and leaving it free keeps the Debian package's own
+default site out of the way (that site is disabled anyway, via
+`bootstrap_radxa_zero_nginx_disable_default`).
+
+The server block matches `server_name _` rather than the mDNS name, because the
+board is also reached by bare IP — from the beacon registry, or on exactly the
+occasions when mDNS is the broken thing — and a name-matched block would 404
+those.
+
+The webroot is `/var/www/zero`, kept separate from the mutagen sync target
+(`~/dev`). They have different owners and different lifetimes, and a sync that
+deletes a file should not be able to empty the site. Point
+`bootstrap_radxa_zero_nginx_root` at `~/dev` if you do want live-synced
+content; the worker runs as `www-data`, so the path has to stay
+world-readable. A placeholder `index.html` is written **only while the webroot
+is empty**, so a rerun never overwrites a real site.
+
+`nginx -t` runs after the symlinks are in place, so a broken server block fails
+as itself rather than surfacing later as a failed reload in a handler.
+
 **ip-beacon client** (`--tags beacon`) — a script, service and timer fetched
 from the registry at `bootstrap_radxa_zero_beacon_registry_url`, which report
 the board's current address on boot and on a timer. Note this is *not* first
@@ -117,6 +144,8 @@ The ones worth overriding. See `defaults/main.yml` for the rest.
 | `bootstrap_radxa_zero_vendor_hostname` | `radxa.local` | what a fresh board answers to |
 | `bootstrap_radxa_zero_pubkey` | `~/.ssh/id_rsa.pub` | key authorised on the board |
 | `bootstrap_radxa_zero_project` | `zero` | names both the local dir and the sync session |
+| `bootstrap_radxa_zero_nginx_port` | `8080` | port the site listens on |
+| `bootstrap_radxa_zero_nginx_root` | `/var/www/zero` | webroot on the board |
 | `bootstrap_radxa_zero_beacon_registry_url` | `https://beacon.wirecrop.net` | must be https |
 | `bootstrap_radxa_zero_sync_mode` | `two-way-resolved` | mutagen sync mode |
 
@@ -147,6 +176,12 @@ revision of this role, which installed the key for the primary user instead.
 **The play reaches the board but mutagen cannot** — ansible authenticated and
 mutagen could not. Usually an unloaded key or an unaccepted host key under the
 new name: `ssh radxa@zero.local` once by hand and accept it.
+
+**`zero.local:8080` does not load** — check in this order: the site is
+enabled (`ls /etc/nginx/sites-enabled/`), nginx is up (`systemctl status
+nginx`), and it is actually listening (`ss -lntp | grep 8080`). If nginx is
+running and listening but the browser hangs, the name is the problem, not the
+server — try the board's IP on the same port.
 
 **A second Radxa board** — `radxa.local` collides on mDNS while both are
 unbootstrapped. Bootstrap them one at a time, or give the second one a
