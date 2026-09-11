@@ -211,6 +211,9 @@
           --name={{ bootstrap_radxa_zero_sync_name }}
           --sync-mode={{ bootstrap_radxa_zero_sync_mode }}
           --ignore-vcs
+          --ignore='/web/node_modules'
+          --default-file-mode=0644
+          --default-directory-mode=0755
           {{ bootstrap_radxa_zero_sync_ignore | map('regex_replace', '^', '--ignore=') | join(' ') }}
           {{ bootstrap_radxa_zero_local_dir }}
           {{ bootstrap_radxa_zero_beta_host }}:{{ bootstrap_radxa_zero_remote_dir }}
