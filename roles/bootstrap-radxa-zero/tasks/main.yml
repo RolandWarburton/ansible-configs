@@ -67,12 +67,6 @@
     cache_valid_time: 3600
 
 # ---------------------------------------------------------------------
-# nginx
-- name: Serve a site from the board
-  import_tasks: nginx.yml
-  tags: nginx
-
-# ---------------------------------------------------------------------
 # beacon install
 - name: Manage the ip-beacon client
   import_tasks: beacon.yml

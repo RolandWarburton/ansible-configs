@@ -28,23 +28,6 @@ bootstrap_radxa_zero_beacon_bin: "/usr/local/bin/beacon-register"
 bootstrap_radxa_zero_beacon_unit_dir: "/etc/systemd/system"
 
 # ----------------------------------------------------------
-# nginx
-
-# A high port on purpose. The board is LAN-only with no certificate, so there
-# is nothing to gain from port 80 -- and leaving it free keeps the packaged
-# default site out of the way. zero.local:8080 is what you open.
-bootstrap_radxa_zero_nginx_port: 8080
-
-bootstrap_radxa_zero_nginx_site: "zero"
-
-# Kept apart from the mutagen sync target (~/dev) so a sync deletion cannot
-# empty the site. See tasks/nginx.yml before pointing this at it.
-bootstrap_radxa_zero_nginx_root: "/var/www/zero"
-
-# Drop the packaged site that listens on 80. It does not clash with ours.
-bootstrap_radxa_zero_nginx_disable_default: true
-
-# ----------------------------------------------------------
 # Remote dev
 
 # The user on THIS machine, which is not the board's user. Everything
