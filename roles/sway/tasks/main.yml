@@ -67,18 +67,52 @@
     dest: /etc/udev/rules.d/on_hdmi_connected.rules
     mode: "0644"
 
-- name: Stat swaybar example config
+# Build swaybar status line config.
+# Pulls credentials from OpenBao to set PTV secret.
+# kv/data/common/ptv
+- name: Stat openbao-get-secret
   stat:
-    path: "/home/{{ username }}/.config/swaybar/example.config.yml"
-  register: swaybar_example_config
+    path: /usr/local/sbin/openbao-get-secret
+  register: swaybar_openbao_get_secret
 
-- name: Seed swaybar config from example
+- name: Stat openbao token
+  stat:
+    path: /etc/credentials/openbao-token
+  register: swaybar_openbao_token
+
+- name: Stat swaybar config directory
+  stat:
+    path: "/home/{{ username }}/.config/swaybar"
+  register: swaybar_config_dir
+
+- name: Fetch PTV secrets from OpenBao
+  become: true
+  command: openbao-get-secret kv/data/common/ptv
+  register: swaybar_ptv_raw
+  changed_when: false
+  failed_when: false
+  no_log: true
+  when:
+    - swaybar_openbao_get_secret.stat.exists
+    - swaybar_openbao_token.stat.exists
+
+- name: Set swaybar PTV credentials from OpenBao
+  set_fact:
+    swaybar_ptv_devid: "{{ (swaybar_ptv_raw.stdout_lines | select('match', '^PTV_DEVID=') | first).split('=', 1)[1] }}"
+    swaybar_ptv_key: "{{ (swaybar_ptv_raw.stdout_lines | select('match', '^PTV_KEY=') | first).split('=', 1)[1] }}"
+  no_log: true
+  when:
+    - swaybar_ptv_raw.rc is defined
+    - swaybar_ptv_raw.rc == 0
+    - swaybar_ptv_raw.stdout_lines | select('match', '^PTV_DEVID=') | list | length > 0
+    - swaybar_ptv_raw.stdout_lines | select('match', '^PTV_KEY=') | list | length > 0
+
+- name: Deploy swaybar config
   become: true
   become_user: "{{ username }}"
-  copy:
-    src: "/home/{{ username }}/.config/swaybar/example.config.yml"
+  template:
+    src: swaybar-config.yml.j2
     dest: "/home/{{ username }}/.config/swaybar/config.yml"
-    remote_src: true
-    force: false
     mode: "0644"
-  when: swaybar_example_config.stat.exists
+  no_log: true
+  when: swaybar_config_dir.stat.exists

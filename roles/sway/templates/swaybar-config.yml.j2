@@ -1,0 +1,25 @@
+# Managed by roles/sway - edits here are overwritten.
+# PTV is disabled unless its credentials came back from OpenBao.
+modules:
+  TIME:
+    enabled: true
+  PTV:
+    enabled: {{ (swaybar_ptv_devid is defined and swaybar_ptv_key is defined) | lower }}
+    routeName: 'Lillydale'
+    stopName: 'Southern Cross'
+    directionName: 'Lillydale'
+    ptv_devid: '{{ swaybar_ptv_devid | default("") }}'
+    ptv_key: '{{ swaybar_ptv_key | default("") }}'
+  WIFI:
+    enabled: true
+  BATTERY:
+    enabled: true
+  CPU:
+    enabled: true
+  MEMORY:
+    enabled: true
+  DISK:
+    enabled: true
+    partitions:
+      - path: '/'
+        label: 'disk'
