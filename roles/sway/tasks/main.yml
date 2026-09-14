@@ -67,6 +67,24 @@
     dest: /etc/udev/rules.d/on_hdmi_connected.rules
     mode: "0644"
 
+# Install the swaybar status line binary from its GitHub release.
+- name: Ensure sway config directory exists
+  become: true
+  become_user: "{{ username }}"
+  file:
+    path: "/home/{{ username }}/.config/sway"
+    state: directory
+    mode: "0755"
+
+- name: Download the statusBar binary
+  become: true
+  become_user: "{{ username }}"
+  get_url:
+    url: https://github.com/RolandWarburton/sway-bar-status-line/releases/latest/download/statusBar
+    dest: "/home/{{ username }}/.config/sway/statusBar"
+    mode: "0755"
+    force: true
+
 # Build swaybar status line config.
 # Pulls credentials from OpenBao to set PTV secret.
 # kv/data/common/ptv
