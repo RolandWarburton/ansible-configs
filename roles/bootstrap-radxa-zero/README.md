@@ -77,6 +77,10 @@ the workstation's resolver time to catch up.
 be driven from the shell. The vendor image ships the kernel drivers; this is
 only the userspace tooling on top of them.
 
+**nginx** (`--tags nginx`) — the package only, installed and enabled on its
+packaged default site. No server block, webroot or placeholder page is managed
+by this role; deploy whatever the board should serve separately.
+
 **ip-beacon client** (`--tags beacon`) — a script, service and timer fetched
 from the registry at `bootstrap_radxa_zero_beacon_registry_url`, which report
 the board's current address on boot and on a timer. Note this is *not* first

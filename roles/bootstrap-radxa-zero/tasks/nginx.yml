@@ -1,0 +1,18 @@
+# The package only. No site is configured here: nginx is installed and left
+# running on its packaged default, and whatever is served from the board is
+# deployed separately.
+#
+# Imported by main.yml rather than included, so `--tags nginx` reaches every
+# task in here.
+- name: Install nginx
+  apt:
+    name: nginx
+    state: present
+    update_cache: true
+    cache_valid_time: 3600
+
+- name: Enable nginx
+  systemd:
+    name: nginx
+    enabled: true
+    state: started
