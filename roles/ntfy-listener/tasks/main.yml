@@ -51,8 +51,8 @@
     dest: "/home/{{ username }}/.config/systemd/user/ntfy-listen.service"
     mode: "0644"
   notify:
-    - reload user systemd
-    - restart ntfy-listen
+    - Reload user systemd
+    - Restart ntfy-listen
 
 - name: Enable and start ntfy-listen user service
   become: true

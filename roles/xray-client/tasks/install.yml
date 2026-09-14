@@ -59,7 +59,7 @@
     owner: root
     group: root
     mode: "0755"
-  notify: restart xray
+  notify: Restart xray
 
 - name: Create asset directory
   become: true
@@ -111,7 +111,7 @@
     owner: root
     group: root
     mode: "0640"
-  notify: restart xray
+  notify: Restart xray
 
 - name: Deploy Xray systemd service
   become: true
@@ -122,8 +122,8 @@
     group: root
     mode: "0644"
   notify:
-    - reload systemd
-    - restart xray
+    - Reload systemd
+    - Restart xray
 
 - name: Enable and start Xray
   become: true

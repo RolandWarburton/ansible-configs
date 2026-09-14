@@ -11,7 +11,7 @@
   file:
     path: /etc/systemd/system/xray.service
     state: absent
-  notify: reload systemd
+  notify: Reload systemd
 
 - name: Remove xray binary
   become: true
