@@ -66,3 +66,19 @@
     src: "on_hdmi_connected.rules"
     dest: /etc/udev/rules.d/on_hdmi_connected.rules
     mode: "0644"
+
+- name: Stat swaybar example config
+  stat:
+    path: "/home/{{ username }}/.config/swaybar/example.config.yml"
+  register: swaybar_example_config
+
+- name: Seed swaybar config from example
+  become: true
+  become_user: "{{ username }}"
+  copy:
+    src: "/home/{{ username }}/.config/swaybar/example.config.yml"
+    dest: "/home/{{ username }}/.config/swaybar/config.yml"
+    remote_src: true
+    force: false
+    mode: "0644"
+  when: swaybar_example_config.stat.exists
