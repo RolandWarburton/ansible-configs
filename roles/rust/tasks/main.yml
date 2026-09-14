@@ -11,3 +11,6 @@
 - name: Import Debian 13+ install tasks
   import_tasks: install_deb13.yml
   when: ansible_distribution_major_version | int >= 13
+
+- name: Ensure "{{ username }}" has a default rust toolchain
+  import_tasks: user_toolchain.yml
