@@ -31,7 +31,7 @@ echo "Authenticating to OpenBao as $BAO_USERNAME..."
 # Capture the response the first check for errors
 HTTP_CODE=$(curl -s -o "$TMP_RESPONSE" -w "%{http_code}" \
   --request POST \
-  --data "{\"password\": \"$BAO_PASSWORD\"}" \
+  --data "$(jq -n --arg p "$BAO_PASSWORD" '{password: $p}')" \
   "$BAO_ADDR/v1/auth/userpass/login/$BAO_USERNAME") || true
 
 RESPONSE=$(cat "$TMP_RESPONSE")
@@ -44,6 +44,7 @@ fi
 
 if [ "$HTTP_CODE" -ne 200 ]; then
   echo "Error: OpenBao returned HTTP $HTTP_CODE"
+  echo "$RESPONSE"
   exit 1
 fi
 
