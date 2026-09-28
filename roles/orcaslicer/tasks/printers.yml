@@ -1,0 +1,55 @@
+# OrcaSlicer rewrites OrcaSlicer.conf on exit, so only the printer/filament keys
+# are merged in and everything else the app stores there is left alone.
+- name: Check whether OrcaSlicer is running
+  command: pgrep -x orca-slicer
+  register: orcaslicer_running
+  changed_when: false
+  failed_when: false
+
+- name: Fail if OrcaSlicer is running
+  fail:
+    msg: Close OrcaSlicer first, it overwrites OrcaSlicer.conf on exit.
+  when: orcaslicer_running.rc == 0
+
+- name: Ensure OrcaSlicer config directory exists
+  file:
+    path: "{{ orcaslicer_config_dir }}"
+    state: directory
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0775"
+
+- name: Stat OrcaSlicer.conf
+  stat:
+    path: "{{ orcaslicer_config_dir }}/OrcaSlicer.conf"
+  register: orcaslicer_conf_stat
+
+- name: Read OrcaSlicer.conf
+  slurp:
+    src: "{{ orcaslicer_config_dir }}/OrcaSlicer.conf"
+  register: orcaslicer_conf_raw
+  when: orcaslicer_conf_stat.stat.exists
+
+# An empty or invalid OrcaSlicer.conf fails here, fix or delete it and re-run
+- name: Build OrcaSlicer printer config
+  set_fact:
+    orcaslicer_conf_current: "{{ (orcaslicer_conf_raw.content | b64decode | from_json) if orcaslicer_conf_stat.stat.exists else {} }}"
+    # Printers and filaments enabled in OrcaSlicer, in OrcaSlicer.conf format.
+    # Names must match the system presets under system/<vendor>/ in the config dir.
+    orcaslicer_conf_managed: "{{ lookup('file', 'printers.json') | from_json }}"
+
+- name: Merge OrcaSlicer printer config
+  set_fact:
+    orcaslicer_conf_new: >-
+      {{ orcaslicer_conf_current | combine(orcaslicer_conf_managed,
+         {'presets': {'machine': (orcaslicer_conf_current.presets | default({})).machine | default(orcaslicer_default_machine, true)}},
+         recursive=true) }}
+
+- name: Write OrcaSlicer.conf
+  copy:
+    content: "{{ orcaslicer_conf_new | to_nice_json(indent=1) }}\n"
+    dest: "{{ orcaslicer_config_dir }}/OrcaSlicer.conf"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0664"
+  when: orcaslicer_conf_new != orcaslicer_conf_current

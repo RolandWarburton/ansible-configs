@@ -1,0 +1,60 @@
+- name: Install OrcaSlicer runtime dependencies
+  apt:
+    update_cache: true
+    pkg: "{{ orcaslicer_dependencies }}"
+
+# OrcaSlicer's English UI switches to this locale on startup
+- name: Generate OrcaSlicer locale
+  locale_gen:
+    name: "{{ orcaslicer_locale }}"
+    state: present
+
+- name: Create OrcaSlicer install directory
+  file:
+    path: "{{ orcaslicer_install_dir }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download OrcaSlicer AppImage
+  get_url:
+    url: "https://github.com/OrcaSlicer/OrcaSlicer/releases/download/v{{ orcaslicer_version }}/OrcaSlicer_Linux_AppImage_Ubuntu2404_V{{ orcaslicer_version }}.AppImage"
+    dest: "{{ orcaslicer_install_dir }}/OrcaSlicer-{{ orcaslicer_version }}.AppImage"
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Download OrcaSlicer icon
+  get_url:
+    url: "https://raw.githubusercontent.com/OrcaSlicer/OrcaSlicer/v{{ orcaslicer_version }}/resources/images/OrcaSlicer.svg"
+    dest: /usr/share/icons/hicolor/scalable/apps/OrcaSlicer.svg
+    owner: root
+    group: root
+    mode: "0644"
+  register: orcaslicer_icon
+
+# GTK launchers only find icons listed in the cache
+- name: Update hicolor icon cache
+  command: gtk-update-icon-cache -f -t /usr/share/icons/hicolor
+  when: orcaslicer_icon is changed
+
+# Wrapper sets SSL_CERT_FILE so OrcaSlicer skips the certificate store prompt
+- name: Install orca-slicer launcher
+  template:
+    src: orca-slicer.j2
+    dest: /usr/local/bin/orca-slicer
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Install OrcaSlicer desktop file
+  template:
+    src: orcaslicer.desktop.j2
+    dest: /usr/share/applications/orcaslicer.desktop
+    owner: root
+    group: root
+    mode: "0644"
+
+- name: Configure OrcaSlicer printers and filaments
+  import_tasks: printers.yml
