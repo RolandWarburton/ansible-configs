@@ -1,0 +1,20 @@
+{
+ "firstguide": {
+  "finish": true
+ },
+ "models": [
+  {
+   "model": "Qidi X-Plus 3",
+   "nozzle_diameter": "0.2;0.4;0.6;0.8",
+   "vendor": "Qidi"
+  }
+ ],
+ "filaments": [
+  "Qidi Generic PETG @Qidi X-Plus 3 0.2 nozzle",
+  "Qidi Generic PETG",
+  "Qidi Generic PLA @Qidi X-Plus 3 0.2 nozzle",
+  "Qidi Generic PLA @Qidi X-Plus 3 0.6 nozzle",
+  "Qidi Generic PLA @Qidi X-Plus 3 0.8 nozzle",
+  "Qidi Generic PLA"
+ ]
+}

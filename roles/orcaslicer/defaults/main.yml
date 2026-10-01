@@ -1,0 +1,16 @@
+orcaslicer_version: "2.4.2"
+orcaslicer_install_dir: /opt/orcaslicer
+orcaslicer_ssl_cert_file: /etc/ssl/certs/ca-certificates.crt
+orcaslicer_locale: en_US.UTF-8
+# Host libraries the AppImage does not bundle (Debian 13 package names)
+orcaslicer_dependencies:
+  - fuse3
+  - ca-certificates
+  - libwebkit2gtk-4.1-0
+  - libjavascriptcoregtk-4.1-0
+  - libglu1-mesa
+  - libmspack0t64
+  - gtk-update-icon-cache
+orcaslicer_config_dir: "/home/{{ username }}/.config/OrcaSlicer"
+# Printer preset selected on first launch (only set if none is selected yet)
+orcaslicer_default_machine: Qidi X-Plus 3 0.4 nozzle
