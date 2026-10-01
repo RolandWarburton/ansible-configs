@@ -53,3 +53,19 @@
     name: "{{ username }}"
     shell: /usr/bin/zsh
   when: zsh_binary_stat.stat.exists
+
+# bluetooth
+- name: Check for bluetooth hardware
+  find:
+    paths: /sys/class/bluetooth
+    patterns: "hci*"
+    file_type: any
+  register: bluetooth_adapters
+
+- name: Install bluetooth on laptops with bluetooth hardware
+  apt:
+    name: bluez
+    state: present
+  when:
+    - ansible_form_factor in ['Notebook', 'Laptop', 'Portable', 'Sub Notebook', 'Hand Held', 'Convertible', 'Detachable', 'Tablet']
+    - bluetooth_adapters.matched > 0
