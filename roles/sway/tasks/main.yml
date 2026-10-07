@@ -37,6 +37,7 @@
       - wofi
       - mako-notifier
       - libnotify-bin
+      - desktop-file-utils
 
 - name: Install audio stack
   apt:
