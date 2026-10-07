@@ -1,0 +1,21 @@
+helvum_repo_url: "https://gitlab.freedesktop.org/pipewire/helvum.git"
+helvum_build_dir: /tmp/helvum
+# Pinned to the 0.6.2 release. Upstream 0.6.2 requires meson >= 1.8.0,
+# but Debian 13 ships meson 1.7.0, so tasks/main.yml lowers the
+# requirement to helvum_meson_version before building.
+helvum_version: "0.6.2"
+helvum_commit: "e124603c1d15a8d6b51803068c01fcbb0f5d383a" # 0.6.2
+helvum_meson_version: "1.7.0"
+helvum_dependencies:
+  - git
+  - meson
+  - ninja-build
+  - pkg-config
+  - clang
+  - libclang-dev
+  - libglib2.0-dev
+  - libgtk-4-dev
+  - libgtk-4-bin
+  - libadwaita-1-dev
+  - libpipewire-0.3-dev
+  - desktop-file-utils

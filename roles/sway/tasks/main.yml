@@ -135,3 +135,8 @@
     mode: "0644"
   no_log: true
   when: swaybar_config_dir.stat.exists
+
+# Helvum (PipeWire patchbay) for the audio stack installed above.
+- name: Install helvum
+  include_role:
+    name: ./roles/helvum
