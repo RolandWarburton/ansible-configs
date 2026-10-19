@@ -13,6 +13,7 @@
     # - ./roles/golang
     # - ./roles/node
     # - ./roles/deno
+    # - ./roles/d2
     # - ./roles/ntfy-common
     # - ./roles/ntfy-cli
     # - ./roles/ntfy-listener

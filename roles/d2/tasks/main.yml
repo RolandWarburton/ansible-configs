@@ -1,0 +1,37 @@
+- name: Set d2 architecture
+  set_fact:
+    d2_arch: "{{ 'arm64' if ansible_architecture == 'aarch64' else 'amd64' }}"
+
+- name: Ensure local bin directory exists
+  file:
+    path: "{{ d2_bin_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Check installed d2 version
+  command: "{{ d2_bin_dir }}/d2 --version"
+  register: d2_installed
+  changed_when: false
+  failed_when: false
+
+- name: Download d2 tarball
+  get_url:
+    url: "https://github.com/terrastruct/d2/releases/download/v{{ d2_version }}/d2-v{{ d2_version }}-linux-{{ d2_arch }}.tar.gz"
+    dest: "/tmp/d2-v{{ d2_version }}-linux-{{ d2_arch }}.tar.gz"
+    mode: "0644"
+  when: d2_version not in (d2_installed.stdout | default(''))
+
+- name: Extract d2 binary
+  unarchive:
+    src: "/tmp/d2-v{{ d2_version }}-linux-{{ d2_arch }}.tar.gz"
+    dest: "{{ d2_bin_dir }}"
+    remote_src: true
+    extra_opts:
+      - "--strip-components=2"
+      - "d2-v{{ d2_version }}/bin/d2"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0755"
+  when: d2_version not in (d2_installed.stdout | default(''))
