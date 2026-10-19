@@ -1,0 +1,77 @@
+# Helvum (PipeWire patchbay) built from source.
+#
+# Tested and works on Debian 13 (trixie): meson 1.7.0, glib 2.84,
+# gtk4 4.18, libadwaita 1.7, pipewire 1.4. Helvum 0.6.2 declares
+# meson >= 1.8.0 but builds fine with 1.7.0, so the requirement is
+# lowered in meson.build before configuring.
+
+- name: Read installed helvum metainfo
+  slurp:
+    src: /usr/local/share/metainfo/org.pipewire.Helvum.metainfo.xml
+  register: helvum_metainfo
+  failed_when: false
+
+# The first <release> entry in the metainfo is the installed version.
+- name: Determine installed helvum version
+  set_fact:
+    helvum_installed_version: >-
+      {{ (helvum_metainfo.content | default('') | b64decode
+          | regex_search('<release version="([^"]+)"', '\1')
+          | default([''], true))[0] }}
+
+- name: Build and install helvum
+  when: helvum_installed_version != helvum_version
+  block:
+    - name: Install helvum build dependencies
+      apt:
+        update_cache: true
+        pkg: "{{ helvum_dependencies }}"
+
+    - name: Create helvum build directory
+      file:
+        path: "{{ helvum_build_dir }}"
+        state: directory
+        owner: "{{ username }}"
+        group: "{{ username }}"
+        mode: "0775"
+
+    - name: Clone helvum
+      become: true
+      become_user: "{{ username }}"
+      git:
+        repo: "{{ helvum_repo_url }}"
+        dest: "{{ helvum_build_dir }}"
+        version: "{{ helvum_commit }}"
+        force: true
+
+    - name: Lower meson version requirement for Debian 13
+      become: true
+      become_user: "{{ username }}"
+      replace:
+        path: "{{ helvum_build_dir }}/meson.build"
+        regexp: "meson_version: '>=[0-9.]+'"
+        replace: "meson_version: '>={{ helvum_meson_version }}'"
+
+    - name: Configure helvum build with Meson
+      become: true
+      become_user: "{{ username }}"
+      command:
+        cmd: meson setup build
+        chdir: "{{ helvum_build_dir }}"
+        creates: "{{ helvum_build_dir }}/build/build.ninja"
+
+    # Meson drives cargo, which runs as "{{ username }}" with their
+    # rustup toolchain (see the rust role).
+    - name: Compile helvum
+      become: true
+      become_user: "{{ username }}"
+      command:
+        cmd: meson compile -C build
+        chdir: "{{ helvum_build_dir }}"
+      changed_when: true
+
+    - name: Install helvum to /usr/local
+      command:
+        cmd: meson install -C build --no-rebuild
+        chdir: "{{ helvum_build_dir }}"
+      changed_when: true
