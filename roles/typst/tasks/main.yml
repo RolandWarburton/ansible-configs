@@ -1,0 +1,37 @@
+- name: Set typst architecture
+  set_fact:
+    typst_arch: "{{ 'aarch64' if ansible_architecture == 'aarch64' else 'x86_64' }}"
+
+- name: Ensure local bin directory exists
+  file:
+    path: "{{ typst_bin_dir }}"
+    state: directory
+    mode: "0755"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+
+- name: Check installed typst version
+  command: "{{ typst_bin_dir }}/typst --version"
+  register: typst_installed
+  changed_when: false
+  failed_when: false
+
+- name: Download typst tarball
+  get_url:
+    url: "https://github.com/typst/typst/releases/download/v{{ typst_version }}/typst-{{ typst_arch }}-unknown-linux-musl.tar.xz"
+    dest: "/tmp/typst-v{{ typst_version }}-{{ typst_arch }}-unknown-linux-musl.tar.xz"
+    mode: "0644"
+  when: typst_version not in (typst_installed.stdout | default(''))
+
+- name: Extract typst binary
+  unarchive:
+    src: "/tmp/typst-v{{ typst_version }}-{{ typst_arch }}-unknown-linux-musl.tar.xz"
+    dest: "{{ typst_bin_dir }}"
+    remote_src: true
+    extra_opts:
+      - "--strip-components=1"
+      - "typst-{{ typst_arch }}-unknown-linux-musl/typst"
+    owner: "{{ username }}"
+    group: "{{ username }}"
+    mode: "0755"
+  when: typst_version not in (typst_installed.stdout | default(''))
